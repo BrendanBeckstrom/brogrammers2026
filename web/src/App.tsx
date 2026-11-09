@@ -19,13 +19,15 @@ import { Memo } from './components/Memo'
 import { Playlist } from './components/Playlist'
 import { Spinner } from './components/Spinner'
 import { STACK_TOOLS_ID, StackInput, type StackChoice } from './components/StackInput'
-import { GITHUB_URL, STATIC_TALK_COUNT, toolList, type ExampleStack } from './examples'
+import { GITHUB_URL, toolList, type ExampleStack } from './examples'
 import { countTalks, playlistAnnouncement, plural, watchMinutes } from './format'
 import { btnSecondary, errorNotice, sectionCard } from './ui'
 import { useLoad } from './useLoad'
 import { fetchVersion } from './version'
 
 export const TAGLINE = "Don't watch 300 hours of KubeCon. Watch the 20 minutes that matter to your team."
+
+const navLink = 'rounded-lg px-2 py-2 text-ink-2 hover:bg-surface-2 hover:text-ink sm:px-3'
 
 interface PlaylistState {
   /** The request in flight, if any. */
@@ -195,7 +197,6 @@ export default function App() {
   const pending = playlist?.pending ?? null
   const building = pending !== null
   const clips = shown?.response.clips ?? []
-  const talkCount = talks.status === 'ready' && talks.data.length > 0 ? talks.data.length : STATIC_TALK_COUNT
   const showPlaylist = playlist !== null || shared.status === 'loading'
 
   return (
@@ -213,15 +214,20 @@ export default function App() {
             <span className="font-display text-2xl font-semibold tracking-tight text-ink">Debrief</span>
           </p>
           <nav aria-label="Site">
-            <ul className="flex items-center gap-1 text-sm font-semibold sm:gap-2">
+            <ul className="flex items-center gap-0.5 text-sm font-semibold sm:gap-2">
               <li className="hidden sm:block">
-                <a href="#how-heading" className="rounded-lg px-3 py-2 text-ink-2 hover:bg-surface-2 hover:text-ink">
+                <a href="#how-heading" className={navLink}>
                   How it works
                 </a>
               </li>
               <li>
-                <a href="#stack-heading" className="rounded-lg px-3 py-2 text-ink-2 hover:bg-surface-2 hover:text-ink">
-                  Build
+                <a href="#example-heading" className={navLink}>
+                  Example
+                </a>
+              </li>
+              <li>
+                <a href="#stack-heading" className={navLink}>
+                  Try it
                 </a>
               </li>
               <li>
@@ -229,10 +235,10 @@ export default function App() {
                   href={GITHUB_URL}
                   target="_blank"
                   rel="noopener noreferrer"
-                  className="inline-flex items-center gap-1.5 rounded-lg px-3 py-2 text-ink-2 hover:bg-surface-2 hover:text-ink"
+                  className={`${navLink} inline-flex items-center gap-1.5`}
                 >
                   <GitHubIcon />
-                  GitHub
+                  <span className="sr-only sm:not-sr-only">GitHub</span>
                   <span className="sr-only"> (opens in a new tab)</span>
                 </a>
               </li>
@@ -243,8 +249,6 @@ export default function App() {
 
       <main id="main" tabIndex={-1} className="flex-1">
         <Landing
-          talkCount={talkCount}
-          toolCount={tools.status === 'ready' ? tools.data.length : null}
           toolNames={toolNames}
           busy={building}
           onStart={startBuilding}
@@ -267,10 +271,11 @@ export default function App() {
               tabIndex={-1}
               className="mt-1 font-display text-3xl font-semibold text-ink"
             >
-              Your stack
+              Try it with your team's stack
             </h2>
             <p className="mt-2 mb-8 text-ink-2">
-              Tell Debrief what your team runs. You get a playlist of the clips that matter, each a few minutes long.
+              Pick the tools your team runs and say what's hurting. You get a playlist of the clips that matter, each a
+              few minutes long.
             </p>
             <StackInput
               key={preset.key}
@@ -360,7 +365,7 @@ export default function App() {
                   text={
                     shared.status === 'loading'
                       ? 'Loading the shared playlist…'
-                      : `Searching ${talkCount} talks for your stack… Reranking can take a few seconds.`
+                      : 'Searching the talks for your stack… Reranking can take a few seconds.'
                   }
                 />
               ) : playlist?.error ? (

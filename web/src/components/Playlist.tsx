@@ -127,7 +127,7 @@ export function Playlist({
           </p>
           <p className="mt-3 text-sm text-ink-2">
             Debrief would rather show nothing than weak matches. Add more of your stack, or try an{' '}
-            <a href="#hero-heading" className="font-medium text-brand-text underline underline-offset-2">
+            <a href="#example-heading" className="font-medium text-brand-text underline underline-offset-2">
               example stack
             </a>
             .
