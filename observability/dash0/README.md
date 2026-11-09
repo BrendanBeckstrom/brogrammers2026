@@ -2,7 +2,11 @@
 
 Debrief sends three kinds of telemetry to Dash0:
 
-- **The API** (`debrief-api`, `api/telemetry.py`) sends traces, logs and metrics: `debrief.playlist.duration`, `debrief.playlist.empty`, `debrief.llm.tokens`, `debrief.memo.citations_dropped` and `debrief.memo.lines`.
+- **The API** (`debrief-api`, `api/telemetry.py`) sends traces, logs and metrics:
+  - `debrief.playlist.duration`, `debrief.playlist.empty`, `debrief.llm.tokens`, `debrief.memo.citations_dropped` and `debrief.memo.lines`.
+  - Product metrics: `debrief.playlist.tool_requests` (by `tool`), `debrief.playlist.clip_labels` (by `label`), `debrief.rerank.batches` (by `outcome`), `debrief.memo.duration` (ms, by `outcome`), `debrief.cache.lookups` (by `route`, `result`; only with `DEBRIEF_CACHE=on`) and `debrief.playlists.shared`.
+  - The FastAPI instrumentation's `http.server.duration` (ms, by `http.target` route template, `http.method`, `http.status_code`) and `http.server.active_requests`. Probes are excluded.
+  - One structured log per product event (section 5) and one access log line per request, each on its request's trace.
 - **The browser** (`debrief-web`, `web/src/rum.ts`) sends page views, web vitals, JS errors, one span per `fetch`, and custom events for product actions. Same-origin `/api/*` requests carry `traceparent`, so in Dash0 a browser request span is the parent of the API trace it caused.
 - **The ingest job** (`debrief-ingest`) sends its own traces.
 
@@ -143,6 +147,21 @@ On 2026-11-09, every query below ran against Dash0's PromQL API (`https://api.us
 | Watch clicks by rank (RUM) | `dash0.web.events`, `event_name="watch_click"` | ⚠️ not verified: no web token yet, so no web events in Dash0 | Turn on RUM (section 1), build a playlist, click **Watch** |
 | Product actions in the browser (RUM) | `dash0.web.events` | ⚠️ not verified, same reason | Build a playlist, make and copy a memo |
 
+**Panels added with the event logs.** Their metrics were checked locally with `DEBRIEF_OTEL_CONSOLE=1` against the real index and model; the queries have not yet been run against Dash0's PromQL API, so check them after the next deploy.
+
+| Panel | Metric | How to make it show data |
+| --- | --- | --- |
+| Most requested tools (top 10) | `debrief.playlist.tool_requests` | Build a playlist |
+| Clip label mix (PieChart) | `debrief.playlist.clip_labels` | Build a playlist; clips from unlabelled talks show as `unlabelled` |
+| Playlists shared | `debrief.playlists.shared` | Click **Share** (POST /api/playlists) |
+| Demo cache lookups by route and result | `debrief.cache.lookups` | Run with `DEBRIEF_CACHE=on`; empty while the cache is off |
+| HTTP requests by route and status | `http.server.duration` (labels `http_target`, `http_status_code`) | Any request except the probes |
+| Rerank batch outcomes (stacked) | `debrief.rerank.batches` | Playlist with rerank on; `timeout` and `fallback` show only when a batch fails |
+| Memo latency p50 / p95 | `debrief.memo.duration`, `outcome="ok"` | Make a memo (cached memos are not recorded) |
+| Playlists served (LogTable) | logs with `event.name = playlist.served` | Build a playlist |
+
+The logs panel uses Dash0's `LogTable` kind with `filters` (`service.name is debrief-api`, `event.name is playlist.served`), from Dash0's chart type reference. If an import rejects it, delete the `playlist_served_logs` panel and its layout item, and use the Logs explorer with the same two filters instead.
+
 To find the RUM data itself, use the **Web Events** explorer:
 - The **Custom Events** view lists `watch_click`, `memo_copy`, `memo_make` and `playlist_build`.
 - To see clicks per rank, group by `rank`.
@@ -166,6 +185,27 @@ These assumptions were checked against Dash0's docs and the live dataset on 2026
 - **API traffic comes from Dash0's span metric `dash0.spans`,** filtered by `otel_span_kind="SERVER"` and grouped by `http_route`. `otel_span_status_code="ERROR"` marks 5xx responses.
 - **Browser custom events become `dash0.web.events`,** with `event.name` as `event_name` and the `rank` attribute as `rank`. This follows Dash0's synthetic-metric docs, but it is **not yet confirmed against live data** (see the table above).
 - **`$__rate_interval`** is resolved by the dashboard. The raw query API rejects it, so a manual check needs a fixed window such as `[30m]`.
+- **`http.server.duration`** comes from the FastAPI instrumentation with the old HTTP semantic conventions (the default), so its labels are `http_target` (the route template, e.g. `/api/playlists/{playlist_id}`), `http_method` and `http_status_code`. Request counts per route are `histogram_count(rate(...))` of that native histogram. Not yet confirmed against live data.
+
+## 5. Event logs and access logs
+
+Every product event is one log line through Python `logging` (logger `debrief.events`, `telemetry.log_event`). The body reads `event=<name> key=value ...`. The same fields are attributes `debrief.<key>`, next to `event.name`, so the Logs explorer can filter with `event.name = playlist.served` and group by any field. Each line carries its request's trace id. Fields are ids, counts, durations and fixed enums only: never the pain sentence, transcript text, memo lines, prompts, keys, or names of unknown packages.
+
+| `event.name` | Level | Fields |
+| --- | --- | --- |
+| `playlist.served` | INFO | `tools` (catalog ids, else `other`), `clip_count`, `talk_count`, `total_seconds`, `filter`, `rerank`, `elastic_rerank`, `model_rerank` (the `debug.rerank` statuses), `duration_ms`, `cache` (`hit`, `miss`, `off`) |
+| `rerank.batch` | INFO, WARN if it fell back | `index`, `size`, `outcome` (`ok`, `fallback`, `timeout`), `error` (error type), `duration_ms` |
+| `rerank.partial` | WARN | `failed`, `batches`, `outcomes`, `imputed` |
+| `rerank.model_fallback` | WARN | `error`, `clips_sent` |
+| `rerank.elastic_fallback` | WARN | `reason` (`timeout`, `error`), `timeout_ms` |
+| `memo.made` | INFO | `tools`, `clip_count`, `cited_count`, `dropped_lines`, `duration_ms`, `tokens`, `input_tokens`, `output_tokens`, `cache` |
+| `memo.failed` | WARN | `clip_count`, `error`, `duration_ms` |
+| `stack.parsed` | INFO | `file_type`, `package_count`, `matched_tools`, `unknown_count`, `tools`, `picked` |
+| `playlist.shared` | INFO | `id`, `clip_count`, `source`, `filter` |
+| `playlist.loaded` | INFO | `id`, `found`, `clip_count` |
+| `insights.read` | INFO | `requests`, `playlists_saved`, `top_tools`, `empty_tools`, `cache` |
+
+**Access logs.** uvicorn's `uvicorn.access` logger doesn't propagate to the root, so `telemetry.setup()` puts the OTel log handler on it directly (only when an endpoint or `DEBRIEF_OTEL_CONSOLE=1` is set). Each request line, e.g. `127.0.0.1:52144 - "POST /api/playlist HTTP/1.1" 200`, reaches Dash0 with the request's trace id. A logging filter drops `/healthz` and `/readyz`, so probes stay out of both the pod log and Dash0.
 
 ## Known gaps
 

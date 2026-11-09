@@ -14,6 +14,9 @@ Without an endpoint no exporter is installed, so local runs and tests stay offli
 get real trace ids, which the playlist returns. `DEBRIEF_OTEL_CONSOLE=1` prints one line per
 span, log and metric point to stderr for local checks.
 
+Logs: every `debrief.*` logger, one `event=<name>` line per product event (`log_event`), and
+uvicorn's access log (one line per request, probes dropped) all reach Dash0 with trace ids.
+
 Spans, metric attributes and log lines carry ids, counts, scores and token totals only, never
 transcript text, the pain sentence, prompts or keys.
 """
@@ -52,8 +55,12 @@ INGEST_SERVICE = "debrief-ingest"
 EXCLUDED_URLS = r"/healthz$,/readyz$"
 CONSOLE_METRIC_INTERVAL_MS = 10_000
 MAX_ID_CHARS = 128
+PROBE_PATHS = frozenset({"/healthz", "/readyz"})
+CLIP_LABELS = frozenset({"deep_dive", "intro", "pitch"})
+ACCESS_LOGGER = "uvicorn.access"
 
 log = logging.getLogger("debrief.telemetry")
+events = logging.getLogger("debrief.events")
 
 _state: dict[str, Any] = {}
 
@@ -149,6 +156,33 @@ def otel_log_handler(provider: LoggerProvider) -> logging.Handler:
         return LoggingHandler(level=logging.INFO, logger_provider=provider)
 
 
+class ProbeFilter(logging.Filter):
+    """Drops uvicorn access lines for /healthz and /readyz: probes would bury real requests."""
+
+    def filter(self, record: logging.LogRecord) -> bool:
+        args = record.args
+        # uvicorn logs '%s - "%s %s HTTP/%s" %d' with (client, method, path, version, status)
+        if isinstance(args, tuple) and len(args) >= 3:
+            return str(args[2]).split("?", 1)[0] not in PROBE_PATHS
+        return True
+
+
+def attach_access_log(handler: logging.Handler) -> None:
+    """Send uvicorn's access lines (one per request) to `handler`, probes excluded.
+
+    uvicorn's `uvicorn.access` logger doesn't propagate to the root, so the OTel handler goes
+    on it directly. The line is logged while the response starts, inside the request's server
+    span, so it carries the request's trace id. uvicorn configures its loggers before it
+    imports the app, so this handler survives its dictConfig.
+    """
+    access = logging.getLogger(ACCESS_LOGGER)
+    if not any(isinstance(f, ProbeFilter) for f in access.filters):
+        access.addFilter(ProbeFilter())
+    if access.level == logging.NOTSET:
+        access.setLevel(logging.INFO)
+    access.addHandler(handler)
+
+
 def setup(service: str = API_SERVICE) -> bool:
     """Install the tracer, meter and logger providers once. Returns True if it did."""
     if _state or not enabled():
@@ -195,17 +229,25 @@ def setup(service: str = API_SERVICE) -> bool:
 
         set_logger_provider(logger_provider)
         debrief_logger.addHandler(otel_log_handler(logger_provider))
+        attach_access_log(otel_log_handler(logger_provider))
     _state.update(tracer=tracer_provider, logger=logger_provider, exporting=bool(endpoint))
     return True
 
 
-def instrument_app(app: Any) -> None:
-    """Trace every FastAPI request except the probes, and add `X-Trace-Id` to /api replies."""
+def instrument_app(app: Any, meter_provider: Any = None) -> None:
+    """Trace every FastAPI request except the probes, and add `X-Trace-Id` to /api replies.
+
+    The instrumentation also records `http.server.duration` (ms, by route, method and status)
+    and `http.server.active_requests` through the global meter provider (tests pass their own).
+    """
     from opentelemetry.instrumentation.fastapi import FastAPIInstrumentor
 
     app.add_middleware(TraceIdHeaderMiddleware)
     FastAPIInstrumentor.instrument_app(
-        app, excluded_urls=EXCLUDED_URLS, exclude_spans=["receive", "send"]
+        app,
+        excluded_urls=EXCLUDED_URLS,
+        exclude_spans=["receive", "send"],
+        meter_provider=meter_provider,
     )
 
 
@@ -288,6 +330,32 @@ class Instruments:
         self.llm_tokens = meter.create_counter(
             "debrief.llm.tokens", unit="{token}", description="Model tokens used"
         )
+        self.tool_requests = meter.create_counter(
+            "debrief.playlist.tool_requests",
+            unit="{request}",
+            description="Playlist requests per requested tool (catalog id, else other)",
+        )
+        self.clip_labels = meter.create_counter(
+            "debrief.playlist.clip_labels",
+            unit="{clip}",
+            description="Clips served in playlists, by their talk's label",
+        )
+        self.rerank_batches = meter.create_counter(
+            "debrief.rerank.batches",
+            unit="{batch}",
+            description="Model rerank batches by outcome (ok, fallback, timeout)",
+        )
+        self.memo_duration = meter.create_histogram(
+            "debrief.memo.duration", unit="ms", description="Time to write a live memo"
+        )
+        self.cache_lookups = meter.create_counter(
+            "debrief.cache.lookups",
+            unit="{lookup}",
+            description="Demo cache lookups by route and result (only with DEBRIEF_CACHE=on)",
+        )
+        self.playlists_shared = meter.create_counter(
+            "debrief.playlists.shared", unit="{playlist}", description="Playlists saved to share"
+        )
 
 
 # Created from the global (proxy) meter, so they report through whatever provider setup()
@@ -360,3 +428,71 @@ def record_llm_tokens(purpose: str, provider: str, input_tokens: int, output_tok
                 "gen_ai.usage.output_tokens": output_tokens,
             }
         )
+
+
+def record_playlist_served(tools: Sequence[str], labels: Sequence[str | None]) -> None:
+    """One served playlist (live or cached): each distinct requested tool once (known ids or
+    "other", see routes_search.metric_tools) and each clip once by its talk label."""
+    for tool in dict.fromkeys(tools):
+        instruments.tool_requests.add(1, {"tool": tool})
+    for label in labels:
+        instruments.clip_labels.add(1, {"label": label if label in CLIP_LABELS else "unlabelled"})
+
+
+def rerank_outcome(outcome: str) -> str:
+    """A rerank batch's outcome as a fixed enum: "ok", "timeout" or "fallback" (any error)."""
+    return outcome if outcome in ("ok", "timeout") else "fallback"
+
+
+def record_rerank_batch(outcome: str) -> None:
+    instruments.rerank_batches.add(1, {"outcome": rerank_outcome(outcome)})
+
+
+def record_memo(duration_ms: float, outcome: str) -> None:
+    """One live memo; `outcome` is "ok" or "error"."""
+    instruments.memo_duration.record(duration_ms, {"outcome": outcome})
+
+
+def record_cache_lookup(route: str, hit: bool) -> None:
+    """One demo cache lookup (only called with DEBRIEF_CACHE=on); `route` is a cache route."""
+    instruments.cache_lookups.add(1, {"route": route, "result": "hit" if hit else "miss"})
+
+
+def record_playlist_shared() -> None:
+    instruments.playlists_shared.add(1)
+
+
+# --- Event logs -------------------------------------------------------------------------
+
+
+def _field_text(value: Any) -> str:
+    if isinstance(value, bool):
+        return "true" if value else "false"
+    if isinstance(value, list | tuple):
+        return ",".join(map(str, value)) or "-"
+    text = str(value)
+    return f'"{text}"' if " " in text else text
+
+
+def log_event(event: str, level: int = logging.INFO, **fields: Any) -> None:
+    """One structured log line per product event, on the current trace.
+
+    The body reads `event=<name> key=value ...`; the same fields go on the record as
+    `debrief.<key>` attributes next to `event.name`, so Dash0 can filter and group on them.
+    Fields must be ids, counts, scores, durations or fixed enums: never transcript text, the
+    pain sentence, prompts or keys. None values are left out.
+    """
+    attributes: dict[str, Any] = {"event.name": event}
+    parts = [f"event={event}"]
+    for key, value in fields.items():
+        if value is None:
+            continue
+        if isinstance(value, float):
+            value = round(value, 1)
+        elif isinstance(value, list | tuple):
+            value = [str(v)[:MAX_ID_CHARS] for v in value]
+        elif isinstance(value, str):
+            value = value[:MAX_ID_CHARS]
+        attributes[f"debrief.{key}"] = value
+        parts.append(f"{key}={_field_text(value)}")
+    events.log(level, " ".join(parts), extra=attributes)

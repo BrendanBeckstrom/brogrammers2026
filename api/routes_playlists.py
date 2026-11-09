@@ -18,7 +18,7 @@ from fastapi import APIRouter, Depends, HTTPException, Request, Response
 from opentelemetry import trace
 from pydantic import BaseModel, Field, StringConstraints
 
-from api import demo_cache, insights, playlists, store
+from api import demo_cache, insights, playlists, store, telemetry
 from api.routes_search import Client, Model, PlaylistBody, _backend_error, run_playlist
 from api.search import SearchBackendError
 from api.store import StoreClient
@@ -101,7 +101,6 @@ def save_playlist(
                 raise _backend_error(e, client) from e
         answer = {"terms": [], **answer}  # a cached answer from before significant terms
         span.set_attribute("debrief.playlist_source", source)
-        log.info("playlist save", extra={"debrief.playlist_source": source})
         try:
             chosen = playlists.shareable(playlists.pick_clips(answer, body.clip_ids))
         except playlists.UnknownClips as e:
@@ -119,6 +118,14 @@ def save_playlist(
         span.set_attributes(
             {"debrief.playlist_id": playlist_id, "debrief.clips": len(chosen["clips"])}
         )
+        telemetry.record_playlist_shared()
+        telemetry.log_event(
+            "playlist.shared",
+            id=playlist_id,
+            clip_count=len(chosen["clips"]),
+            source=source,
+            filter=body.request.filter,
+        )
         return {"id": playlist_id, "url": f"/?p={playlist_id}"}
 
 
@@ -131,9 +138,13 @@ def get_playlist(playlist_id: str, saved: Store) -> dict[str, Any]:
         except SearchBackendError as e:
             raise _store_error(e, saved) from e
         span.set_attribute("debrief.found", found is not None)
+        clip_count = len(found["response"].get("clips") or []) if found else 0
+        telemetry.log_event(
+            "playlist.loaded", id=playlist_id[:64], found=found is not None, clip_count=clip_count
+        )
         if found is None:
             raise HTTPException(status_code=404, detail="Unknown playlist id")
-        span.set_attribute("debrief.clips", len(found["response"].get("clips") or []))
+        span.set_attribute("debrief.clips", clip_count)
         return found
 
 
@@ -141,6 +152,7 @@ def get_playlist(playlist_id: str, saved: Store) -> dict[str, Any]:
 def get_insights(saved: Store, response: Response) -> dict[str, Any]:
     with tracer.start_as_current_span("api.insights") as span:
         cached = demo_cache.serve("insights", None, span, response)
+        cache = "off" if not demo_cache.enabled() else "miss" if cached is None else "hit"
         if cached is None:
             try:
                 cached = insights.insights(saved)
@@ -153,5 +165,13 @@ def get_insights(saved: Store, response: Response) -> dict[str, Any]:
                 "debrief.top_tools": len(cached.get("top_tools") or []),
                 "debrief.empty_tools": len(cached.get("empty_tools") or []),
             }
+        )
+        telemetry.log_event(
+            "insights.read",
+            requests=int(cached.get("requests") or 0),
+            playlists_saved=int(cached.get("playlists_saved") or 0),
+            top_tools=len(cached.get("top_tools") or []),
+            empty_tools=len(cached.get("empty_tools") or []),
+            cache=cache,
         )
         return cached

@@ -52,6 +52,52 @@
         "kind": "Grid",
         "spec": {
           "display": {
+            "title": "What teams ask for"
+          },
+          "items": [
+            {
+              "x": 0,
+              "y": 0,
+              "width": 12,
+              "height": 8,
+              "content": {
+                "$ref": "#/spec/panels/tool_requests"
+              }
+            },
+            {
+              "x": 12,
+              "y": 0,
+              "width": 12,
+              "height": 8,
+              "content": {
+                "$ref": "#/spec/panels/clip_labels"
+              }
+            },
+            {
+              "x": 0,
+              "y": 8,
+              "width": 12,
+              "height": 8,
+              "content": {
+                "$ref": "#/spec/panels/playlists_shared"
+              }
+            },
+            {
+              "x": 12,
+              "y": 8,
+              "width": 12,
+              "height": 8,
+              "content": {
+                "$ref": "#/spec/panels/cache_lookups"
+              }
+            }
+          ]
+        }
+      },
+      {
+        "kind": "Grid",
+        "spec": {
+          "display": {
             "title": "API"
           },
           "items": [
@@ -71,6 +117,15 @@
               "height": 8,
               "content": {
                 "$ref": "#/spec/panels/error_rate"
+              }
+            },
+            {
+              "x": 0,
+              "y": 8,
+              "width": 24,
+              "height": 8,
+              "content": {
+                "$ref": "#/spec/panels/http_requests_by_status"
               }
             }
           ]
@@ -109,6 +164,24 @@
               "content": {
                 "$ref": "#/spec/panels/llm_tokens"
               }
+            },
+            {
+              "x": 0,
+              "y": 8,
+              "width": 12,
+              "height": 8,
+              "content": {
+                "$ref": "#/spec/panels/rerank_batches"
+              }
+            },
+            {
+              "x": 12,
+              "y": 8,
+              "width": 12,
+              "height": 8,
+              "content": {
+                "$ref": "#/spec/panels/memo_latency"
+              }
             }
           ]
         }
@@ -136,6 +209,25 @@
               "height": 8,
               "content": {
                 "$ref": "#/spec/panels/rum_actions"
+              }
+            }
+          ]
+        }
+      },
+      {
+        "kind": "Grid",
+        "spec": {
+          "display": {
+            "title": "Event logs"
+          },
+          "items": [
+            {
+              "x": 0,
+              "y": 0,
+              "width": 24,
+              "height": 10,
+              "content": {
+                "$ref": "#/spec/panels/playlist_served_logs"
               }
             }
           ]
@@ -537,6 +629,310 @@
               }
             }
           ]
+        }
+      },
+      "tool_requests": {
+        "kind": "Panel",
+        "spec": {
+          "display": {
+            "name": "Most requested tools (top 10)",
+            "description": "debrief.playlist.tool_requests by tool. Each playlist counts each requested tool once; ids outside the catalog show as \"other\"."
+          },
+          "plugin": {
+            "kind": "TimeSeriesChart",
+            "spec": {
+              "legend": {
+                "position": "right"
+              },
+              "yAxis": {
+                "min": 0
+              },
+              "visual": {
+                "display": "bar",
+                "stack": "all"
+              }
+            }
+          },
+          "queries": [
+            {
+              "kind": "TimeSeriesQuery",
+              "spec": {
+                "plugin": {
+                  "kind": "PrometheusTimeSeriesQuery",
+                  "spec": {
+                    "query": "topk(10, sum by (tool) (increase({otel_metric_name=\"debrief.playlist.tool_requests\", otel_metric_type=\"sum\"}[$__rate_interval])))",
+                    "seriesNameFormat": "{{tool}}"
+                  }
+                }
+              }
+            }
+          ]
+        }
+      },
+      "clip_labels": {
+        "kind": "Panel",
+        "spec": {
+          "display": {
+            "name": "Clip label mix",
+            "description": "debrief.playlist.clip_labels. Every clip served, by its talk's label (deep_dive, intro, pitch, unlabelled)."
+          },
+          "plugin": {
+            "kind": "PieChart",
+            "spec": {
+              "calculation": "sum",
+              "visual": {
+                "palette": "categorical"
+              }
+            }
+          },
+          "queries": [
+            {
+              "kind": "TimeSeriesQuery",
+              "spec": {
+                "plugin": {
+                  "kind": "PrometheusTimeSeriesQuery",
+                  "spec": {
+                    "query": "sum by (label) (increase({otel_metric_name=\"debrief.playlist.clip_labels\", otel_metric_type=\"sum\"}[$__rate_interval]))",
+                    "seriesNameFormat": "{{label}}"
+                  }
+                }
+              }
+            }
+          ]
+        }
+      },
+      "playlists_shared": {
+        "kind": "Panel",
+        "spec": {
+          "display": {
+            "name": "Playlists shared",
+            "description": "debrief.playlists.shared. One per POST /api/playlists that saved a shareable link."
+          },
+          "plugin": {
+            "kind": "TimeSeriesChart",
+            "spec": {
+              "legend": {
+                "position": "bottom"
+              },
+              "yAxis": {
+                "min": 0
+              },
+              "visual": {
+                "display": "bar"
+              }
+            }
+          },
+          "queries": [
+            {
+              "kind": "TimeSeriesQuery",
+              "spec": {
+                "plugin": {
+                  "kind": "PrometheusTimeSeriesQuery",
+                  "spec": {
+                    "query": "sum(increase({otel_metric_name=\"debrief.playlists.shared\", otel_metric_type=\"sum\"}[$__rate_interval]))",
+                    "seriesNameFormat": "shared"
+                  }
+                }
+              }
+            }
+          ]
+        }
+      },
+      "cache_lookups": {
+        "kind": "Panel",
+        "spec": {
+          "display": {
+            "name": "Demo cache lookups by route and result",
+            "description": "debrief.cache.lookups. Only recorded with DEBRIEF_CACHE=on, so empty means the cache is off."
+          },
+          "plugin": {
+            "kind": "TimeSeriesChart",
+            "spec": {
+              "legend": {
+                "position": "right"
+              },
+              "yAxis": {
+                "min": 0
+              },
+              "visual": {
+                "display": "bar",
+                "stack": "all"
+              }
+            }
+          },
+          "queries": [
+            {
+              "kind": "TimeSeriesQuery",
+              "spec": {
+                "plugin": {
+                  "kind": "PrometheusTimeSeriesQuery",
+                  "spec": {
+                    "query": "sum by (route, result) (increase({otel_metric_name=\"debrief.cache.lookups\", otel_metric_type=\"sum\"}[$__rate_interval]))",
+                    "seriesNameFormat": "{{route}} {{result}}"
+                  }
+                }
+              }
+            }
+          ]
+        }
+      },
+      "http_requests_by_status": {
+        "kind": "Panel",
+        "spec": {
+          "display": {
+            "name": "HTTP requests by route and status (req/s)",
+            "description": "http.server.duration from the FastAPI instrumentation (probes excluded), counted per route template (http.target) and status code."
+          },
+          "plugin": {
+            "kind": "TimeSeriesChart",
+            "spec": {
+              "legend": {
+                "position": "right"
+              },
+              "yAxis": {
+                "min": 0
+              },
+              "visual": {
+                "display": "line"
+              }
+            }
+          },
+          "queries": [
+            {
+              "kind": "TimeSeriesQuery",
+              "spec": {
+                "plugin": {
+                  "kind": "PrometheusTimeSeriesQuery",
+                  "spec": {
+                    "query": "sum by (http_target, http_status_code) (histogram_count(rate({otel_metric_name=\"http.server.duration\", otel_metric_type=\"histogram\", service_name=\"debrief-api\"}[$__rate_interval])))",
+                    "seriesNameFormat": "{{http_target}} {{http_status_code}}"
+                  }
+                }
+              }
+            }
+          ]
+        }
+      },
+      "rerank_batches": {
+        "kind": "Panel",
+        "spec": {
+          "display": {
+            "name": "Rerank batch outcomes",
+            "description": "debrief.rerank.batches by outcome (ok, fallback for a model error or unusable reply, timeout). A failed batch keeps template why lines for its clips only."
+          },
+          "plugin": {
+            "kind": "TimeSeriesChart",
+            "spec": {
+              "legend": {
+                "position": "bottom"
+              },
+              "yAxis": {
+                "min": 0
+              },
+              "visual": {
+                "display": "bar",
+                "stack": "all"
+              }
+            }
+          },
+          "queries": [
+            {
+              "kind": "TimeSeriesQuery",
+              "spec": {
+                "plugin": {
+                  "kind": "PrometheusTimeSeriesQuery",
+                  "spec": {
+                    "query": "sum by (outcome) (increase({otel_metric_name=\"debrief.rerank.batches\", otel_metric_type=\"sum\"}[$__rate_interval]))",
+                    "seriesNameFormat": "{{outcome}}"
+                  }
+                }
+              }
+            }
+          ]
+        }
+      },
+      "memo_latency": {
+        "kind": "Panel",
+        "spec": {
+          "display": {
+            "name": "Memo latency p50 / p95",
+            "description": "debrief.memo.duration (ms) for live memos that succeeded (cached memos are not recorded)."
+          },
+          "plugin": {
+            "kind": "TimeSeriesChart",
+            "spec": {
+              "legend": {
+                "position": "bottom"
+              },
+              "yAxis": {
+                "min": 0,
+                "format": {
+                  "unit": "milliseconds"
+                }
+              },
+              "visual": {
+                "display": "line"
+              }
+            }
+          },
+          "queries": [
+            {
+              "kind": "TimeSeriesQuery",
+              "spec": {
+                "plugin": {
+                  "kind": "PrometheusTimeSeriesQuery",
+                  "spec": {
+                    "query": "histogram_quantile(0.95, sum(rate({otel_metric_name=\"debrief.memo.duration\", otel_metric_type=\"histogram\", outcome=\"ok\"}[$__rate_interval])))",
+                    "seriesNameFormat": "p95"
+                  }
+                }
+              }
+            },
+            {
+              "kind": "TimeSeriesQuery",
+              "spec": {
+                "plugin": {
+                  "kind": "PrometheusTimeSeriesQuery",
+                  "spec": {
+                    "query": "histogram_quantile(0.50, sum(rate({otel_metric_name=\"debrief.memo.duration\", otel_metric_type=\"histogram\", outcome=\"ok\"}[$__rate_interval])))",
+                    "seriesNameFormat": "p50"
+                  }
+                }
+              }
+            }
+          ]
+        }
+      },
+      "playlist_served_logs": {
+        "kind": "Panel",
+        "spec": {
+          "display": {
+            "name": "Playlists served (event=playlist.served)",
+            "description": "One structured log per playlist from debrief-api. Ids, counts, rerank status, duration and cache result; never the pain sentence or transcript text."
+          },
+          "plugin": {
+            "kind": "LogTable",
+            "spec": {
+              "showAttributePreview": true,
+              "maxLogEntries": 50,
+              "filters": [
+                {
+                  "key": "service.name",
+                  "operator": "is",
+                  "value": "debrief-api"
+                },
+                {
+                  "key": "event.name",
+                  "operator": "is",
+                  "value": "playlist.served"
+                }
+              ],
+              "sort": {
+                "sortField": "timestamp",
+                "sortDirection": "desc"
+              }
+            }
+          }
         }
       }
     }

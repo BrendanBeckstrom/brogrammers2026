@@ -29,7 +29,7 @@ from typing import Any, Literal, Protocol
 from opentelemetry import trace
 
 from api import clips as clipmod
-from api import rerank
+from api import rerank, telemetry
 from api.clips import Hit
 from api.llm import LLMClient, LLMError
 from ingest.tag import Tool, load_tools
@@ -606,7 +606,12 @@ def build_playlist(
             rerank_status["elastic"] = "ok"
             debug["query"] = reranked_body
         if rerank_status["elastic"] != "ok":
-            log.warning("elastic rerank fell back: %s", rerank_status["elastic"])
+            telemetry.log_event(
+                "rerank.elastic_fallback",
+                logging.WARNING,
+                reason=rerank_status["elastic"].removeprefix("fallback: "),
+                timeout_ms=int(ELASTIC_RERANK_TIMEOUT_SEC * 1000),
+            )
         playlist_span.set_attribute("debrief.elastic_rerank", rerank_status["elastic"])
     timings["search_wall"] = _ms(search_started)
 
@@ -680,7 +685,12 @@ def build_playlist(
             except (LLMError, rerank.RerankError) as e:
                 rerank_status["model"] = f"fallback: {type(e).__name__}"
                 span.set_attributes({"debrief.fallback": True, "error.type": type(e).__name__})
-                log.warning("model rerank fell back: %s", type(e).__name__)
+                telemetry.log_event(
+                    "rerank.model_fallback",
+                    logging.WARNING,
+                    error=type(e).__name__,
+                    clips_sent=len(top),
+                )
             else:
                 judged = verdict.judged
                 failed = verdict.failed
@@ -689,6 +699,14 @@ def build_playlist(
                     rerank_status["model"] = (
                         f"partial: {len(failed)}/{len(verdict.batches)} batches fell back "
                         f"({outcomes})"
+                    )
+                    telemetry.log_event(
+                        "rerank.partial",
+                        logging.WARNING,
+                        failed=len(failed),
+                        batches=len(verdict.batches),
+                        outcomes=sorted({telemetry.rerank_outcome(b.outcome) for b in failed}),
+                        imputed=verdict.stats.get("imputed", 0),
                     )
                 else:
                     rerank_status["model"] = "ok"
