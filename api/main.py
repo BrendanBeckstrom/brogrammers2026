@@ -6,13 +6,18 @@ from pathlib import Path
 from fastapi import FastAPI
 from fastapi.staticfiles import StaticFiles
 
-from api import routes_memo, routes_search, routes_stack
+from api import routes_memo, routes_search, routes_stack, telemetry
 
 # Set by the image build (the commit's short SHA); "dev" locally.
 APP_VERSION = os.environ.get("APP_VERSION", "dev")
 WEB_DIST = Path(__file__).resolve().parent.parent / "web" / "dist"
 
+# Traces, metrics and logs to Dash0 (task 11). Exports only when OTEL_EXPORTER_OTLP_ENDPOINT
+# is set; probes are not traced.
+telemetry.setup(telemetry.API_SERVICE)
+
 app = FastAPI(title="Debrief", version=APP_VERSION)
+telemetry.instrument_app(app)
 
 
 @app.get("/healthz")

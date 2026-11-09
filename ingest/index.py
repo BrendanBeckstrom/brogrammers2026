@@ -2,7 +2,9 @@
 
     python -m ingest.index [--chunks data/chunks.jsonl] [--recreate] [--batch-size 50]
 
-Config comes only from env: ELASTIC_URL and ELASTIC_API_KEY. Clips are indexed with
+Config comes only from env: ELASTIC_URL and ELASTIC_API_KEY (plus the OTEL_* vars, which
+send one trace per run to Dash0: a root `ingest.index` span with one span per bulk batch).
+Clips are indexed with
 `_id` = chunk_id and talks with `_id` = talk_id, so a re-run overwrites instead of
 duplicating. Progress lines carry ids and counts only, never transcript text.
 """
@@ -19,6 +21,9 @@ from pathlib import Path
 from typing import Any
 
 from elasticsearch import BadRequestError, Elasticsearch
+from opentelemetry import trace
+
+from api import telemetry
 
 CLIPS_INDEX = "clips"
 TALKS_INDEX = "talks"
@@ -86,6 +91,8 @@ TALK_FIELDS = ("talk_id", "youtube_id", "title", "speakers", "track", "talk_labe
 
 Doc = dict[str, Any]
 Progress = Callable[[str, int, int], None]
+
+tracer = trace.get_tracer("debrief")
 
 
 def read_chunks(path: Path) -> list[Doc]:
@@ -202,28 +209,39 @@ def bulk_index(
     done = 0
     for start in range(0, len(docs), batch_size):
         pending = list(docs[start : start + batch_size])
-        for attempt in range(1, MAX_ITEM_ATTEMPTS + 1):
-            operations: list[Doc] = []
-            for doc_id, doc in pending:
-                operations.append({"index": {"_index": index, "_id": doc_id}})
-                operations.append(doc)
-            response = client.bulk(operations=operations)
-            if not response["errors"]:
-                break
-            retry: list[tuple[str, Doc]] = []
-            for (doc_id, doc), entry in zip(pending, response["items"], strict=True):
-                item = next(iter(entry.values()))
-                status = int(item.get("status", 0))
-                if status < 300:
-                    continue
-                if status in RETRYABLE_STATUSES and attempt < MAX_ITEM_ATTEMPTS:
-                    retry.append((doc_id, doc))
-                else:
-                    failures.append(_describe_error(doc_id, item))
-            if not retry:
-                break
-            pending = retry
-            sleep(2.0**attempt)
+        with tracer.start_as_current_span("ingest.bulk_batch") as span:
+            failed_before = len(failures)
+            span.set_attributes(
+                {
+                    "debrief.index": index,
+                    "debrief.batch": start // batch_size + 1,
+                    "debrief.docs": len(pending),
+                }
+            )
+            for attempt in range(1, MAX_ITEM_ATTEMPTS + 1):
+                span.set_attribute("debrief.attempts", attempt)
+                operations: list[Doc] = []
+                for doc_id, doc in pending:
+                    operations.append({"index": {"_index": index, "_id": doc_id}})
+                    operations.append(doc)
+                response = client.bulk(operations=operations)
+                if not response["errors"]:
+                    break
+                retry: list[tuple[str, Doc]] = []
+                for (doc_id, doc), entry in zip(pending, response["items"], strict=True):
+                    item = next(iter(entry.values()))
+                    status = int(item.get("status", 0))
+                    if status < 300:
+                        continue
+                    if status in RETRYABLE_STATUSES and attempt < MAX_ITEM_ATTEMPTS:
+                        retry.append((doc_id, doc))
+                    else:
+                        failures.append(_describe_error(doc_id, item))
+                if not retry:
+                    break
+                pending = retry
+                sleep(2.0**attempt)
+            span.set_attribute("debrief.failed_docs", len(failures) - failed_before)
         done = min(start + batch_size, len(docs))
         if progress:
             progress(index, done, len(docs))
@@ -248,7 +266,25 @@ def run(
     batch_size: int = DEFAULT_BATCH_SIZE,
     progress: Progress | None = _print_progress,
 ) -> int:
-    """Create the indexes and load `chunks_path`. Returns a process exit code."""
+    """Create the indexes and load `chunks_path`. Returns a process exit code.
+
+    The whole run is one trace: this root span, with a child span per bulk batch.
+    """
+    with tracer.start_as_current_span("ingest.index") as span:
+        span.set_attributes({"debrief.recreate": recreate, "debrief.batch_size": batch_size})
+        code = _load(client, chunks_path, recreate, batch_size, progress, span)
+        span.set_attribute("debrief.exit_code", code)
+        return code
+
+
+def _load(
+    client: Elasticsearch,
+    chunks_path: Path,
+    recreate: bool,
+    batch_size: int,
+    progress: Progress | None,
+    span: trace.Span,
+) -> int:
     started = time.monotonic()
     chunks = read_chunks(chunks_path)
     unique_ids = {c["chunk_id"] for c in chunks}
@@ -258,6 +294,7 @@ def run(
             file=sys.stderr,
         )
     talks = derive_talks(chunks)
+    span.set_attributes({"debrief.chunks": len(chunks), "debrief.talks": len(talks)})
     print(
         f"read {len(chunks)} chunks across {len(talks)} talks from {chunks_path}",
         file=sys.stderr,
@@ -284,6 +321,14 @@ def run(
     clips_count = int(client.count(index=CLIPS_INDEX)["count"])
     talks_count = int(client.count(index=TALKS_INDEX)["count"])
     elapsed = time.monotonic() - started
+    span.set_attributes(
+        {
+            "debrief.clips_indexed": clips_count,
+            "debrief.talks_indexed": talks_count,
+            "debrief.failed_docs": len(failures),
+            "debrief.write_semantic": write_semantic,
+        }
+    )
 
     print(f"{CLIPS_INDEX}: {clips_count} docs in Elastic; {len(chunks)} chunks in file")
     print(f"{TALKS_INDEX}: {talks_count} docs in Elastic; {len(talks)} talks in file")
@@ -332,7 +377,13 @@ def main(argv: Sequence[str] | None = None) -> int:
     args = parser.parse_args(argv)
     if args.batch_size < 1:
         parser.error("--batch-size must be at least 1")
-    return run(client_from_env(), args.chunks, recreate=args.recreate, batch_size=args.batch_size)
+    telemetry.setup(telemetry.INGEST_SERVICE)
+    try:
+        return run(
+            client_from_env(), args.chunks, recreate=args.recreate, batch_size=args.batch_size
+        )
+    finally:
+        telemetry.flush()  # a short-lived job: export before the process exits
 
 
 if __name__ == "__main__":

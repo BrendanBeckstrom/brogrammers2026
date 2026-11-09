@@ -1,10 +1,23 @@
-"""Shared test setup: no test may reach a real model provider."""
+"""Shared test setup.
 
+- Telemetry never exports from a test run, even if the shell has OTEL_* set.
+- No test may reach a real model provider.
+"""
+
+import os
 from collections.abc import Iterator
 
 import pytest
 
 from api import llm
+
+for _name in (
+    "OTEL_EXPORTER_OTLP_ENDPOINT",
+    "OTEL_EXPORTER_OTLP_HEADERS",
+    "OTEL_SDK_DISABLED",
+    "DEBRIEF_OTEL_CONSOLE",
+):
+    os.environ.pop(_name, None)
 
 
 @pytest.fixture(autouse=True)

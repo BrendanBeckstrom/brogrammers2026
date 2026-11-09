@@ -7,18 +7,21 @@ tests override both with fakes.
 
 from __future__ import annotations
 
+import logging
+import time
 from typing import Annotated, Any, Literal
 
 from fastapi import APIRouter, Depends, HTTPException
 from opentelemetry import trace
 from pydantic import BaseModel, Field
 
-from api import llm, search
+from api import llm, search, telemetry
 from api.llm import LLMClient
 from api.search import SearchBackendError, SearchClient
 
 router = APIRouter(prefix="/api")
 tracer = trace.get_tracer("debrief")
+log = logging.getLogger("debrief.api")
 
 
 class PlaylistBody(BaseModel):
@@ -41,17 +44,22 @@ def search_client() -> SearchClient:
 Client = Annotated[SearchClient, Depends(search_client)]
 
 
+current_trace_id = telemetry.current_trace_id
+
+
+def metric_tools(tools: list[str]) -> list[str]:
+    """Requested tool ids for metric attributes: known ids as-is, anything else "other"."""
+    catalog = search.tool_catalog()
+    ids = dict.fromkeys(t.strip() for t in tools if t.strip())
+    return [t if t in catalog else "other" for t in ids]
+
+
 def model_client() -> LLMClient:
     """The language model (api/llm.py); a FastAPI dependency so tests can swap in a fake."""
     return llm.get_llm()
 
 
 Model = Annotated[LLMClient, Depends(model_client)]
-
-
-def current_trace_id() -> str | None:
-    context = trace.get_current_span().get_span_context()
-    return format(context.trace_id, "032x") if context.is_valid else None
 
 
 def _backend_error(e: SearchBackendError) -> HTTPException:
@@ -79,12 +87,31 @@ def playlist(body: PlaylistBody, client: Client, model: Model) -> dict[str, Any]
             budget_minutes=body.budget_minutes,
             rerank=body.rerank,
         )
+        started = time.perf_counter()
+        tool_ids = metric_tools(body.tools)
         try:
             result = search.build_playlist(client, request, model)
         except SearchBackendError as e:
+            elapsed = (time.perf_counter() - started) * 1000
+            telemetry.record_playlist(elapsed, 0, tool_ids, body.filter, "error")
             raise _backend_error(e) from e
-        span.set_attribute("debrief.clips", len(result["clips"]))
+        elapsed = (time.perf_counter() - started) * 1000
+        clips = len(result["clips"])
+        outcome = "ok" if clips else "empty"
+        telemetry.record_playlist(elapsed, clips, tool_ids, body.filter, outcome)
+        span.set_attribute("debrief.clips", clips)
         span.set_attribute("debrief.total_seconds", result["total_seconds"])
+        if not clips:
+            # A coverage gap organizers want to see: ids and counts only, never the pain text.
+            log.info(
+                "empty playlist",
+                extra={
+                    "debrief.tools": tool_ids,
+                    "debrief.filter": body.filter,
+                    "debrief.attended_count": len(body.attended_talk_ids),
+                    "debrief.hits": result["debug"].get("hits", 0),
+                },
+            )
         return {
             "total_seconds": result["total_seconds"],
             "clips": result["clips"],
