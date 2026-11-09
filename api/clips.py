@@ -8,7 +8,7 @@ build watch links. `watch_url()` is the only place a YouTube link is built.
 from __future__ import annotations
 
 import re
-from collections.abc import Iterable, Mapping, Sequence
+from collections.abc import Callable, Iterable, Mapping, Sequence
 from dataclasses import dataclass
 from typing import Any
 
@@ -214,14 +214,15 @@ def fill_budget(
     requested_tools: Iterable[str],
     max_clips: int = MAX_CLIPS,
     max_unmatched_share: float = MAX_UNMATCHED_SHARE,
+    order: Callable[[Clip], Any] = _score_order,
 ) -> list[Clip]:
-    """Fill the budget in score order, skipping clips that would overflow it.
+    """Fill the budget in `order` (score order by default), skipping overflowing clips.
 
     Clips that mention a requested tool go first; clips found only by meaning then fill
-    what is left, at most `max_unmatched_share` of the playlist. Returns score order.
+    what is left, at most `max_unmatched_share` of the playlist. Returns `order`.
     """
     wanted = set(requested_tools)
-    ordered = sorted(clips, key=_score_order)
+    ordered = sorted(clips, key=order)
     chosen: list[Clip] = []
     total = 0
     for clip in ordered:
@@ -238,7 +239,7 @@ def fill_budget(
             chosen.append(clip)
             total += clip.length
             unmatched += 1
-    return sorted(chosen, key=_score_order)
+    return sorted(chosen, key=order)
 
 
 def choose_quote(text: str, highlight: str | None, max_chars: int = QUOTE_MAX_CHARS) -> str:

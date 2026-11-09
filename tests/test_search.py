@@ -90,6 +90,8 @@ class FakeSearchClient:
             return {"hits": {"hits": []}, "aggregations": {"tools": {"buckets": buckets}}}
         if "rrf" in retriever:
             return self._rrf(body, retriever["rrf"])
+        if "text_similarity_reranker" in retriever:
+            return self._reranked(body, retriever["text_similarity_reranker"])
         ids = self._standard(retriever["standard"])[: body["size"]]
         response: dict[str, Any] = {"took": 1, "hits": {"hits": [{"_id": i} for i in ids]}}
         if "aggs" in body:
@@ -120,6 +122,19 @@ class FakeSearchClient:
                     break
             hits.append(hit)
         return {"took": 2, "hits": {"hits": hits}}
+
+    def _reranked(self, body: dict[str, Any], reranker: dict[str, Any]) -> dict[str, Any]:
+        """Like Elastic's text_similarity_reranker: reorder the inner top N by word overlap."""
+        assert reranker["field"] == "text" and reranker["inference_id"].startswith(".jina")
+        window = reranker["rank_window_size"]
+        inner = self._rrf({**body, "size": window}, reranker["retriever"]["rrf"])
+        words = set(re.findall(r"\w{4,}", reranker["inference_text"].lower()))
+        hits = inner["hits"]["hits"][:window]
+        for rank, hit in enumerate(hits):
+            overlap = len(words & set(re.findall(r"\w{4,}", hit["_source"]["text"].lower())))
+            hit["_score"] = overlap - rank / 1000
+        hits.sort(key=lambda h: -h["_score"])
+        return {"took": 3, "hits": {"hits": hits[: body["size"]]}}
 
     @staticmethod
     def _phrases(query: dict[str, Any]) -> list[str]:
@@ -356,7 +371,10 @@ def test_playlist_contract_and_debug(api: TestClient) -> None:
     }  # fmt: skip
     assert clip["matched_by"] in {"keyword", "semantic", "both"}
     assert clip["why"].startswith("Mentions ")
-    assert data["debug"]["query"]["retriever"]["rrf"]["rank_window_size"] == 100
+    reranker = data["debug"]["query"]["retriever"]["text_similarity_reranker"]
+    assert reranker["inference_id"] == ".jina-reranker-v3" and reranker["field"] == "text"
+    assert reranker["retriever"]["rrf"]["rank_window_size"] == 100
+    assert data["debug"]["rerank"]["elastic"] == "ok"
     assert {"keyword_search", "semantic_search", "grouping", "clip_building", "total"} <= set(
         data["debug"]["timings_ms"]
     )

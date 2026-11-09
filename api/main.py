@@ -6,7 +6,7 @@ from pathlib import Path
 from fastapi import FastAPI
 from fastapi.staticfiles import StaticFiles
 
-from api import routes_search, routes_stack
+from api import routes_memo, routes_search, routes_stack
 
 # Set by the image build (the commit's short SHA); "dev" locally.
 APP_VERSION = os.environ.get("APP_VERSION", "dev")
@@ -32,6 +32,7 @@ def version() -> dict[str, str]:
 
 app.include_router(routes_search.router)
 app.include_router(routes_stack.router)
+app.include_router(routes_memo.router)
 
 # Keep this at the end of the file: a mount at "/" matches every path, so routes
 # registered after it would never be reached. Skipped when the web app isn't
