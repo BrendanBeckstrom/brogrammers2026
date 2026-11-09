@@ -1,0 +1,42 @@
+# SLO (b) "Memo lines carry a valid citation": at least 99% of the memo lines the model writes
+# survive the citation check (cite only requested clip ids), over Dash0's rolling 28 days.
+#
+# bad   = debrief.memo.citations_dropped (one per dropped line, attribute `reason`)
+# total = debrief.memo.lines (added with this SLO: every line the check looked at, kept or dropped)
+#
+# Counter on: Dash0 applies increase() per window itself, so both queries are bare selectors.
+# debrief.memo.lines exists only once this change is deployed; until then the SLO shows no data.
+apiVersion: openslo/v1
+kind: SLO
+metadata:
+  name: debrief-memo-citations
+  labels:
+    dash0.com/origin: debrief-memo-citations
+  annotations:
+    dash0.com/display-name: Memo lines carry a valid citation
+spec:
+  description: At least 99% of memo lines cite only clips the team requested (none are dropped).
+  service: debrief-api
+  budgetingMethod: Occurrences
+  timeWindow:
+    - duration: 28d
+      isRolling: true
+  indicator:
+    metadata:
+      name: debrief-memo-lines-not-dropped
+    spec:
+      ratioMetric:
+        counter: true
+        bad:
+          metricSource:
+            type: Prometheus
+            spec:
+              query: '{otel_metric_name="debrief.memo.citations_dropped", otel_metric_type="sum", deployment_environment_name="production"}'
+        total:
+          metricSource:
+            type: Prometheus
+            spec:
+              query: '{otel_metric_name="debrief.memo.lines", otel_metric_type="sum", deployment_environment_name="production"}'
+  objectives:
+    - displayName: 99% of memo lines keep their citation
+      target: 0.99

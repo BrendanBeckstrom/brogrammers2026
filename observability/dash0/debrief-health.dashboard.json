@@ -1,0 +1,544 @@
+{
+  "kind": "Dashboard",
+  "metadata": {
+    "name": "debrief-health"
+  },
+  "spec": {
+    "duration": "6h",
+    "refreshInterval": "1m",
+    "display": {
+      "name": "Debrief health",
+      "description": "Playlist latency and coverage, API traffic, memo citations, LLM tokens and browser RUM for Debrief."
+    },
+    "layouts": [
+      {
+        "kind": "Grid",
+        "spec": {
+          "display": {
+            "title": "Playlists"
+          },
+          "items": [
+            {
+              "x": 0,
+              "y": 0,
+              "width": 12,
+              "height": 8,
+              "content": {
+                "$ref": "#/spec/panels/playlist_latency"
+              }
+            },
+            {
+              "x": 12,
+              "y": 0,
+              "width": 12,
+              "height": 8,
+              "content": {
+                "$ref": "#/spec/panels/playlist_under_5s"
+              }
+            },
+            {
+              "x": 0,
+              "y": 8,
+              "width": 24,
+              "height": 8,
+              "content": {
+                "$ref": "#/spec/panels/coverage_gaps"
+              }
+            }
+          ]
+        }
+      },
+      {
+        "kind": "Grid",
+        "spec": {
+          "display": {
+            "title": "API"
+          },
+          "items": [
+            {
+              "x": 0,
+              "y": 0,
+              "width": 12,
+              "height": 8,
+              "content": {
+                "$ref": "#/spec/panels/request_rate"
+              }
+            },
+            {
+              "x": 12,
+              "y": 0,
+              "width": 12,
+              "height": 8,
+              "content": {
+                "$ref": "#/spec/panels/error_rate"
+              }
+            }
+          ]
+        }
+      },
+      {
+        "kind": "Grid",
+        "spec": {
+          "display": {
+            "title": "Memo and model"
+          },
+          "items": [
+            {
+              "x": 0,
+              "y": 0,
+              "width": 8,
+              "height": 8,
+              "content": {
+                "$ref": "#/spec/panels/citations_dropped"
+              }
+            },
+            {
+              "x": 8,
+              "y": 0,
+              "width": 8,
+              "height": 8,
+              "content": {
+                "$ref": "#/spec/panels/memo_lines_valid"
+              }
+            },
+            {
+              "x": 16,
+              "y": 0,
+              "width": 8,
+              "height": 8,
+              "content": {
+                "$ref": "#/spec/panels/llm_tokens"
+              }
+            }
+          ]
+        }
+      },
+      {
+        "kind": "Grid",
+        "spec": {
+          "display": {
+            "title": "Browser (RUM)"
+          },
+          "items": [
+            {
+              "x": 0,
+              "y": 0,
+              "width": 12,
+              "height": 8,
+              "content": {
+                "$ref": "#/spec/panels/watch_clicks_by_rank"
+              }
+            },
+            {
+              "x": 12,
+              "y": 0,
+              "width": 12,
+              "height": 8,
+              "content": {
+                "$ref": "#/spec/panels/rum_actions"
+              }
+            }
+          ]
+        }
+      }
+    ],
+    "panels": {
+      "playlist_latency": {
+        "kind": "Panel",
+        "spec": {
+          "display": {
+            "name": "Playlist latency p50 / p95 by outcome",
+            "description": "debrief.playlist.duration (ms), split by outcome (ok, empty, error)."
+          },
+          "plugin": {
+            "kind": "TimeSeriesChart",
+            "spec": {
+              "legend": {
+                "position": "bottom"
+              },
+              "yAxis": {
+                "min": 0,
+                "format": {
+                  "unit": "milliseconds"
+                }
+              },
+              "visual": {
+                "display": "line"
+              }
+            }
+          },
+          "queries": [
+            {
+              "kind": "TimeSeriesQuery",
+              "spec": {
+                "plugin": {
+                  "kind": "PrometheusTimeSeriesQuery",
+                  "spec": {
+                    "query": "histogram_quantile(0.95, sum by (outcome) (rate({otel_metric_name=\"debrief.playlist.duration\", otel_metric_type=\"histogram\"}[$__rate_interval])))",
+                    "seriesNameFormat": "p95 {{outcome}}"
+                  }
+                }
+              }
+            },
+            {
+              "kind": "TimeSeriesQuery",
+              "spec": {
+                "plugin": {
+                  "kind": "PrometheusTimeSeriesQuery",
+                  "spec": {
+                    "query": "histogram_quantile(0.50, sum by (outcome) (rate({otel_metric_name=\"debrief.playlist.duration\", otel_metric_type=\"histogram\"}[$__rate_interval])))",
+                    "seriesNameFormat": "p50 {{outcome}}"
+                  }
+                }
+              }
+            }
+          ]
+        }
+      },
+      "playlist_under_5s": {
+        "kind": "Panel",
+        "spec": {
+          "display": {
+            "name": "Playlists under 5 s (SLO objective 95%)",
+            "description": "Share of /api/playlist requests that finished in under 5 s. 5000 ms is a histogram bucket boundary, so this is exact."
+          },
+          "plugin": {
+            "kind": "TimeSeriesChart",
+            "spec": {
+              "legend": {
+                "position": "bottom"
+              },
+              "yAxis": {
+                "min": 0,
+                "max": 100,
+                "format": {
+                  "unit": "percent"
+                }
+              },
+              "visual": {
+                "display": "line"
+              }
+            }
+          },
+          "queries": [
+            {
+              "kind": "TimeSeriesQuery",
+              "spec": {
+                "plugin": {
+                  "kind": "PrometheusTimeSeriesQuery",
+                  "spec": {
+                    "query": "100 * histogram_fraction(0, 5000, sum by (deployment_environment_name) (rate({otel_metric_name=\"debrief.playlist.duration\", otel_metric_type=\"histogram\"}[$__rate_interval])))",
+                    "seriesNameFormat": "under 5 s ({{deployment_environment_name}})"
+                  }
+                }
+              }
+            }
+          ]
+        }
+      },
+      "coverage_gaps": {
+        "kind": "Panel",
+        "spec": {
+          "display": {
+            "name": "Coverage gaps (empty playlists by tool)",
+            "description": "debrief.playlist.empty. Each empty playlist counts once per requested tool; tools outside the catalog show as \"other\"."
+          },
+          "plugin": {
+            "kind": "TimeSeriesChart",
+            "spec": {
+              "legend": {
+                "position": "right"
+              },
+              "yAxis": {
+                "min": 0
+              },
+              "visual": {
+                "display": "bar"
+              }
+            }
+          },
+          "queries": [
+            {
+              "kind": "TimeSeriesQuery",
+              "spec": {
+                "plugin": {
+                  "kind": "PrometheusTimeSeriesQuery",
+                  "spec": {
+                    "query": "sum by (tool) (increase({otel_metric_name=\"debrief.playlist.empty\", otel_metric_type=\"sum\"}[$__rate_interval]))",
+                    "seriesNameFormat": "{{tool}}"
+                  }
+                }
+              }
+            }
+          ]
+        }
+      },
+      "request_rate": {
+        "kind": "Panel",
+        "spec": {
+          "display": {
+            "name": "API request rate by route (req/s)",
+            "description": "Server spans of debrief-api (Dash0 span metric dash0.spans). Probes are not traced."
+          },
+          "plugin": {
+            "kind": "TimeSeriesChart",
+            "spec": {
+              "legend": {
+                "position": "right"
+              },
+              "yAxis": {
+                "min": 0
+              },
+              "visual": {
+                "display": "line"
+              }
+            }
+          },
+          "queries": [
+            {
+              "kind": "TimeSeriesQuery",
+              "spec": {
+                "plugin": {
+                  "kind": "PrometheusTimeSeriesQuery",
+                  "spec": {
+                    "query": "sum by (http_route) (rate({otel_metric_name=\"dash0.spans\", service_name=\"debrief-api\", otel_span_kind=\"SERVER\"}[$__rate_interval]))",
+                    "seriesNameFormat": "{{http_route}}"
+                  }
+                }
+              }
+            }
+          ]
+        }
+      },
+      "error_rate": {
+        "kind": "Panel",
+        "spec": {
+          "display": {
+            "name": "API error rate (%)",
+            "description": "Server spans with status ERROR (5xx) over all server spans of debrief-api."
+          },
+          "plugin": {
+            "kind": "TimeSeriesChart",
+            "spec": {
+              "legend": {
+                "position": "bottom"
+              },
+              "yAxis": {
+                "min": 0,
+                "format": {
+                  "unit": "percent"
+                }
+              },
+              "visual": {
+                "display": "line"
+              }
+            }
+          },
+          "queries": [
+            {
+              "kind": "TimeSeriesQuery",
+              "spec": {
+                "plugin": {
+                  "kind": "PrometheusTimeSeriesQuery",
+                  "spec": {
+                    "query": "100 * (sum(rate({otel_metric_name=\"dash0.spans\", service_name=\"debrief-api\", otel_span_kind=\"SERVER\", otel_span_status_code=\"ERROR\"}[$__rate_interval])) or vector(0)) / sum(rate({otel_metric_name=\"dash0.spans\", service_name=\"debrief-api\", otel_span_kind=\"SERVER\"}[$__rate_interval]))",
+                    "seriesNameFormat": "error %"
+                  }
+                }
+              }
+            }
+          ]
+        }
+      },
+      "citations_dropped": {
+        "kind": "Panel",
+        "spec": {
+          "display": {
+            "name": "Memo lines dropped (no valid citation)",
+            "description": "debrief.memo.citations_dropped by reason (uncited, unknown_clip, other). Empty means nothing was dropped."
+          },
+          "plugin": {
+            "kind": "TimeSeriesChart",
+            "spec": {
+              "legend": {
+                "position": "bottom"
+              },
+              "yAxis": {
+                "min": 0
+              },
+              "visual": {
+                "display": "bar"
+              }
+            }
+          },
+          "queries": [
+            {
+              "kind": "TimeSeriesQuery",
+              "spec": {
+                "plugin": {
+                  "kind": "PrometheusTimeSeriesQuery",
+                  "spec": {
+                    "query": "sum by (reason) (increase({otel_metric_name=\"debrief.memo.citations_dropped\", otel_metric_type=\"sum\"}[$__rate_interval]))",
+                    "seriesNameFormat": "{{reason}}"
+                  }
+                }
+              }
+            }
+          ]
+        }
+      },
+      "memo_lines_valid": {
+        "kind": "Panel",
+        "spec": {
+          "display": {
+            "name": "Memo lines with a valid citation (SLO objective 99%)",
+            "description": "1 - debrief.memo.citations_dropped / debrief.memo.lines."
+          },
+          "plugin": {
+            "kind": "TimeSeriesChart",
+            "spec": {
+              "legend": {
+                "position": "bottom"
+              },
+              "yAxis": {
+                "min": 0,
+                "max": 100,
+                "format": {
+                  "unit": "percent"
+                }
+              },
+              "visual": {
+                "display": "line"
+              }
+            }
+          },
+          "queries": [
+            {
+              "kind": "TimeSeriesQuery",
+              "spec": {
+                "plugin": {
+                  "kind": "PrometheusTimeSeriesQuery",
+                  "spec": {
+                    "query": "100 * (1 - ((sum(increase({otel_metric_name=\"debrief.memo.citations_dropped\", otel_metric_type=\"sum\"}[$__rate_interval])) or vector(0)) / sum(increase({otel_metric_name=\"debrief.memo.lines\", otel_metric_type=\"sum\"}[$__rate_interval]))))",
+                    "seriesNameFormat": "valid %"
+                  }
+                }
+              }
+            }
+          ]
+        }
+      },
+      "llm_tokens": {
+        "kind": "Panel",
+        "spec": {
+          "display": {
+            "name": "LLM tokens by purpose",
+            "description": "debrief.llm.tokens (input + output) by purpose (rerank, memo, label)."
+          },
+          "plugin": {
+            "kind": "TimeSeriesChart",
+            "spec": {
+              "legend": {
+                "position": "bottom"
+              },
+              "yAxis": {
+                "min": 0
+              },
+              "visual": {
+                "display": "bar"
+              }
+            }
+          },
+          "queries": [
+            {
+              "kind": "TimeSeriesQuery",
+              "spec": {
+                "plugin": {
+                  "kind": "PrometheusTimeSeriesQuery",
+                  "spec": {
+                    "query": "sum by (purpose) (increase({otel_metric_name=\"debrief.llm.tokens\", otel_metric_type=\"sum\"}[$__rate_interval]))",
+                    "seriesNameFormat": "{{purpose}}"
+                  }
+                }
+              }
+            }
+          ]
+        }
+      },
+      "watch_clicks_by_rank": {
+        "kind": "Panel",
+        "spec": {
+          "display": {
+            "name": "Watch clicks by playlist rank (RUM)",
+            "description": "Dash0 web events named watch_click from debrief-web, grouped by the rank attribute (1 = top clip)."
+          },
+          "plugin": {
+            "kind": "TimeSeriesChart",
+            "spec": {
+              "legend": {
+                "position": "right"
+              },
+              "yAxis": {
+                "min": 0
+              },
+              "visual": {
+                "display": "bar"
+              }
+            }
+          },
+          "queries": [
+            {
+              "kind": "TimeSeriesQuery",
+              "spec": {
+                "plugin": {
+                  "kind": "PrometheusTimeSeriesQuery",
+                  "spec": {
+                    "query": "sum by (rank) (increase({otel_metric_name=\"dash0.web.events\", service_name=\"debrief-web\", event_name=\"watch_click\"}[$__rate_interval]))",
+                    "seriesNameFormat": "rank {{rank}}"
+                  }
+                }
+              }
+            }
+          ]
+        }
+      },
+      "rum_actions": {
+        "kind": "Panel",
+        "spec": {
+          "display": {
+            "name": "Product actions in the browser (RUM)",
+            "description": "Custom web events from debrief-web, by name."
+          },
+          "plugin": {
+            "kind": "TimeSeriesChart",
+            "spec": {
+              "legend": {
+                "position": "right"
+              },
+              "yAxis": {
+                "min": 0
+              },
+              "visual": {
+                "display": "bar"
+              }
+            }
+          },
+          "queries": [
+            {
+              "kind": "TimeSeriesQuery",
+              "spec": {
+                "plugin": {
+                  "kind": "PrometheusTimeSeriesQuery",
+                  "spec": {
+                    "query": "sum by (event_name) (increase({otel_metric_name=\"dash0.web.events\", service_name=\"debrief-web\", event_name=~\"playlist_build|watch_click|memo_make|memo_copy\"}[$__rate_interval]))",
+                    "seriesNameFormat": "{{event_name}}"
+                  }
+                }
+              }
+            }
+          ]
+        }
+      }
+    }
+  }
+}

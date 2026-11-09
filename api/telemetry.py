@@ -80,15 +80,29 @@ def build_resource(service: str) -> Resource:
         service = os.environ.get("OTEL_SERVICE_NAME", "").strip() or service
     attributes: dict[str, str] = {
         "service.name": service,
-        "service.version": os.environ.get("APP_VERSION", "").strip() or "dev",
+        "service.version": app_version(),
         "service.namespace": "debrief",
     }
     from_env = OTELResourceDetector().detect().attributes
     if "deployment.environment" not in from_env:
-        environment = "production" if os.environ.get("KUBERNETES_SERVICE_HOST") else "local"
+        environment = deployment_environment()
         attributes["deployment.environment"] = environment
         attributes["deployment.environment.name"] = environment
     return Resource.create(attributes)
+
+
+def app_version() -> str:
+    """The commit's short SHA (APP_VERSION, set by the image build), or "dev"."""
+    return os.environ.get("APP_VERSION", "").strip() or "dev"
+
+
+def deployment_environment() -> str:
+    """`deployment.environment` from OTEL_RESOURCE_ATTRIBUTES, else production in
+    Kubernetes and local elsewhere. The browser (GET /api/config) reports the same value."""
+    from_env = OTELResourceDetector().detect().attributes.get("deployment.environment")
+    if from_env:
+        return str(from_env)
+    return "production" if os.environ.get("KUBERNETES_SERVICE_HOST") else "local"
 
 
 # --- Console output for local checks (DEBRIEF_OTEL_CONSOLE=1) ---------------------------
@@ -266,6 +280,11 @@ class Instruments:
             unit="{line}",
             description="Memo lines dropped because they cite no requested clip",
         )
+        self.memo_lines = meter.create_counter(
+            "debrief.memo.lines",
+            unit="{line}",
+            description="Memo lines the citation check looked at, kept or dropped (SLO total)",
+        )
         self.llm_tokens = meter.create_counter(
             "debrief.llm.tokens", unit="{token}", description="Model tokens used"
         )
@@ -311,6 +330,16 @@ def record_memo_line_dropped(reason: str, cited_clip_id: str | None = None) -> N
             "debrief.cited_clip_id": (cited_clip_id or "")[:MAX_ID_CHARS],
         },
     )
+
+
+def record_memo_lines_checked(count: int) -> None:
+    """Task 9 calls this once per memo with every line the citation check looked at.
+
+    With `debrief.memo.citations_dropped` it gives the "memo lines carry a valid citation" SLO:
+    good = lines - dropped.
+    """
+    if count > 0:
+        instruments.memo_lines.add(count)
 
 
 def record_llm_tokens(purpose: str, provider: str, input_tokens: int, output_tokens: int) -> None:

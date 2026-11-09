@@ -157,13 +157,14 @@ def record_drop(item: Any, requested: set[str], ids_key: str = "clip_ids") -> No
 def validate(data: Mapping[str, Any], requested: Sequence[str]) -> Memo:
     """Keep only the lines that cite requested clips; count what was dropped."""
     allowed = set(requested)
-    dropped = 0
+    dropped = checked = 0
 
     def lines(key: str, limit: int, ids_key: str = "clip_ids") -> list[Line]:
-        nonlocal dropped
+        nonlocal dropped, checked
         items = data.get(key)
         kept: list[Line] = []
         for item in items if isinstance(items, list) else []:
+            checked += 1
             line = cited_line(item, allowed, ids_key)
             if line is None:
                 dropped += 1
@@ -173,6 +174,7 @@ def validate(data: Mapping[str, Any], requested: Sequence[str]) -> Memo:
         return kept
 
     summary = cited_line(data.get("summary"), allowed)
+    checked += int(data.get("summary") is not None)
     if data.get("summary") is not None and summary is None:
         dropped += 1
         record_drop(data.get("summary"), allowed)
@@ -182,6 +184,7 @@ def validate(data: Mapping[str, Any], requested: Sequence[str]) -> Memo:
     for line in lines("watch_together", MAX_WATCH * 2, ids_key="clip_id"):
         if line.clip_ids[0] not in {w.clip_ids[0] for w in watch} and len(watch) < MAX_WATCH:
             watch.append(line)
+    telemetry.record_memo_lines_checked(checked)
     if not takeaways:
         raise MemoError("The memo model cited none of the requested clips.")
     cited: dict[str, None] = {}
