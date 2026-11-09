@@ -28,7 +28,7 @@ spec:
             - name: OTEL_SERVICE_NAME
               value: debrief-api
             - name: LLM_PROVIDER
-              value: anthropic
+              value: elastic
             # From Secret app-credentials, which a person creates by hand (see
             # README, Deploy). Optional, so pods start before it exists. Only the
             # Secret's name goes in git, never a value.
