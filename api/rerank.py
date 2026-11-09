@@ -63,7 +63,8 @@ _SPACE = re.compile(r"\s+")
 
 log = logging.getLogger("debrief.rerank")
 tracer = trace.get_tracer("debrief")
-_pool = ThreadPoolExecutor(max_workers=12, thread_name_prefix="rerank")
+# ~16 concurrent playlists x 3 batches
+_pool = ThreadPoolExecutor(max_workers=48, thread_name_prefix="rerank")
 
 
 class RerankError(RuntimeError):
