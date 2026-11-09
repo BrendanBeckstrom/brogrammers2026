@@ -1,0 +1,39 @@
+# --- Secrets: never commit these (the repo and image are public) ---
+.env
+.env.*
+!.env.example
+*.pem
+*.key
+*kubeconfig*
+secrets/
+*-secret.yaml
+*-secrets.yaml
+
+# --- Downloaded / generated data ---
+data/raw/
+data/chunks.jsonl
+
+# --- OS / editor ---
+.DS_Store
+.idea/
+.vscode/*
+!.vscode/extensions.json
+*.swp
+
+# --- Python ---
+__pycache__/
+*.py[cod]
+.venv/
+.pytest_cache/
+.ruff_cache/
+
+# --- Web ---
+node_modules/
+web/dist/
+*.tsbuildinfo
+
+# --- Logs ---
+*.log
+
+# --- Agent worktrees ---
+.claude/worktrees/
