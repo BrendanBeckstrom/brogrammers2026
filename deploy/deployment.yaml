@@ -21,6 +21,15 @@ spec:
       # Radar Checks (automountServiceAccountToken): the app never calls the
       # Kubernetes API, so don't mount a service-account token into it.
       automountServiceAccountToken: false
+      # Radar Checks (missingTopologySpread): prefer putting the two replicas on
+      # different nodes, so one node going away doesn't take both.
+      topologySpreadConstraints:
+        - maxSkew: 1
+          topologyKey: kubernetes.io/hostname
+          whenUnsatisfiable: ScheduleAnyway
+          labelSelector:
+            matchLabels:
+              app: app
       containers:
         - name: app
           image: app
