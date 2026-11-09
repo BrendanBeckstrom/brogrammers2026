@@ -20,8 +20,8 @@ Full spec: [`docs/BRIEF.md`](docs/BRIEF.md).
 Prerequisites: [uv](https://docs.astral.sh/uv/), Node 22+, make. Docker for building the image.
 
 ```bash
-git clone https://github.com/DillanMena/wemakedevs-brogrammers.git
-cd wemakedevs-brogrammers
+git clone https://github.com/BrendanBeckstrom/brogrammers2026.git
+cd brogrammers2026
 cp .env.example .env      # fill in values; .env is gitignored
 make setup                # uv sync + npm ci
 make test                 # lint + unit tests, Python and web
