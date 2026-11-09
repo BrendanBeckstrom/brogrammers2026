@@ -16,6 +16,7 @@ const FILTERS: { value: PlaylistFilter; label: string }[] = [
 interface Props {
   playlist: PlaylistResponse
   request: PlaylistRequest
+  sharedRequest: PlaylistRequest
   updating: boolean
   error: string | null
   toolNames: Map<string, string>
@@ -31,7 +32,16 @@ function formatSaved(iso: string): string | null {
   return Number.isNaN(date.getTime()) ? null : savedDate.format(date)
 }
 
-export function Playlist({ playlist, request, updating, error, toolNames, sharedAt, onFilterChange }: Props) {
+export function Playlist({
+  playlist,
+  request,
+  sharedRequest,
+  updating,
+  error,
+  toolNames,
+  sharedAt,
+  onFilterChange,
+}: Props) {
   const filterHint = useId()
   const hoodId = useId()
   const [hoodOpen, setHoodOpen] = useState(false)
@@ -62,7 +72,7 @@ export function Playlist({ playlist, request, updating, error, toolNames, shared
             </p>
           ) : null}
         </div>
-        {hasClips ? <ShareButton request={request} clipIds={playlist.clips.map((c) => c.clip_id)} /> : null}
+        {hasClips ? <ShareButton request={sharedRequest} clipIds={playlist.clips.map((c) => c.clip_id)} /> : null}
       </div>
 
       {hasClips ? <Terms terms={playlist.terms} /> : null}

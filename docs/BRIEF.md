@@ -306,7 +306,9 @@ As built (task 6, checked on Elastic 9.7 serverless): the text half is one `matc
 | --- | --- | --- |
 | `GET /api/tools` | none | `[{"id", "name", "chunk_count"}]`, only tools with 5 or more chunks |
 | `POST /api/stack` | `{"tools": [ids], "dependency_file": {"name", "content"}}`, either field optional | `{"tools": [{"id", "name", "source"}], "unknown_packages": [strings]}` |
-| `POST /api/playlist` | `{"tools", "pain", "attended_talk_ids", "filter": "all" or "attended" or "missed", "budget_minutes": 25, "rerank": true}` | `{"total_seconds", "clips": [clip], "trace_id", "message", "debug"}` |
+| `POST /api/playlist` | `{"tools", "pain", "attended_talk_ids", "filter": "all" or "attended" or "missed", "budget_minutes": 25, "rerank": true}` | `{"total_seconds", "clips": [clip], "trace_id", "message", "debug"}`, optionally with `terms` |
+| `POST /api/playlists` | `{"request": <playlist request>, "clip_ids": [clip ids]}` | `{"id", "url"}` |
+| `GET /api/playlists/{id}` | none | `{"request": <playlist request>, "response": <playlist response>, "created_at"}`; 404 if not found |
 | `POST /api/memo` | `{"tools", "clip_ids"}` | `{"markdown", "cited_clip_ids"}` |
 | `GET /api/clips/{clip_or_chunk_id}` | none | `{"clip_id", "talk_id", "title", "speakers", "start_sec", "end_sec", "watch_url", "text"}` |
 | `GET /api/config` | none | `{"rum": {"endpoint", "token", "service_name": "debrief-web", "environment", "version"}}`, or `{"rum": null}` when `DASH0_WEB_TOKEN` is unset |
@@ -318,6 +320,7 @@ Playlist response details (task 6):
 
 - `trace_id` is the current OpenTelemetry trace id (32 hex characters), or `null` when tracing is off.
 - `message` is `null` unless there is something to tell the user, for example why the playlist is empty ("No talk mentions …"). A stack whose tools appear in no chunk returns `clips: []` with a `message`.
+- `terms` is optional and contains significant terms from matching clips as `[{"term", "score", "doc_count"}]`; the UI shows up to the 8 strongest terms, and older API responses may omit it.
 - `debug` feeds the UI's "Under the hood" panel: `{"query": <the RRF request body sent to Elastic>, "timings_ms": {step: ms}, "hits": n, "talks": n}`. It never holds secrets.
 - `rerank: true` (task 8) does two things. Inside Elastic, the RRF retriever is wrapped in a `text_similarity_reranker` (`.jina-reranker-v3` on `text`, rerank text = tool names plus the pain sentence, top 50 hits); if that fails or takes over 3 s the plain RRF order is used. Then the top 18 built clips (a playlist holds at most 15) go to the model in up to 3 parallel calls of at most 6 clips each (dealt round-robin), each with a 6 s timeout and no retries, and the whole step a 6.5 s deadline. Each call returns `[{clip_id, score 0-1, why}]`: unknown ids are dropped, a why line over 20 words or naming none of the clip's `matched_tools` falls back to the template line, clips under 0.3 are dropped unless that leaves fewer than the golden minimum, and the playlist is re-sorted by the model score (`score` is then the model score). A call that fails or misses the deadline keeps the template why lines for its clips only, which take the median score of the calls that answered. If every call fails, the API returns Elastic's order with template why lines, still a 200.
 - `debug.rerank` is `{"elastic": "ok" | "off" | "fallback: …", "model": "ok" | "off" | "partial: …" | "fallback: …"}`; `debug.timings_ms` gains `elastic_rerank`, `rerank` and one `rerank_batch_<n>` per model call.

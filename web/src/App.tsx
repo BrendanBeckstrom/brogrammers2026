@@ -98,9 +98,10 @@ export default function App() {
     const id = sharedPlaylistId(window.location.search)
     if (!id) return
     let cancelled = false
+    const startSeq = requestSeq.current
     getSharedPlaylist(id).then(
       (saved) => {
-        if (cancelled) return
+        if (cancelled || requestSeq.current !== startSeq) return
         const seq = ++requestSeq.current
         focusOnLoad.current = true
         setShared({ status: 'none' })
@@ -123,7 +124,7 @@ export default function App() {
         )
       },
       (error: unknown) => {
-        if (cancelled) return
+        if (cancelled || requestSeq.current !== startSeq) return
         const message =
           error instanceof ApiError && error.status === 404
             ? 'That shared playlist link has expired or never existed. Build a fresh one below; it only takes a few seconds.'
@@ -344,8 +345,10 @@ export default function App() {
               </h2>
               {shown ? (
                 <Playlist
+                  key={shown.version}
                   playlist={shown.response}
                   request={pending ?? shown.request}
+                  sharedRequest={shown.request}
                   updating={building}
                   error={playlist?.error ?? null}
                   toolNames={toolNames}
