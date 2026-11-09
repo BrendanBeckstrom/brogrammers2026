@@ -24,7 +24,7 @@ Skip this if `get_resource` (kind `Application`, group `argoproj.io`, name `app`
 
 Commit and push to `main`. Note the full commit SHA (`git rev-parse HEAD`) and its seven-character image tag (`git rev-parse --short=7 HEAD`).
 
-The Action skips pushes changing only Markdown and/or `deploy/kustomization.yaml`. Markdown-only changes need no deployment. For an intentional kustomization-only change, skip step 2, retain the existing image tag as the expected app version, and verify the configuration change after sync. Every other push, including other files under `deploy/`, triggers a build.
+The Action skips pushes changing only Markdown. Markdown-only changes need no deployment. Kustomization-only changes trigger a build and publish the updated manifests to `deploy`; every other push also triggers a build.
 
 ## 2. Wait for the build, then pull its deploy commit
 
