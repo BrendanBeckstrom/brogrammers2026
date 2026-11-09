@@ -563,3 +563,20 @@ def test_every_route_has_a_span(api: TestClient, spans: InMemorySpanExporter) ->
     api.get("/api/talks")
     api.get(f"/api/clips/{TALK_IDS[0]}-0")
     assert {"api.tools", "api.talks", "api.clip"} <= {s.name for s in spans.get_finished_spans()}
+
+
+def test_kubernetes_is_never_reported_as_a_coverage_gap() -> None:
+    """Kubernetes is exclude_from_matching (in nearly every talk), so it is not 'missing'."""
+    from api import search as search_mod
+
+    assert search_mod._excluded("kubernetes")
+    assert not search_mod._excluded("argo-cd")
+
+
+def test_filler_words_include_generic_speech() -> None:
+    from api import search as search_mod
+
+    for word in ("already", "put", "anti", "because"):
+        assert word in search_mod.FILLER_WORDS
+    for word in ("sharding", "manifest", "sampling", "ambient"):
+        assert word not in search_mod.FILLER_WORDS

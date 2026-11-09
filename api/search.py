@@ -74,7 +74,13 @@ FILLER_WORDS = frozenset(
     people folks guys everybody everyone something anything everything one two three
     first next last today slide slides talk question questions thank thanks awesome cool
     great good nice sure maybe probably different example data information use uses used
-    using per create change""".split()
+    using per create change
+    already put puts putting take takes taking took come comes came back now then here
+    there where when what which who how why because about into over under again still
+    even only very more most other some any all each both few own same than too can could
+    would should will may might must our your their them they you this that these those
+    and but not for with from out off down give gives keep start try tried trying anti
+    end ends whole kinds bit bunch couple start started""".split()
 )
 _TERM = re.compile(r"^[a-z][a-z0-9]{2,}$")
 _WORD = re.compile(r"[^\W_]+")
@@ -508,6 +514,11 @@ def _empty(message: str, debug: dict[str, Any]) -> dict[str, Any]:
     return {"total_seconds": 0, "clips": [], "terms": [], "message": message, "debug": debug}
 
 
+def _excluded(tool_id: str) -> bool:
+    tool = tool_catalog().get(tool_id)
+    return bool(tool and tool.exclude_from_matching)
+
+
 def _names(tool_ids: Sequence[str]) -> str:
     names = [tool_name(t) for t in tool_ids]
     return names[0] if len(names) == 1 else ", ".join(names[:-1]) + " or " + names[-1]
@@ -592,12 +603,22 @@ def build_playlist(
     timings["search_wall"] = _ms(search_started)
 
     covered = _tool_hits(keyword_resp)
-    uncovered = [t for t in tool_ids if not covered.get(t)]
+    # Tools marked exclude_from_matching (Kubernetes itself) are in nearly every talk, so
+    # they are never tagged; they are not a coverage gap and never appear in the message.
+    matchable = [t for t in tool_ids if not _excluded(t)]
+    uncovered = [t for t in matchable if not covered.get(t)]
     debug["uncovered_tools"] = uncovered
-    if len(uncovered) == len(tool_ids):
+    if not matchable:
+        timings["total"] = _ms(total_started)
+        return _empty(
+            f"{_names(tool_ids)} comes up in nearly every talk, so Debrief matches the tools "
+            "you run on top of it. Pick one or more of those.",
+            debug,
+        )
+    if len(uncovered) == len(matchable):
         where = {"all": "", "attended": " you attended", "missed": " you missed"}[req.filter]
         timings["total"] = _ms(total_started)
-        return _empty(f"No talk{where} mentions {_names(tool_ids)}.", debug)
+        return _empty(f"No talk{where} mentions {_names(matchable)}.", debug)
 
     with tracer.start_as_current_span("search.group") as span:
         started = time.perf_counter()
