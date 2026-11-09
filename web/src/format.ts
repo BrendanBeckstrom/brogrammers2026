@@ -3,6 +3,14 @@ import type { Clip, MatchedBy, TalkLabel } from './api'
 
 const pad2 = (n: number): string => String(n).padStart(2, '0')
 
+/** Build a YouTube URL that opens at the clip's first second. */
+export function watchUrl(talkId: string, startSec: number): string {
+  const url = new URL('https://www.youtube.com/watch')
+  url.searchParams.set('v', talkId)
+  url.searchParams.set('t', `${startSec}s`)
+  return url.toString()
+}
+
 /** 872 -> "14:32"; past an hour, 3725 -> "1:02:05". */
 export function formatTimestamp(totalSeconds: number): string {
   const s = Math.max(0, Math.floor(totalSeconds))

@@ -88,7 +88,7 @@ export default function App() {
   }
 
   function changeFilter(filter: PlaylistFilter) {
-    const base = playlist?.shown?.request
+    const base = playlist?.pending ?? playlist?.shown?.request
     if (base) void loadPlaylist({ ...base, filter }, false)
   }
 

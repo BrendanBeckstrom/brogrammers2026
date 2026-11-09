@@ -1,6 +1,6 @@
 import { describe, expect, it } from 'vitest'
 import { buildPlaylistRequest, postMemo, postPlaylist } from '../api'
-import { playlistAnnouncement, playlistSummary } from '../format'
+import { playlistAnnouncement, playlistSummary, watchUrl } from '../format'
 import { parseMarkdown } from '../markdown'
 import { MEMO, PLAYLIST } from './data'
 import { mockFetch, mockPlaylist } from './mockFetch'
@@ -11,12 +11,16 @@ describe('playlist fixture', () => {
     expect(playlistAnnouncement(PLAYLIST.total_seconds, PLAYLIST.clips)).toBe('Playlist loaded: 9 clips, 22 minutes')
   })
 
+  it('builds watch URLs with the clip start time', () => {
+    expect(watchUrl('demo-argo-01', 872)).toBe('https://www.youtube.com/watch?v=demo-argo-01&t=872s')
+  })
+
   it('keeps the clip contract', () => {
     for (const clip of PLAYLIST.clips) {
       const length = clip.end_sec - clip.start_sec
       expect(length).toBeGreaterThanOrEqual(60)
       expect(length).toBeLessThanOrEqual(240)
-      expect(clip.watch_url.endsWith(`&t=${clip.start_sec}s`)).toBe(true)
+      expect(clip.watch_url).toBe(watchUrl(clip.talk_id, clip.start_sec))
       expect(clip.matched_tools.length).toBeGreaterThan(0)
     }
   })

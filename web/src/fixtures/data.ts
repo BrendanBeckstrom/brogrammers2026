@@ -2,7 +2,7 @@
 // Talk titles, speakers, quotes and transcripts are invented for illustration; they are
 // not real KubeCon talks and the "demo-*" video ids do not exist on YouTube.
 import type { Clip, MemoResponse, PlaylistResponse, StackResponse, Talk, Tool } from '../api'
-import { formatTimestamp } from '../format'
+import { formatTimestamp, watchUrl } from '../format'
 
 export const TOOLS: Tool[] = [
   { id: 'argo-cd', name: 'Argo CD', chunk_count: 64 },
@@ -54,9 +54,6 @@ export const TALKS: Talk[] = [
   { talk_id: 'demo-key-01', title: 'Keynote: The Next Ten Years of Cloud Native', speakers: ['Rosa Alvarez'] },
 ]
 
-const watch = (talkId: string, startSec: number): string =>
-  `https://www.youtube.com/watch?v=${talkId}&t=${startSec}s`
-
 function clip(
   talkId: string,
   startSec: number,
@@ -72,7 +69,7 @@ function clip(
     speakers: talk.speakers,
     start_sec: startSec,
     end_sec: endSec,
-    watch_url: watch(talkId, startSec),
+    watch_url: watchUrl(talkId, startSec),
     ...fields,
   }
 }
