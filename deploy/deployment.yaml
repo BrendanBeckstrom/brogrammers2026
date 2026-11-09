@@ -69,14 +69,14 @@ spec:
             limits:
               cpu: 500m
               memory: 512Mi
-          # Found by a Radar AI investigation: readiness probes hit the pod before
-          # uvicorn was listening ("connection refused" on every rollout). The
-          # startup probe holds readiness and liveness checks until the app is up
-          # (up to 60 s), then hands over.
+          # Give uvicorn time to bind before the first startup check, avoiding
+          # connection-refused warnings. Startup checks then allow up to 60 s
+          # before readiness and liveness checks take over.
           startupProbe:
             httpGet:
               path: /healthz
               port: http
+            initialDelaySeconds: 3
             periodSeconds: 2
             failureThreshold: 30
           readinessProbe:
