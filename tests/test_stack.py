@@ -1,6 +1,7 @@
 """Task 7: stack parsing. Fixture files in, tool ids out; unknown packages always listed."""
 
 from pathlib import Path
+from typing import Any
 
 import pytest
 from fastapi.testclient import TestClient
@@ -14,6 +15,8 @@ from api.stack import (
     HELM_REPOSITORY_HINTS,
     MAX_CONTENT_BYTES,
     FileType,
+    Package,
+    StackMatch,
     StackParseError,
     analyze_dependency_file,
     build_index,
@@ -37,11 +40,11 @@ def fixture(name: str) -> str:
     return (FIXTURES / name).read_text(encoding="utf-8")
 
 
-def analyze(name: str, file_name: str | None = None):
+def analyze(name: str, file_name: str | None = None) -> StackMatch:
     return analyze_dependency_file(file_name or name, fixture(name), INDEX)
 
 
-def assert_accounted(match, packages) -> None:
+def assert_accounted(match: StackMatch, packages: list[Package]) -> None:
     """Every parsed package either maps to a tool or is listed as unknown."""
     names = [p.name for p in packages]
     assert set(match.unknown) <= set(names)
@@ -67,7 +70,7 @@ def assert_accounted(match, packages) -> None:
         ("charts\\app\\Chart.yaml", FileType.HELM),
     ],
 )
-def test_detect_file_type(name, expected) -> None:
+def test_detect_file_type(name: str, expected: FileType) -> None:
     assert detect_file_type(name) is expected
 
 
@@ -138,7 +141,7 @@ def test_golden_go_mod_matches_demo() -> None:
         ("github.com/IBM/sarama", "kafka"),
     ],
 )
-def test_go_prefix_matching(module, tool_id) -> None:
+def test_go_prefix_matching(module: str, tool_id: str) -> None:
     match = analyze_dependency_file("go.mod", f"module x\nrequire {module} v1.0.0\n", INDEX)
     assert match.tool_ids == [tool_id]
     assert match.unknown == []
@@ -348,8 +351,35 @@ def test_route_empty_request() -> None:
         {"dependency_file": {"name": "go.mod", "content": "é" * (MAX_CONTENT_BYTES // 2 + 1)}},
     ],
 )
-def test_route_rejects_bad_input(payload) -> None:
+def test_route_rejects_bad_input(payload: dict[str, Any]) -> None:
     response = client.post("/api/stack", json=payload)
+    assert response.status_code == 422
+
+
+def test_route_oversized_content_error_does_not_echo_uploaded_content() -> None:
+    marker = "private-uploaded-content"
+    content = marker + ("x" * MAX_CONTENT_BYTES)
+    response = client.post(
+        "/api/stack", json={"dependency_file": {"name": "go.mod", "content": content}}
+    )
+
+    assert response.status_code == 422
+    assert "dependency file is larger than" in response.json()["detail"]
+    assert marker not in response.text
+
+
+@pytest.mark.parametrize(
+    ("name", "content"),
+    [
+        ("package.json", "[" * 1100 + "0" + "]" * 1100),
+        ("Chart.yaml", "nested: " + "[" * 1100 + "value" + "]" * 1100),
+    ],
+)
+def test_route_rejects_deeply_nested_files(name: str, content: str) -> None:
+    response = client.post(
+        "/api/stack", json={"dependency_file": {"name": name, "content": content}}
+    )
+
     assert response.status_code == 422
 
 
@@ -359,7 +389,7 @@ def test_route_unknown_tool_error_names_the_id() -> None:
     assert "not-a-tool" in response.json()["detail"]
 
 
-def test_route_span_carries_counts_only(monkeypatch) -> None:
+def test_route_span_carries_counts_only(monkeypatch: pytest.MonkeyPatch) -> None:
     exporter = InMemorySpanExporter()
     provider = TracerProvider()
     provider.add_span_processor(SimpleSpanProcessor(exporter))

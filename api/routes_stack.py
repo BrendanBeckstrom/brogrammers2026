@@ -15,7 +15,6 @@ from opentelemetry import trace
 from pydantic import BaseModel, Field
 
 from api.stack import (
-    MAX_CONTENT_BYTES,
     PackageIndex,
     StackParseError,
     analyze_dependency_file,
@@ -35,7 +34,7 @@ tracer = trace.get_tracer("debrief")
 
 class DependencyFile(BaseModel):
     name: str = Field(min_length=1, max_length=255)
-    content: str = Field(max_length=MAX_CONTENT_BYTES)
+    content: str
 
 
 class StackRequest(BaseModel):

@@ -172,6 +172,8 @@ def parse_package_json(content: str) -> list[Package]:
         data = json.loads(content)
     except json.JSONDecodeError as exc:
         raise StackParseError(f"package.json is not valid JSON (line {exc.lineno})") from None
+    except RecursionError:
+        raise StackParseError("package.json is nested too deeply") from None
     if not isinstance(data, dict):
         raise StackParseError("package.json must be a JSON object")
     packages: list[Package] = []
@@ -221,6 +223,8 @@ def parse_chart_yaml(content: str) -> list[Package]:
         data = yaml.safe_load(content)
     except yaml.YAMLError:
         raise StackParseError("Chart.yaml is not valid YAML") from None
+    except RecursionError:
+        raise StackParseError("Chart.yaml is nested too deeply") from None
     if data is None:
         return []
     if not isinstance(data, dict):
