@@ -1,8 +1,8 @@
 import { describe, expect, it } from 'vitest'
-import { buildPlaylistRequest, postMemo, postPlaylist } from '../api'
+import { ApiError, buildPlaylistRequest, getSharedPlaylist, postMemo, postPlaylist, savePlaylist } from '../api'
 import { playlistAnnouncement, playlistSummary, watchUrl } from '../format'
 import { parseMarkdown } from '../markdown'
-import { MEMO, PLAYLIST } from './data'
+import { MEMO, PLAYLIST, SHARED_DEMO } from './data'
 import { mockFetch, mockPlaylist } from './mockFetch'
 
 describe('playlist fixture', () => {
@@ -52,5 +52,29 @@ describe('memo fixture', () => {
     expect(takeaways?.kind === 'list' && takeaways.items).toHaveLength(3)
     const links = JSON.stringify(blocks).match(/"kind":"link","href":"https:\/\/www\.youtube\.com\/watch\?v=demo-[^"]+"/g)
     expect(links?.length).toBeGreaterThanOrEqual(6)
+  })
+})
+
+describe('share and terms fixtures', () => {
+  it('sends significant terms with a playlist and drops them when it is empty', async () => {
+    const full = await postPlaylist(buildPlaylistRequest({ tools: ['argo-cd'] }), mockFetch)
+    expect(full.terms?.length).toBeGreaterThan(8)
+    const empty = await postPlaylist(buildPlaylistRequest({ tools: ['cobol'] }), mockFetch)
+    expect(empty.terms).toBeUndefined()
+  })
+
+  it('saves a playlist and loads it back by id', async () => {
+    const request = buildPlaylistRequest({ tools: ['istio'] })
+    const saved = await savePlaylist({ request, clip_ids: ['x'] }, mockFetch)
+    expect(saved.url).toBe(`/?p=${saved.id}`)
+    const loaded = await getSharedPlaylist(saved.id, mockFetch)
+    expect(loaded.request).toEqual(request)
+    expect(loaded.response.clips.every((c) => c.matched_tools.includes('istio'))).toBe(true)
+  })
+
+  it('serves the demo playlist and 404s unknown ids', async () => {
+    expect(await getSharedPlaylist('demo', mockFetch)).toEqual(SHARED_DEMO)
+    const error = await getSharedPlaylist('missing', mockFetch).catch((e: unknown) => e)
+    expect((error as ApiError).status).toBe(404)
   })
 })

@@ -4,11 +4,16 @@ import {
   buildPlaylistRequest,
   dependencyFileName,
   getClipText,
+  getSharedPlaylist,
   getTalks,
   getTools,
   postMemo,
   postPlaylist,
   postStack,
+  savePlaylist,
+  shareLink,
+  sharedPlaylistId,
+  topTerms,
 } from './api'
 
 interface Call {
@@ -102,6 +107,48 @@ describe('api request shapes', () => {
       contentType: 'application/json',
       body: { tools: ['argo-cd'], clip_ids: ['c1', 'c2'] },
     })
+  })
+})
+
+describe('share links', () => {
+  it('POST /api/playlists with the request and clip ids', async () => {
+    const { calls, fetchFn } = recorder({ id: 'k3x9', url: '/?p=k3x9' })
+    const request = buildPlaylistRequest({ tools: ['argo-cd'], pain: 'slow syncs' })
+    expect(await savePlaylist({ request, clip_ids: ['c1', 'c2'] }, fetchFn)).toEqual({ id: 'k3x9', url: '/?p=k3x9' })
+    expect(calls[0]).toEqual({
+      url: '/api/playlists',
+      method: 'POST',
+      contentType: 'application/json',
+      body: { request, clip_ids: ['c1', 'c2'] },
+    })
+  })
+
+  it('GET /api/playlists/{id} escapes the id and surfaces 404s', async () => {
+    const ok = recorder({ request: {}, response: {}, created_at: '2026-11-09T19:30:00Z' })
+    await getSharedPlaylist('a/b', ok.fetchFn)
+    expect(ok.calls[0]).toMatchObject({ url: '/api/playlists/a%2Fb', method: 'GET' })
+
+    const missing = recorder({ detail: 'Playlist not found' }, 404)
+    const error = await getSharedPlaylist('nope', missing.fetchFn).catch((e: unknown) => e)
+    expect(error).toBeInstanceOf(ApiError)
+    expect((error as ApiError).status).toBe(404)
+  })
+
+  it('builds and reads ?p=<id> links', () => {
+    expect(shareLink('https://brogrammers.cnh.radarhq.io', 'k3x9')).toBe('https://brogrammers.cnh.radarhq.io/?p=k3x9')
+    expect(shareLink('http://localhost:5173/', 'a b')).toBe('http://localhost:5173/?p=a%20b')
+    expect(sharedPlaylistId('?p=k3x9&mock=1')).toBe('k3x9')
+    expect(sharedPlaylistId('?mock=1')).toBeNull()
+    expect(sharedPlaylistId('?p=%20')).toBeNull()
+  })
+})
+
+describe('significant terms', () => {
+  it('keeps the strongest eight and tolerates a missing field', () => {
+    const terms = Array.from({ length: 10 }, (_, i) => ({ term: `t${i}`, score: i / 10, doc_count: i }))
+    expect(topTerms(terms).map((t) => t.term)).toEqual(['t9', 't8', 't7', 't6', 't5', 't4', 't3', 't2'])
+    expect(topTerms(undefined)).toEqual([])
+    expect(topTerms([{ term: ' ', score: 1, doc_count: 1 }])).toEqual([])
   })
 })
 
