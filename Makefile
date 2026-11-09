@@ -1,0 +1,32 @@
+# Every command for Debrief. Config comes from .env (see .env.example).
+SHELL := /bin/bash
+ENV := set -a; [ -f .env ] && . ./.env; set +a;
+
+.PHONY: setup ingest index api web test golden
+
+setup: ## Install Python and web dependencies
+	uv sync --locked
+	cd web && npm ci
+
+ingest: ## Download, clean, chunk and tag; writes data/chunks.jsonl (tasks 2-4)
+	$(ENV) uv run python -m ingest.download
+	$(ENV) uv run python -m ingest.chunk
+	$(ENV) uv run python -m ingest.tag
+
+index: ## Create the Elastic indexes and load the chunks (task 5)
+	$(ENV) uv run python -m ingest.index
+
+api: ## Run the API locally on port 8000
+	$(ENV) uv run uvicorn api.main:app --reload --port 8000
+
+web: ## Run the web app locally on port 5173 (proxies /api to :8000)
+	cd web && npm run dev
+
+test: ## Lint and unit tests for Python and web
+	uv run ruff check .
+	uv run ruff format --check .
+	uv run pytest -q
+	cd web && npm run lint && npm test
+
+golden: ## Run every golden stack against the running API (task 6+)
+	$(ENV) uv run python -m tests.golden

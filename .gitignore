@@ -1,14 +1,17 @@
-# --- Secrets: never commit these ---
+# --- Secrets: never commit these (the repo and image are public) ---
 .env
 .env.*
 !.env.example
 *.pem
 *.key
-kubeconfig*
-*.kubeconfig
+*kubeconfig*
 secrets/
 *-secret.yaml
 *-secrets.yaml
+
+# --- Downloaded / generated data ---
+data/raw/
+data/chunks.jsonl
 
 # --- OS / editor ---
 .DS_Store
@@ -17,29 +20,17 @@ secrets/
 !.vscode/extensions.json
 *.swp
 
-# --- Node ---
-node_modules/
-dist/
-build/
-.next/
-npm-debug.log*
-yarn-error.log*
-
 # --- Python ---
 __pycache__/
 *.py[cod]
 .venv/
-venv/
 .pytest_cache/
-*.egg-info/
+.ruff_cache/
 
-# --- Go ---
-bin/
-vendor/
-
-# --- Helm / K8s ---
-charts/*/charts/
-*.tgz
+# --- Web ---
+node_modules/
+web/dist/
+*.tsbuildinfo
 
 # --- Logs ---
 *.log
