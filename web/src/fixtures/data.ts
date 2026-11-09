@@ -1,7 +1,7 @@
 // Sample API responses for the dev-only mock mode (`?mock=1`) and for unit tests.
 // Talk titles, speakers, quotes and transcripts are invented for illustration; they are
 // not real KubeCon talks and the "demo-*" video ids do not exist on YouTube.
-import type { Clip, MemoResponse, PlaylistResponse, StackResponse, Talk, Tool } from '../api'
+import type { Clip, MemoResponse, PlaylistResponse, SharedPlaylist, SignificantTerm, StackResponse, Talk, Tool } from '../api'
 import { formatTimestamp, watchUrl } from '../format'
 
 export const TOOLS: Tool[] = [
@@ -159,7 +159,21 @@ export const PLAYLIST_CLIPS: Clip[] = [
   }),
 ]
 
+/** Significant terms Elasticsearch might find in the clips for a GitOps + observability stack. */
+export const TERMS: SignificantTerm[] = [
+  { term: 'sync waves', score: 0.91, doc_count: 14 },
+  { term: 'applicationsets', score: 0.84, doc_count: 11 },
+  { term: 'native histograms', score: 0.77, doc_count: 9 },
+  { term: 'collector', score: 0.71, doc_count: 21 },
+  { term: 'tail sampling', score: 0.66, doc_count: 7 },
+  { term: 'reconcile', score: 0.62, doc_count: 12 },
+  { term: 'ambient mode', score: 0.55, doc_count: 6 },
+  { term: 'cardinality', score: 0.49, doc_count: 10 },
+  { term: 'sharding', score: 0.41, doc_count: 5 },
+]
+
 export const PLAYLIST: PlaylistResponse = {
+  terms: TERMS,
   total_seconds: PLAYLIST_CLIPS.reduce((sum, c) => sum + (c.end_sec - c.start_sec), 0),
   clips: PLAYLIST_CLIPS,
   trace_id: '4bf92f3577b34da6a3ce929d0e0e4736',
@@ -243,4 +257,25 @@ export const MEMO: MemoResponse = {
 - [Ambient Mesh in Production (08:20–09:43)](${c(4).watch_url})
 `,
   cited_clip_ids: [c(0).clip_id, c(1).clip_id, c(3).clip_id, c(5).clip_id, c(4).clip_id],
+}
+
+/** A saved playlist the mock serves at `?p=demo` (and `GET /api/playlists/demo`). */
+export const SHARED_DEMO: SharedPlaylist = {
+  request: {
+    tools: ['argo-cd', 'prometheus'],
+    pain: 'our Argo CD syncs are slow',
+    attended_talk_ids: [],
+    filter: 'all',
+    budget_minutes: 25,
+    rerank: true,
+  },
+  response: {
+    ...PLAYLIST,
+    clips: PLAYLIST_CLIPS.filter((x) => x.matched_tools.some((t) => t === 'argo-cd' || t === 'prometheus')),
+    total_seconds: PLAYLIST_CLIPS.filter((x) => x.matched_tools.some((t) => t === 'argo-cd' || t === 'prometheus')).reduce(
+      (sum, x) => sum + (x.end_sec - x.start_sec),
+      0,
+    ),
+  },
+  created_at: '2026-11-09T19:30:00Z',
 }
