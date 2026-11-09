@@ -56,6 +56,7 @@ class FakeLLM:
         max_tokens: int,
         json: bool = False,
         timeout: float | None = None,
+        schema: Any = None,
     ) -> LLMResult:
         with self.lock:
             self.calls.append({"purpose": purpose, "json": json, "timeout": timeout})

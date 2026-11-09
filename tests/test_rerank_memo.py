@@ -47,6 +47,7 @@ class FakeLLM:
         max_tokens: int,
         json: bool = False,
         timeout: float | None = None,
+        schema: Any = None,
     ) -> LLMResult:
         self.calls.append((purpose, prompt))
         if isinstance(self.reply, Exception):
@@ -811,3 +812,58 @@ def test_memo_dropped_lines_are_counted_by_reason(use_model, reader: InMemoryMet
     # "Invented advice", "Half-invented step" and "Does not exist" cite unknown ids;
     # "Uncited opinion" cites nothing.
     assert dropped == {"unknown_clip": 3, "uncited": 1}
+
+
+def test_anthropic_request_uses_structured_outputs_when_a_schema_is_given() -> None:
+    from api import llm as llm_mod
+    from api.memo import MEMO_SCHEMA
+
+    backend = llm_mod.AnthropicBackend("test-key")
+    params = backend.request(
+        "p",
+        model="claude-sonnet-5-5",
+        purpose="memo",
+        max_tokens=100,
+        json=True,
+        schema=MEMO_SCHEMA,
+    )
+    assert params["output_config"]["format"] == {"type": "json_schema", "schema": MEMO_SCHEMA}
+    assert "effort" in params["output_config"]
+    plain = backend.request(
+        "p", model="claude-sonnet-5-5", purpose="memo", max_tokens=100, json=True
+    )
+    assert "format" not in plain["output_config"]
+
+
+def test_memo_retries_once_on_invalid_json() -> None:
+    from api import memo as memo_mod
+
+    good = json.dumps(
+        {
+            "summary": {"text": "S", "clip_ids": ["a-0"]},
+            "takeaways": [{"text": "T", "clip_ids": ["a-0"]}],
+            "action_items": [],
+            "watch_together": [],
+        }
+    )
+    replies = ['{"summary": {"text": "broken "quote"', good]
+
+    class Flaky:
+        calls = 0
+
+        def complete(self, prompt: str, **kw: Any) -> LLMResult:
+            Flaky.calls += 1
+            assert kw.get("schema") is memo_mod.MEMO_SCHEMA
+            return LLMResult(replies.pop(0), "fake", "fake-model", 1, 1, 1.0)
+
+    clip = {
+        "clip_id": "a-0",
+        "title": "T",
+        "speakers": ["S"],
+        "start_sec": 0,
+        "end_sec": 60,
+        "text": "hello",
+        "watch_url": "https://www.youtube.com/watch?v=a&t=0s",
+    }
+    out, _ = memo_mod.write_memo(Flaky(), ["Argo CD"], [clip])
+    assert Flaky.calls == 2 and out["cited_clip_ids"] == ["a-0"]

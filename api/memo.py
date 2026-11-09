@@ -10,6 +10,7 @@ Citations render as links to the clip's `watch_url`, with its title and start ti
 from __future__ import annotations
 
 import json
+import logging
 import re
 from collections.abc import Mapping, Sequence
 from dataclasses import dataclass, field
@@ -32,6 +33,39 @@ _SPACE = re.compile(r"\s+")
 _BRACKETED = re.compile(r"\s*\[[^\]]*\](?!\()")  # "[clip_id]" left in the text by the model
 _MD_LINK = re.compile(r"!?\[([^\]]*)\]\([^)]*\)")
 _URL = re.compile(r"https?://\S+|<[^>]*>")
+
+
+log = logging.getLogger("debrief.memo")
+
+_LINE = {
+    "type": "object",
+    "properties": {
+        "text": {"type": "string"},
+        "clip_ids": {"type": "array", "items": {"type": "string"}},
+    },
+    "required": ["text", "clip_ids"],
+    "additionalProperties": False,
+}
+# The memo's JSON shape, sent as structured-output schema so the reply is always valid JSON.
+MEMO_SCHEMA: dict[str, Any] = {
+    "type": "object",
+    "properties": {
+        "summary": _LINE,
+        "takeaways": {"type": "array", "items": _LINE},
+        "action_items": {"type": "array", "items": _LINE},
+        "watch_together": {
+            "type": "array",
+            "items": {
+                "type": "object",
+                "properties": {"clip_id": {"type": "string"}, "reason": {"type": "string"}},
+                "required": ["clip_id", "reason"],
+                "additionalProperties": False,
+            },
+        },
+    },
+    "required": ["summary", "takeaways", "action_items", "watch_together"],
+    "additionalProperties": False,
+}
 
 
 class MemoError(RuntimeError):
@@ -241,14 +275,25 @@ def write_memo(
 ) -> tuple[dict[str, Any], dict[str, int]]:
     """`{markdown, cited_clip_ids}` plus counts for the span. Raises LLMError or MemoError."""
     by_id = {c["clip_id"]: c for c in clips}
-    result = llm.complete(
-        build_prompt(tool_names, clips),
-        purpose="memo",
-        max_tokens=MAX_TOKENS,
-        json=True,
-        timeout=TIMEOUT_SEC,
-    )
-    memo = validate(parse(result.text), list(by_id))
+    prompt = build_prompt(tool_names, clips)
+    for attempt in (1, 2):
+        result = llm.complete(
+            prompt,
+            purpose="memo",
+            max_tokens=MAX_TOKENS,
+            json=True,
+            timeout=TIMEOUT_SEC,
+            schema=MEMO_SCHEMA,
+        )
+        try:
+            data = parse(result.text)
+            break
+        except MemoError as e:
+            # Structured outputs make this rare; one retry covers providers without them.
+            log.warning("memo reply unusable attempt=%s error=%s", attempt, e)
+            if attempt == 2:
+                raise
+    memo = validate(data, list(by_id))
     stats = {
         "takeaways": len(memo.takeaways),
         "actions": len(memo.actions),
