@@ -291,6 +291,8 @@ The `talks` index holds one document per talk, with `talk_id`, `youtube_id`, `ti
 
 Check this against the docs for the deployed version. Group the 100 hits by `talk_id` in Python, keeping at most three per talk, rather than relying on Elastic's collapse alongside RRF. When there is no pain sentence, send the tool names to the semantic half instead.
 
+As built (task 6, checked on Elastic 9.7 serverless): the text half is one `match_phrase` per tool name, alias and caption spelling, because a plain `match` on "argo cd" also matches a bare "argo" (Argo Workflows). Each half also runs on its own as a small `_id`-only query, in parallel with the RRF request, so every clip can say which half found it (`matched_by`).
+
 ### Clip building
 
 - Merge chunks from the same talk that overlap or sit within 20 seconds of each other.
@@ -304,11 +306,21 @@ Check this against the docs for the deployed version. Group the 100 hits by `tal
 | --- | --- | --- |
 | `GET /api/tools` | none | `[{"id", "name", "chunk_count"}]`, only tools with 5 or more chunks |
 | `POST /api/stack` | `{"tools": [ids], "dependency_file": {"name", "content"}}`, either field optional | `{"tools": [{"id", "name", "source"}], "unknown_packages": [strings]}` |
-| `POST /api/playlist` | `{"tools", "pain", "attended_talk_ids", "filter": "all" or "attended" or "missed", "budget_minutes": 25, "rerank": true}` | `{"total_seconds", "clips": [clip], "trace_id"}` |
+| `POST /api/playlist` | `{"tools", "pain", "attended_talk_ids", "filter": "all" or "attended" or "missed", "budget_minutes": 25, "rerank": true}` | `{"total_seconds", "clips": [clip], "trace_id", "message", "debug"}` |
 | `POST /api/memo` | `{"tools", "clip_ids"}` | `{"markdown", "cited_clip_ids"}` |
+| `GET /api/clips/{clip_or_chunk_id}` | none | `{"clip_id", "talk_id", "title", "speakers", "start_sec", "end_sec", "watch_url", "text"}` |
 | `GET /healthz` | none | `{"ok", "elastic"}` |
 
-A `clip` is `{"clip_id", "talk_id", "title", "speakers", "start_sec", "end_sec", "watch_url", "quote", "why", "matched_tools", "talk_label", "score"}`. The memo route loads clip text from the index by id and never trusts text sent by the browser.
+A `clip` is `{"clip_id", "talk_id", "title", "speakers", "start_sec", "end_sec", "watch_url", "quote", "why", "matched_tools", "matched_by", "talk_label", "score"}`. `matched_by` says which half of the hybrid search found the clip: `"keyword"`, `"semantic"` or `"both"`. The memo route loads clip text from the index by id and never trusts text sent by the browser.
+
+Playlist response details (task 6):
+
+- `trace_id` is the current OpenTelemetry trace id (32 hex characters), or `null` when tracing is off.
+- `message` is `null` unless there is something to tell the user, for example why the playlist is empty ("No talk mentions …"). A stack whose tools appear in no chunk returns `clips: []` with a `message`.
+- `debug` feeds the UI's "Under the hood" panel: `{"query": <the RRF request body sent to Elastic>, "timings_ms": {step: ms}, "hits": n, "talks": n}`. It never holds secrets.
+- `rerank: true` is accepted; until task 8 it behaves like `false`.
+
+A `clip_id` is the ids of the chunks the clip was built from: the first `chunk_id`, then `~` and the start second of each further chunk of the same talk (for example `abc123-872~932`). A one-chunk clip's id is its `chunk_id`. `GET /api/clips/{clip_or_chunk_id}` loads those chunks from the index and returns the clip's full cleaned text, for the accessible "Read" view; the memo route resolves `clip_ids` the same way.
 
 One more route feeds the attended-talk picker: `GET /api/talks` returns `[{"talk_id", "title", "speakers"}]` from the `talks` index.
 
