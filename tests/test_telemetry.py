@@ -215,6 +215,23 @@ def test_memo_lines_counter_gives_the_citation_slo_total(reader: InMemoryMetricR
     assert sum(p.value for p in got["debrief.memo.citations_dropped"]) == 2
 
 
+def test_clean_memo_still_reports_zero_dropped_lines(reader: InMemoryMetricReader) -> None:
+    """A memo with nothing dropped still exports citations_dropped = 0 per reason, so the
+    citation SLO's bad query and its error-budget chart have a series to read."""
+    data = {
+        "summary": {"text": "Worth a look.", "clip_ids": ["a"]},
+        "takeaways": [{"text": "Kept.", "clip_ids": ["a"]}],
+        "action_items": [{"text": "Try it.", "clip_ids": ["b"]}],
+        "watch_together": [{"clip_id": "a", "reason": "Short."}],
+    }
+    assert memo.validate(data, ["a", "b"]).dropped == 0
+    got = points(reader)
+    dropped = {p.attributes["reason"]: p.value for p in got["debrief.memo.citations_dropped"]}
+    assert dropped == {"uncited": 0, "unknown_clip": 0}
+    (lines,) = got["debrief.memo.lines"]
+    assert lines.value == 4
+
+
 # --- Runtime config for browser RUM -------------------------------------------------------
 
 
