@@ -461,8 +461,13 @@ def test_attended_filter_without_talks_explains(api: TestClient) -> None:
 
 
 def test_partly_covered_stack_says_which_tool_is_missing(api: TestClient) -> None:
-    data = api.post("/api/playlist", json={"tools": ["istio", "a-tool-with-no-chunks"]}).json()
+    data = api.post(
+        "/api/playlist",
+        json={"tools": ["kubernetes", "kubectl", "istio", "a-tool-with-no-chunks"]},
+    ).json()
     assert data["clips"] and "a-tool-with-no-chunks" in data["message"]
+    assert data["debug"]["uncovered_tools"] == ["a-tool-with-no-chunks"]
+    assert "Kubernetes" not in data["message"] and "kubectl" not in data["message"]
 
 
 def test_playlist_validates_input(api: TestClient) -> None:
@@ -571,6 +576,23 @@ def test_kubernetes_is_never_reported_as_a_coverage_gap() -> None:
 
     assert search_mod._excluded("kubernetes")
     assert not search_mod._excluded("argo-cd")
+
+
+@pytest.mark.parametrize("tools", [["kubernetes"], ["kubectl"], ["kubernetes", "kubectl"]])
+def test_excluded_only_stack_gets_shared_explanation_without_search(
+    fake: FakeSearchClient, tools: list[str]
+) -> None:
+    data = search.build_playlist(fake, search.PlaylistRequest(tools=tools))
+
+    assert data["message"] == (
+        "Kubernetes and kubectl come up in nearly every talk, so Debrief matches the "
+        "tools you run on top of Kubernetes. Pick one or more of those."
+    )
+    assert data["clips"] == []
+    assert data["debug"]["query"] is None
+    assert data["debug"]["uncovered_tools"] == []
+    assert "total" in data["debug"]["timings_ms"]
+    assert fake.bodies == []
 
 
 def test_filler_words_include_generic_speech() -> None:

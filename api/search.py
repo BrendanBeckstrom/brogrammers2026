@@ -552,6 +552,14 @@ def build_playlist(
     }
     if not tool_ids:
         return _empty("Pick at least one tool from your stack.", debug)
+    matchable = [t for t in tool_ids if not _excluded(t)]
+    if not matchable:
+        timings["total"] = _ms(total_started)
+        return _empty(
+            "Kubernetes and kubectl come up in nearly every talk, so Debrief matches the "
+            "tools you run on top of Kubernetes. Pick one or more of those.",
+            debug,
+        )
     if req.filter == "attended" and not req.attended_talk_ids:
         return _empty("Tick the talks your team attended to use this filter.", debug)
 
@@ -603,18 +611,9 @@ def build_playlist(
     timings["search_wall"] = _ms(search_started)
 
     covered = _tool_hits(keyword_resp)
-    # Tools marked exclude_from_matching (Kubernetes itself) are in nearly every talk, so
-    # they are never tagged; they are not a coverage gap and never appear in the message.
-    matchable = [t for t in tool_ids if not _excluded(t)]
+    # Tools marked exclude_from_matching are never tagged and are not a coverage gap.
     uncovered = [t for t in matchable if not covered.get(t)]
     debug["uncovered_tools"] = uncovered
-    if not matchable:
-        timings["total"] = _ms(total_started)
-        return _empty(
-            f"{_names(tool_ids)} comes up in nearly every talk, so Debrief matches the tools "
-            "you run on top of it. Pick one or more of those.",
-            debug,
-        )
     if len(uncovered) == len(matchable):
         where = {"all": "", "attended": " you attended", "missed": " you missed"}[req.filter]
         timings["total"] = _ms(total_started)
