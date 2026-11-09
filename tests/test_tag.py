@@ -23,23 +23,23 @@ def tools() -> list[Tool]:
 # --- the dictionary itself -------------------------------------------------------------
 
 
-def test_dictionary_has_acceptance_ids(tools):
+def test_dictionary_has_acceptance_ids(tools: list[Tool]) -> None:
     ids = {t.id for t in tools}
     assert {"argo-cd", "prometheus", "opentelemetry", "istio", "envoy"} <= ids
     assert len([t for t in tools if not t.exclude_from_matching]) >= 30
 
 
-def test_kubernetes_is_excluded(tools):
+def test_kubernetes_is_excluded(tools: list[Tool]) -> None:
     by_id = {t.id: t for t in tools}
     assert by_id["kubernetes"].exclude_from_matching
 
 
-def test_every_tool_has_all_package_ecosystems(tools):
+def test_every_tool_has_all_package_ecosystems(tools: list[Tool]) -> None:
     for tool in tools:
         assert set(tool.packages) == {"go", "npm", "pypi", "helm"}, tool.id
 
 
-def test_known_packages_map_to_tools(tools):
+def test_known_packages_map_to_tools(tools: list[Tool]) -> None:
     by_id = {t.id: t for t in tools}
     assert "@opentelemetry/api" in by_id["opentelemetry"].packages["npm"]
     assert "opentelemetry-sdk" in by_id["opentelemetry"].packages["pypi"]
@@ -48,7 +48,7 @@ def test_known_packages_map_to_tools(tools):
     assert "argo-cd" in by_id["argo-cd"].packages["helm"]
 
 
-def test_every_term_tags_only_its_own_tool(tools):
+def test_every_term_tags_only_its_own_tool(tools: list[Tool]) -> None:
     # No alias or caption spelling may also name another tool (e.g. a bare "argo").
     for tool in tools:
         if tool.exclude_from_matching:
@@ -61,7 +61,7 @@ def test_every_term_tags_only_its_own_tool(tools):
 # --- tag_text ---------------------------------------------------------------------------
 
 
-def test_whole_words_only(tools):
+def test_whole_words_only(tools: list[Tool]) -> None:
     assert tag_text("We scrape everything with Prometheus.", tools) == ["prometheus"]
     assert tag_text("a promethean effort", tools) == []
     assert tag_text("the payload is opaque to the proxy", tools) == []  # not "opa"
@@ -69,20 +69,20 @@ def test_whole_words_only(tools):
     assert tag_text("Istio's ambient mode", tools) == ["istio"]
 
 
-def test_case_insensitive(tools):
+def test_case_insensitive(tools: list[Tool]) -> None:
     assert tag_text("ISTIO and envoy", tools) == ["envoy", "istio"]
     assert tag_text("OpenTelemetry", tools) == ["opentelemetry"]
     assert tag_text("OTEL collector", tools) == ["opentelemetry"]
 
 
-def test_multi_word_aliases_with_space_hyphen_or_nothing(tools):
+def test_multi_word_aliases_with_space_hyphen_or_nothing(tools: list[Tool]) -> None:
     for text in ["Argo CD", "argo-cd", "ArgoCD", "argo\ncd", "argo  CD"]:
         assert tag_text(f"we deploy with {text} today", tools) == ["argo-cd"], text
     assert tag_text("open telemetry collector", tools) == ["opentelemetry"]
     assert tag_text("cert-manager-webhook crashed", tools) == ["cert-manager"]
 
 
-def test_bare_argo_is_ambiguous_and_matches_nothing(tools):
+def test_bare_argo_is_ambiguous_and_matches_nothing(tools: list[Tool]) -> None:
     assert tag_text("we use Argo for everything", tools) == []
     assert tag_text("Argo Workflows runs the batch jobs", tools) == ["argo-workflows"]
     assert tag_text("Argo CD syncs and Argo Rollouts canaries", tools) == [
@@ -91,36 +91,36 @@ def test_bare_argo_is_ambiguous_and_matches_nothing(tools):
     ]
 
 
-def test_excluded_tools_never_match(tools):
+def test_excluded_tools_never_match(tools: list[Tool]) -> None:
     assert tag_text("Kubernetes, k8s, kubectl everywhere", tools) == []
     custom = [Tool(id="foo", name="Foo", aliases=("foo",), exclude_from_matching=True)]
     assert tag_text("foo", custom) == []
 
 
-def test_caption_spellings_match(tools):
+def test_caption_spellings_match(tools: list[Tool]) -> None:
     assert tag_text("we decided to use Argo City", tools) == ["argo-cd"]
     assert tag_text("Psyllium is a CNI", tools) == ["cilium"]
     assert tag_text("the hotel collector receives spans", tools) == ["opentelemetry"]
     assert tag_text("we booked a hotel near the venue", tools) == []
 
 
-def test_result_is_sorted_and_unique(tools):
+def test_result_is_sorted_and_unique(tools: list[Tool]) -> None:
     text = "Prometheus, Grafana, prometheus again, and Envoy. Grafana!"
     assert tag_text(text, tools) == ["envoy", "grafana", "prometheus"]
 
 
-def test_empty_text(tools):
+def test_empty_text(tools: list[Tool]) -> None:
     assert tag_text("", tools) == []
 
 
-def test_tool_without_terms_never_matches():
+def test_tool_without_terms_never_matches() -> None:
     assert tag_text("anything", [Tool(id="bare", name="Bare")]) == []
 
 
 # --- chunks and CLI ---------------------------------------------------------------------
 
 
-def test_tag_chunks_keeps_other_fields(tools):
+def test_tag_chunks_keeps_other_fields(tools: list[Tool]) -> None:
     chunks = [{"chunk_id": "a-1", "text": "Istio and Envoy", "tools": ["stale"], "start_sec": 1}]
     tagged = tag_chunks(chunks, tools)
     assert tagged == [
@@ -129,7 +129,7 @@ def test_tag_chunks_keeps_other_fields(tools):
     assert chunks[0]["tools"] == ["stale"]  # input untouched
 
 
-def test_chunks_per_tool_sorted_descending(tools):
+def test_chunks_per_tool_sorted_descending(tools: list[Tool]) -> None:
     chunks = [{"tools": ["envoy", "istio"]}, {"tools": ["istio"]}, {"tools": []}]
     counts = chunks_per_tool(chunks, tools)
     assert counts[:2] == [("istio", 2), ("envoy", 1)]
@@ -137,7 +137,9 @@ def test_chunks_per_tool_sorted_descending(tools):
     assert all(a[1] >= b[1] for a, b in zip(counts, counts[1:], strict=False))
 
 
-def test_cli_rewrites_chunks_and_prints_report(tmp_path, capsys):
+def test_cli_rewrites_chunks_and_prints_report(
+    tmp_path: Path, capsys: pytest.CaptureFixture[str]
+) -> None:
     path = tmp_path / "chunks.jsonl"
     rows = [
         {"chunk_id": f"t-{i}", "text": "Argo CD with Prometheus", "tools": []} for i in range(5)
@@ -154,7 +156,9 @@ def test_cli_rewrites_chunks_and_prints_report(tmp_path, capsys):
     assert "2 of" in out and "tools have >= 5 chunks" in out
 
 
-def test_cli_reads_paths_from_env(tmp_path, monkeypatch, capsys):
+def test_cli_reads_paths_from_env(
+    tmp_path: Path, monkeypatch: pytest.MonkeyPatch, capsys: pytest.CaptureFixture[str]
+) -> None:
     path = tmp_path / "c.jsonl"
     path.write_text(json.dumps({"chunk_id": "a", "text": "Cilium"}) + "\n")
     monkeypatch.setenv("DEBRIEF_CHUNKS", str(path))
@@ -163,21 +167,21 @@ def test_cli_reads_paths_from_env(tmp_path, monkeypatch, capsys):
     assert json.loads(path.read_text())["tools"] == ["cilium"]
 
 
-def test_cli_missing_chunks_file(tmp_path, capsys):
+def test_cli_missing_chunks_file(tmp_path: Path, capsys: pytest.CaptureFixture[str]) -> None:
     assert main(["--chunks", str(tmp_path / "nope.jsonl"), "--tools", str(TOOLS_YAML)]) == 1
 
 
 # --- load_tools validation --------------------------------------------------------------
 
 
-def test_load_tools_rejects_duplicates(tmp_path):
+def test_load_tools_rejects_duplicates(tmp_path: Path) -> None:
     path = tmp_path / "tools.yaml"
     path.write_text("- {id: a, name: A}\n- {id: a, name: A again}\n")
     with pytest.raises(ValueError, match="duplicate"):
         load_tools(path)
 
 
-def test_load_tools_rejects_bad_id(tmp_path):
+def test_load_tools_rejects_bad_id(tmp_path: Path) -> None:
     path = tmp_path / "tools.yaml"
     path.write_text("- {id: Argo_CD, name: Argo CD}\n")
     with pytest.raises(ValueError, match="kebab-case"):

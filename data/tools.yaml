@@ -322,7 +322,7 @@
 - id: spiffe
   name: SPIFFE / SPIRE
   aliases: ["spiffe", "spire"]
-  caption_spellings: ["spiffy"]
+  caption_spellings: ["spiffy id", "spiffy ids"]
   packages:
     go: ["github.com/spiffe/go-spiffe/v2", "github.com/spiffe/spire"]
     npm: []
@@ -354,7 +354,7 @@
 - id: karpenter
   name: Karpenter
   aliases: ["karpenter"]
-  caption_spellings: ["carpenter"]
+  caption_spellings: ["carpenter node pool", "carpenter node pools"]
   packages:
     go: ["sigs.k8s.io/karpenter", "github.com/aws/karpenter-provider-aws"]
     npm: []
