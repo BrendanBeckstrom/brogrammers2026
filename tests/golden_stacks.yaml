@@ -1,0 +1,31 @@
+# The acceptance stacks from docs/BRIEF.md ("Acceptance"). `make golden` sends each one to
+# POST /api/playlist on the running API and prints pass/fail per structural check.
+# tests/test_search.py runs the same checks against a fake-backed API, so CI covers them.
+#
+# Keys: name, tools, pain, attended_talk_ids, filter, budget_minutes, dependency_file,
+# expect_empty (tools with no chunks: zero clips plus a message), skip (reason; not run).
+
+- name: gitops
+  tools: [argo-cd, prometheus]
+  pain: "our Argo CD syncs are slow"
+
+- name: observability
+  tools: [opentelemetry, prometheus]
+
+- name: mesh
+  tools: [istio, envoy]
+
+- name: from-file
+  dependency_file: tests/fixtures/go.mod
+  skip: "needs POST /api/stack (task 7) to turn tests/fixtures/go.mod into tool ids"
+
+# VfVQj4Oa3z0 is "Declarative...ish? Fixing Hidden Argo CD Pitfalls in Your GitOps Setup",
+# an argo-cd talk that tops the gitops playlist, so the missed filter has something to remove.
+- name: missed-only
+  tools: [argo-cd]
+  attended_talk_ids: [VfVQj4Oa3z0]
+  filter: missed
+
+- name: no-coverage
+  tools: [a-tool-with-no-chunks]
+  expect_empty: true
