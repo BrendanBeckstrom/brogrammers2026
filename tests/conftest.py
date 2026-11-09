@@ -1,7 +1,8 @@
 """Shared test setup.
 
 - Telemetry never exports from a test run, even if the shell has OTEL_* set.
-- No test may reach a real model provider.
+- No test may reach a real model provider, or the real Elastic (the query log writes in the
+  background on every playlist, so ELASTIC_* is cleared; tests that need it set it).
 """
 
 import os
@@ -16,6 +17,8 @@ for _name in (
     "OTEL_EXPORTER_OTLP_HEADERS",
     "OTEL_SDK_DISABLED",
     "DEBRIEF_OTEL_CONSOLE",
+    "ELASTIC_URL",
+    "ELASTIC_API_KEY",
 ):
     os.environ.pop(_name, None)
 

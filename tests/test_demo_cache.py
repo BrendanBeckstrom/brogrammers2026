@@ -11,10 +11,11 @@ from opentelemetry.sdk.trace import TracerProvider
 from opentelemetry.sdk.trace.export import SimpleSpanProcessor
 from opentelemetry.sdk.trace.export.in_memory_span_exporter import InMemorySpanExporter
 
-from api import demo_cache, routes_memo, routes_search, routes_stack, search
+from api import demo_cache, routes_memo, routes_playlists, routes_search, routes_stack, search
 from api.main import app
 from api.routes_search import PlaylistBody
 from tests import build_cache, golden
+from tests.test_playlists_insights import FakeStore
 from tests.test_rerank_memo import FakeLLM, memo_reply, prompt_clips
 from tests.test_search import CHUNKS, TALK_IDS, TALKS, FakeSearchClient
 
@@ -330,11 +331,16 @@ def test_built_cache_passes_golden_offline(
         FakeSearchClient(CHUNKS, TALKS),
         FakeLLM(lambda p: memo_reply([c["clip_id"] for c in prompt_clips(p)])),
     )
+    fake_store = FakeStore()
+    app.dependency_overrides[routes_playlists.playlist_store] = lambda: fake_store
+    app.dependency_overrides[routes_search.query_log_store] = lambda: fake_store
     lines: list[str] = []
     summary = build_cache.build(AppApi(client), tmp_path, stacks, go_mod, out=lines.append)
     assert summary.ok(), summary.failures + summary.secrets
     routes = sorted(set(summary.written.values()))
-    assert routes == ["clips", "memo", "playlist", "stack", "talks", "tools"]
+    assert routes == ["clips", "insights", "memo", "playlist", "stack", "talks", "tools"]
+    insights = json.loads(next(tmp_path.glob("insights-*.json")).read_text())["response"]
+    assert insights["requests"] == len(fake_store.docs["queries"]) > 0
 
     # 2. Network off, cache on: every golden stack passes, with and without rerank.
     monkeypatch.setenv("DEBRIEF_CACHE", "on")

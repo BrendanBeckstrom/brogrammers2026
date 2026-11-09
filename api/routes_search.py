@@ -4,6 +4,9 @@ Each route runs inside its own OpenTelemetry span (ids, counts and timings only)
 gets its Elastic client through `search_client` and its model through `model_client`;
 tests override both with fakes. With DEBRIEF_CACHE=on each route first asks the demo cache
 (api/demo_cache.py, task 13).
+
+Every playlist answer is also remembered for saving (api/playlists.py) and logged to the
+`queries` index in the background (api/insights.py), through `query_log_store`.
 """
 
 from __future__ import annotations
@@ -12,13 +15,14 @@ import logging
 import time
 from typing import Annotated, Any, Literal
 
-from fastapi import APIRouter, Depends, HTTPException, Response
+from fastapi import APIRouter, BackgroundTasks, Depends, HTTPException, Response
 from opentelemetry import trace
 from pydantic import BaseModel, Field
 
-from api import demo_cache, llm, search, telemetry
+from api import corrections, demo_cache, insights, llm, playlists, search, store, telemetry
 from api.llm import LLMClient
 from api.search import SearchBackendError, SearchClient
+from api.store import StoreClient
 
 router = APIRouter(prefix="/api")
 tracer = trace.get_tracer("debrief")
@@ -66,6 +70,44 @@ def model_client() -> LLMClient:
 Model = Annotated[LLMClient, Depends(model_client)]
 
 
+def query_log_store() -> StoreClient | None:
+    """Where the query log goes, or None when Elastic is not configured (nothing is logged)."""
+    try:
+        return store.get_store()
+    except SearchBackendError:
+        return None
+
+
+QueryLog = Annotated[StoreClient | None, Depends(query_log_store)]
+
+
+def remember_and_log(
+    body: PlaylistBody,
+    answer: dict[str, Any],
+    duration_ms: float,
+    background: BackgroundTasks,
+    log_store: StoreClient | None,
+) -> None:
+    """Keep the answer for POST /api/playlists and log the request after the response."""
+    request = body.model_dump(mode="json")
+    playlists.recent.put(demo_cache.cache_key("playlist", request), answer)
+    doc = insights.query_doc(body.tools, body.pain, body.filter, body.rerank, answer, duration_ms)
+    background.add_task(insights.log_query, log_store, doc)
+
+
+def run_playlist(body: PlaylistBody, client: SearchClient, model: LLMClient) -> dict[str, Any]:
+    """The live playlist for a request (no cache). Raises SearchBackendError."""
+    request = search.PlaylistRequest(
+        tools=body.tools,
+        pain=body.pain,
+        attended_talk_ids=body.attended_talk_ids,
+        filter=body.filter,
+        budget_minutes=body.budget_minutes,
+        rerank=body.rerank,
+    )
+    return search.build_playlist(client, request, model)
+
+
 def _backend_error(e: SearchBackendError) -> HTTPException:
     if demo_cache.enabled():
         return demo_cache.miss_error(str(e))
@@ -74,7 +116,12 @@ def _backend_error(e: SearchBackendError) -> HTTPException:
 
 @router.post("/playlist")
 def playlist(
-    body: PlaylistBody, client: Client, model: Model, response: Response
+    body: PlaylistBody,
+    client: Client,
+    model: Model,
+    response: Response,
+    background: BackgroundTasks,
+    log_store: QueryLog,
 ) -> dict[str, Any]:
     with tracer.start_as_current_span("api.playlist") as span:
         span.set_attributes(
@@ -87,22 +134,18 @@ def playlist(
                 "debrief.pain_present": bool((body.pain or "").strip()),
             }
         )
+        started = time.perf_counter()
         cached = demo_cache.serve("playlist", body.model_dump(mode="json"), span, response)
         if cached is not None:
             span.set_attribute("debrief.clips", len(cached.get("clips") or []))
-            return {**cached, "trace_id": current_trace_id()}
-        request = search.PlaylistRequest(
-            tools=body.tools,
-            pain=body.pain,
-            attended_talk_ids=body.attended_talk_ids,
-            filter=body.filter,
-            budget_minutes=body.budget_minutes,
-            rerank=body.rerank,
-        )
-        started = time.perf_counter()
+            # An answer cached before significant terms existed is still a valid answer.
+            answer = {"terms": [], **cached, "trace_id": current_trace_id()}
+            elapsed = (time.perf_counter() - started) * 1000
+            remember_and_log(body, answer, elapsed, background, log_store)
+            return answer
         tool_ids = metric_tools(body.tools)
         try:
-            result = search.build_playlist(client, request, model)
+            result = run_playlist(body, client, model)
         except SearchBackendError as e:
             elapsed = (time.perf_counter() - started) * 1000
             telemetry.record_playlist(elapsed, 0, tool_ids, body.filter, "error")
@@ -113,6 +156,7 @@ def playlist(
         telemetry.record_playlist(elapsed, clips, tool_ids, body.filter, outcome)
         span.set_attribute("debrief.clips", clips)
         span.set_attribute("debrief.total_seconds", result["total_seconds"])
+        span.set_attribute("debrief.terms", len(result.get("terms") or []))
         if not clips:
             # A coverage gap organizers want to see: ids and counts only, never the pain text.
             log.info(
@@ -124,13 +168,16 @@ def playlist(
                     "debrief.hits": result["debug"].get("hits", 0),
                 },
             )
-        return {
+        answer = {
             "total_seconds": result["total_seconds"],
             "clips": result["clips"],
+            "terms": result.get("terms") or [],
             "trace_id": current_trace_id(),
             "message": result["message"],
             "debug": result["debug"],
         }
+        remember_and_log(body, answer, elapsed, background, log_store)
+        return answer
 
 
 @router.get("/tools")
@@ -167,9 +214,12 @@ def talks(client: Client, response: Response) -> list[dict[str, Any]]:
 def clip(clip_or_chunk_id: str, client: Client, response: Response) -> dict[str, Any]:
     with tracer.start_as_current_span("api.clip") as span:
         span.set_attribute("debrief.clip_id", clip_or_chunk_id[:128])
+        tools = list(search.tool_catalog().values())
         cached = demo_cache.serve("clips", {"clip_id": clip_or_chunk_id}, span, response)
         if cached is not None:
-            return cached
+            fixed = corrections.with_corrections(cached, tools)
+            span.set_attribute("debrief.corrections", len(fixed["corrections"]))
+            return fixed
         try:
             found = search.clip_text(client, clip_or_chunk_id)
         except ValueError as e:
@@ -179,4 +229,6 @@ def clip(clip_or_chunk_id: str, client: Client, response: Response) -> dict[str,
         if found is None:
             raise HTTPException(status_code=404, detail="Unknown clip id")
         span.set_attribute("debrief.chunks", found["clip_id"].count("~") + 1)
-        return found
+        fixed = corrections.with_corrections(found, tools)
+        span.set_attribute("debrief.corrections", len(fixed["corrections"]))
+        return fixed

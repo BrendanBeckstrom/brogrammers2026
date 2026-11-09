@@ -83,6 +83,8 @@ class FakeSearchClient:
         self.bodies.append((index, body))
         if index == "talks":
             return {"hits": {"hits": [{"_id": t["talk_id"], "_source": t} for t in self.talks]}}
+        if "sample" in body.get("aggs", {}):
+            return self._significant(body)
         retriever = body.get("retriever")
         if retriever is None:  # chunks-per-tool aggregation
             counts = Counter(t for c in self.chunks.values() for t in c["tools"])
@@ -135,6 +137,39 @@ class FakeSearchClient:
             hit["_score"] = overlap - rank / 1000
         hits.sort(key=lambda h: -h["_score"])
         return {"took": 3, "hits": {"hits": hits[: body["size"]]}}
+
+    def _significant(self, body: dict[str, Any]) -> dict[str, Any]:
+        """Like significant_text under a sampler: words far likelier in the foreground."""
+        sampler = body["aggs"]["sample"]
+        assert sampler["sampler"]["shard_size"] == 200
+        agg = sampler["aggs"]["keywords"]["significant_text"]
+        assert agg["field"] == "text" and agg["filter_duplicate_text"] is True
+        fg = self._standard({"query": body["query"]})[: sampler["sampler"]["shard_size"]]
+        excluded = set(agg.get("exclude") or [])
+
+        def words(chunk_id: str) -> set[str]:
+            return set(re.findall(r"[a-z0-9]+", self.chunks[chunk_id]["text"].lower()))
+
+        fg_counts = Counter(w for i in fg for w in words(i))
+        bg_counts = Counter(w for i in self.chunks for w in words(i))
+        buckets = [
+            {
+                "key": w,
+                "doc_count": n,
+                "bg_count": bg_counts[w],
+                "score": n / max(1, len(fg)) - bg_counts[w] / len(self.chunks),
+            }
+            for w, n in fg_counts.items()
+            if w not in excluded and n >= agg["min_doc_count"]
+        ]
+        buckets = sorted((b for b in buckets if b["score"] > 0), key=lambda b: -b["score"])
+        return {
+            "took": 1,
+            "hits": {"hits": []},
+            "aggregations": {
+                "sample": {"doc_count": len(fg), "keywords": {"buckets": buckets[: agg["size"]]}}
+            },
+        }
 
     @staticmethod
     def _phrases(query: dict[str, Any]) -> list[str]:
@@ -362,7 +397,7 @@ def test_playlist_contract_and_debug(api: TestClient) -> None:
     response = api.post("/api/playlist", json=body)
     assert response.status_code == 200
     data = response.json()
-    assert set(data) == {"total_seconds", "clips", "trace_id", "message", "debug"}
+    assert set(data) == {"total_seconds", "clips", "terms", "trace_id", "message", "debug"}
     assert re.fullmatch(r"[0-9a-f]{32}", data["trace_id"])  # telemetry.setup() ran at import
     clip = data["clips"][0]
     assert set(clip) == {
