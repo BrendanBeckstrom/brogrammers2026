@@ -1,10 +1,11 @@
 """Golden stacks: the structural checks from docs/BRIEF.md "Acceptance".
 
-    python -m tests.golden [--base-url http://localhost:8000]   (or `make golden`)
+    python -m tests.golden [--base-url http://localhost:8000] [--rerank]   (or `make golden`)
 
-Sends every stack in tests/golden_stacks.yaml to POST /api/playlist (rerank off) and
-prints pass/fail per check per stack. Exits 1 if any check fails. `check_playlist` is
-also used by tests/test_search.py against a fake-backed API, so CI runs the same checks.
+Sends every stack in tests/golden_stacks.yaml to POST /api/playlist (rerank off unless
+`--rerank`, or GOLDEN_RERANK=1 under `make golden`) and prints pass/fail per check per
+stack. Exits 1 if any check fails. `check_playlist` is also used by the unit tests
+against a fake-backed API, so CI runs the same checks.
 """
 
 from __future__ import annotations
@@ -47,16 +48,33 @@ def load_stacks(path: Path = STACKS_PATH) -> list[dict[str, Any]]:
     return stacks
 
 
-def playlist_request(stack: dict[str, Any]) -> dict[str, Any]:
-    """The POST /api/playlist body for a golden stack (rerank off: task 6 checks)."""
+def playlist_request(stack: dict[str, Any], rerank: bool = False) -> dict[str, Any]:
+    """The POST /api/playlist body for a golden stack (rerank off unless asked)."""
     return {
         "tools": list(stack.get("tools") or []),
         "pain": stack.get("pain"),
         "attended_talk_ids": list(stack.get("attended_talk_ids") or []),
         "filter": stack.get("filter", "all"),
         "budget_minutes": stack.get("budget_minutes", 25),
-        "rerank": False,
+        "rerank": rerank,
     }
+
+
+def why_names_tool(clip: dict[str, Any]) -> bool:
+    """True if the clip's why line names one of its matched tools (or it has none)."""
+    from api.clips import count_mentions
+    from api.search import tool_catalog
+
+    matched = clip.get("matched_tools") or []
+    if not matched:
+        return True
+    catalog = tool_catalog()
+    for tool_id in matched:
+        tool = catalog.get(tool_id)
+        terms = [tool.name, *tool.terms] if tool else [tool_id]
+        if count_mentions(str(clip.get("why") or ""), terms):
+            return True
+    return False
 
 
 def check_playlist(stack: dict[str, Any], response: dict[str, Any]) -> list[Check]:
@@ -113,6 +131,14 @@ def check_playlist(stack: dict[str, Any], response: dict[str, Any]) -> list[Chec
             f"{matched}/{len(clips)}",
         ),
     ]
+    unnamed = [c.get("clip_id", "?") for c in clips if not why_names_tool(c)]
+    checks.append(
+        Check(
+            "every why line names a matched tool",
+            not unnamed,
+            ", ".join(unnamed[:3]) or f"{len(clips)} ok",
+        )
+    )
     attended = set(stack.get("attended_talk_ids") or [])
     if stack.get("filter") == "missed":
         leaked = sorted({c["talk_id"] for c in clips} & attended)
@@ -140,7 +166,12 @@ def http_fetch(base_url: str) -> Fetch:
     return fetch
 
 
-def run(stacks: Sequence[dict[str, Any]], fetch: Fetch, out: Callable[[str], None] = print) -> int:
+def run(
+    stacks: Sequence[dict[str, Any]],
+    fetch: Fetch,
+    out: Callable[[str], None] = print,
+    rerank: bool = False,
+) -> int:
     """Run every stack; print per-check results. Returns the number of failed checks."""
     failed = 0
     for stack in stacks:
@@ -150,14 +181,16 @@ def run(stacks: Sequence[dict[str, Any]], fetch: Fetch, out: Callable[[str], Non
             continue
         started = time.perf_counter()
         try:
-            response = fetch(playlist_request(stack))
+            response = fetch(playlist_request(stack, rerank))
         except (urllib.error.URLError, OSError, ValueError) as e:
             out(f"FAIL {name}: request failed ({e})")
             failed += 1
             continue
         elapsed = time.perf_counter() - started
         count = len(response.get("clips") or [])
-        out(f"{name}: {count} clips, {response.get('total_seconds')}s, {elapsed:.2f}s")
+        status = (response.get("debug") or {}).get("rerank")
+        extra = f", rerank {status}" if rerank and status else ""
+        out(f"{name}: {count} clips, {response.get('total_seconds')}s, {elapsed:.2f}s{extra}")
         for check in check_playlist(stack, response):
             failed += not check.ok
             out(f"  {'PASS' if check.ok else 'FAIL'} {check.name} ({check.detail})")
@@ -173,8 +206,15 @@ def main(argv: Sequence[str] | None = None) -> int:
         help="API base URL (env DEBRIEF_API_URL, default %(default)s)",
     )
     parser.add_argument("--stacks", type=Path, default=STACKS_PATH)
+    parser.add_argument(
+        "--rerank",
+        action="store_true",
+        default=os.environ.get("GOLDEN_RERANK", "").lower() in {"1", "true", "on"},
+        help="send rerank: true (Elastic rerank + model why lines); env GOLDEN_RERANK=1",
+    )
     args = parser.parse_args(argv)
-    return 1 if run(load_stacks(args.stacks), http_fetch(args.base_url)) else 0
+    failed = run(load_stacks(args.stacks), http_fetch(args.base_url), rerank=args.rerank)
+    return 1 if failed else 0
 
 
 if __name__ == "__main__":

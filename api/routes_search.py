@@ -1,7 +1,8 @@
-"""Search routes (task 6): /api/playlist, /api/tools, /api/talks and /api/clips/{id}.
+"""Search routes (tasks 6 and 8): /api/playlist, /api/tools, /api/talks, /api/clips/{id}.
 
 Each route runs inside its own OpenTelemetry span (ids, counts and timings only) and
-gets its Elastic client through `search_client`, which tests override with a fake.
+gets its Elastic client through `search_client` and its model through `model_client`;
+tests override both with fakes.
 """
 
 from __future__ import annotations
@@ -14,7 +15,8 @@ from fastapi import APIRouter, Depends, HTTPException
 from opentelemetry import trace
 from pydantic import BaseModel, Field
 
-from api import search, telemetry
+from api import llm, search, telemetry
+from api.llm import LLMClient
 from api.search import SearchBackendError, SearchClient
 
 router = APIRouter(prefix="/api")
@@ -28,7 +30,7 @@ class PlaylistBody(BaseModel):
     attended_talk_ids: list[str] = Field(default_factory=list, max_length=500)
     filter: Literal["all", "attended", "missed"] = "all"
     budget_minutes: int = Field(default=25, ge=1, le=120)
-    rerank: bool = True  # accepted; behaves like false until task 8
+    rerank: bool = True
 
 
 def search_client() -> SearchClient:
@@ -52,12 +54,20 @@ def metric_tools(tools: list[str]) -> list[str]:
     return [t if t in catalog else "other" for t in ids]
 
 
+def model_client() -> LLMClient:
+    """The language model (api/llm.py); a FastAPI dependency so tests can swap in a fake."""
+    return llm.get_llm()
+
+
+Model = Annotated[LLMClient, Depends(model_client)]
+
+
 def _backend_error(e: SearchBackendError) -> HTTPException:
     return HTTPException(status_code=502, detail=str(e))
 
 
 @router.post("/playlist")
-def playlist(body: PlaylistBody, client: Client) -> dict[str, Any]:
+def playlist(body: PlaylistBody, client: Client, model: Model) -> dict[str, Any]:
     with tracer.start_as_current_span("api.playlist") as span:
         span.set_attributes(
             {
@@ -75,12 +85,12 @@ def playlist(body: PlaylistBody, client: Client) -> dict[str, Any]:
             attended_talk_ids=body.attended_talk_ids,
             filter=body.filter,
             budget_minutes=body.budget_minutes,
-            rerank=False,  # task 8 adds the model rerank
+            rerank=body.rerank,
         )
         started = time.perf_counter()
         tool_ids = metric_tools(body.tools)
         try:
-            result = search.build_playlist(client, request)
+            result = search.build_playlist(client, request, model)
         except SearchBackendError as e:
             elapsed = (time.perf_counter() - started) * 1000
             telemetry.record_playlist(elapsed, 0, tool_ids, body.filter, "error")
