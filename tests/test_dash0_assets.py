@@ -51,9 +51,10 @@ def test_every_panel_is_placed_once_on_a_24_wide_grid() -> None:
     } <= names
 
 
-def test_app_metric_panels_use_a_fixed_five_minute_window() -> None:
+def test_app_metric_panels_use_a_fixed_one_hour_window() -> None:
     """App and browser metrics arrive every 10-60 s, so Dash0's short $__rate_interval can hold
-    one sample and rate()/increase() return nothing. Only Dash0's own span metric keeps it."""
+    one sample and rate()/increase() return nothing. A 1-hour window keeps lines continuous between
+    bursts of demo traffic. Only Dash0's own span metric keeps $__rate_interval."""
     panels = yaml.safe_load(DASHBOARD.read_text())["spec"]["panels"]
     queries = [
         q["spec"]["plugin"]["spec"]["query"]
@@ -65,7 +66,7 @@ def test_app_metric_panels_use_a_fixed_five_minute_window() -> None:
         if "dash0.spans" in query:
             continue
         assert "$__rate_interval" not in query, query
-        assert "[5m]" in query, query
+        assert "[1h]" in query, query
     assert "playlist_served_logs" not in panels and "cache_lookups" not in panels
 
 
