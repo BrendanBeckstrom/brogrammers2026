@@ -26,14 +26,11 @@ Commit and push to `main`. Note the full commit SHA (`git rev-parse HEAD`) and i
 
 The Action skips pushes changing only Markdown. Markdown-only changes need no deployment. Kustomization-only changes trigger a build and publish the updated manifests to `deploy`; every other push also triggers a build.
 
-## 2. Wait for the build, then pull its deploy commit
+## 2. Wait for the build
 
-With the GitHub CLI: `gh run list --workflow build-and-deploy --commit <full-sha>`, then `gh run watch <id> --exit-status` for that commit’s run. Do not use the latest run without matching its commit. If the run is not listed yet, retry briefly within the five-minute deadline; absence is not success. If the run is cancelled or superseded, report that this commit was not built. Verify a newer commit only if it contains the intended change and the person has authorized deploying it; otherwise report the blocker. Without the CLI, use the same deadline while checking `git fetch origin` until `origin/main` has a commit `deploy: <sha> [skip ci]`.
+With the GitHub CLI: `gh run list --workflow build-and-deploy --commit <full-sha>`, then `gh run watch <id> --exit-status` for that commit’s run. Do not use the latest run without matching its commit. If the run is not listed yet, retry briefly within the five-minute deadline; absence is not success. If the run is cancelled or superseded, report that this commit was not built. Verify a newer commit only if it contains the intended change and the person has authorized deploying it; otherwise report the blocker. Without the CLI, use the same deadline while checking `git fetch origin` until `origin/deploy` has a commit `deploy: <tag> [skip ci]` whose parent is your commit.
 
 If the run failed, read `gh run view <id> --log-failed`, fix it, push again, and wait again.
-
-**Then pull, after every green run.** Run `git pull --rebase` so your copy has the bot's `deploy: <sha> [skip ci]` commit. Do it even if you have nothing else to push yet: without it, your next push is rejected.
-
 ## 3. Sync
 
 Argo CD polls git every few minutes. Don't wait for it: call `manage_gitops` with `cluster`, `tool: argocd`, `action: sync`, `namespace: team-<team>`, `name: app`.
@@ -41,7 +38,7 @@ Argo CD polls git every few minutes. Don't wait for it: call `manage_gitops` wit
 The starter's Application has no `syncOptions` and needs none. If an Application has options (such as `ServerSideApply=true` for large CRDs or `CreateNamespace=true`), read the live Application immediately before syncing and pass its complete current list as `sync_options`. Do not use a cached list or pass only one added option. This preserves the options on Radar v1.19.0, which does not inherit them; Radar’s current sync implementation inherits them when omitted, but an explicit list replaces them for that sync.
 
 Then `get_resource` on the Application and check both of these:
-- `status.sync.revision` equals `git rev-parse origin/main` (after `git fetch`);
+- `status.sync.revision` equals `git rev-parse origin/deploy` (after `git fetch`);
 - `status.sync.status` is `Synced` and `status.health.status` is `Healthy`, or `Progressing` while pods start.
 
 Right after the first sync, the Application can read `OutOfSync` for a moment: a sync started from Radar doesn't prune, so the starter's old `app-code` ConfigMap stays until Argo CD's own automatic sync removes it, seconds later. That's expected. Do step 4, then check the Application again: it goes `Synced` on its own.
