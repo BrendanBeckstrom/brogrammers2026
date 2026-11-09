@@ -31,7 +31,7 @@ Run locally:
 
 ```bash
 make api                  # API on http://localhost:8000
-make web                  # web on http://localhost:5173 (proxies /api)
+make web                  # web on http://localhost:5173 (proxies /api); add ?mock=1 to use sample data without the API
 ```
 
 Build the index (needs `ELASTIC_URL` and `ELASTIC_API_KEY`):
