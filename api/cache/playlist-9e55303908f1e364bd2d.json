@@ -32,7 +32,7 @@
      "argo-cd"
     ],
     "matched_by": "both",
-    "talk_label": null,
+    "talk_label": "deep_dive",
     "score": 0.031754
    },
    {
@@ -52,7 +52,7 @@
      "argo-cd"
     ],
     "matched_by": "both",
-    "talk_label": null,
+    "talk_label": "deep_dive",
     "score": 0.03031
    },
    {
@@ -72,7 +72,7 @@
      "argo-cd"
     ],
     "matched_by": "both",
-    "talk_label": null,
+    "talk_label": "deep_dive",
     "score": 0.029199
    },
    {
@@ -91,7 +91,7 @@
      "argo-cd"
     ],
     "matched_by": "both",
-    "talk_label": null,
+    "talk_label": "pitch",
     "score": 0.028595
    },
    {
@@ -111,7 +111,7 @@
      "argo-cd"
     ],
     "matched_by": "both",
-    "talk_label": null,
+    "talk_label": "deep_dive",
     "score": 0.028373
    },
    {
@@ -131,8 +131,8 @@
      "argo-cd"
     ],
     "matched_by": "both",
-    "talk_label": null,
-    "score": 0.028006
+    "talk_label": "intro",
+    "score": 0.027826
    },
    {
     "clip_id": "Wrek7kjrcs0-739",
@@ -151,7 +151,7 @@
      "argo-cd"
     ],
     "matched_by": "both",
-    "talk_label": null,
+    "talk_label": "intro",
     "score": 0.027757
    },
    {
@@ -171,7 +171,7 @@
      "argo-cd"
     ],
     "matched_by": "both",
-    "talk_label": null,
+    "talk_label": "deep_dive",
     "score": 0.02753
    },
    {
@@ -191,7 +191,7 @@
      "argo-cd"
     ],
     "matched_by": "both",
-    "talk_label": null,
+    "talk_label": "intro",
     "score": 0.027109
    },
    {
@@ -211,7 +211,7 @@
      "argo-cd"
     ],
     "matched_by": "both",
-    "talk_label": null,
+    "talk_label": "deep_dive",
     "score": 0.02669
    },
    {
@@ -231,7 +231,7 @@
      "argo-cd"
     ],
     "matched_by": "both",
-    "talk_label": null,
+    "talk_label": "intro",
     "score": 0.024979
    },
    {
@@ -251,8 +251,8 @@
      "argo-cd"
     ],
     "matched_by": "both",
-    "talk_label": null,
-    "score": 0.022696
+    "talk_label": "intro",
+    "score": 0.022602
    },
    {
     "clip_id": "x5nVyVZSd0A-1004",
@@ -271,8 +271,8 @@
      "argo-cd"
     ],
     "matched_by": "both",
-    "talk_label": null,
-    "score": 0.022658
+    "talk_label": "intro",
+    "score": 0.022559
    },
    {
     "clip_id": "kIj2U13VZJY-533~602",
@@ -290,11 +290,11 @@
      "argo-cd"
     ],
     "matched_by": "keyword",
-    "talk_label": null,
-    "score": 0.01087
+    "talk_label": "deep_dive",
+    "score": 0.010417
    }
   ],
-  "trace_id": "3583f1606bd989fa3ee90f9e8e4f7a4d",
+  "trace_id": "1e01ed4595b93aec5f4c4bfcccbe6d7d",
   "message": null,
   "debug": {
    "query": {
@@ -423,14 +423,14 @@
     }
    },
    "timings_ms": {
-    "hybrid_search": 338.3,
-    "keyword_search": 99.7,
-    "semantic_search": 124.0,
-    "search_wall": 347.2,
-    "grouping": 0.7,
+    "hybrid_search": 314.9,
+    "keyword_search": 76.2,
+    "semantic_search": 122.1,
+    "search_wall": 315.1,
+    "grouping": 0.5,
     "clip_building": 0.2,
-    "budget": 1.9,
-    "total": 350.4
+    "budget": 1.8,
+    "total": 317.9
    },
    "hits": 100,
    "talks": 22,

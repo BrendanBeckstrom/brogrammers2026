@@ -12,48 +12,27 @@
   "rerank": true
  },
  "response": {
-  "total_seconds": 1447,
+  "total_seconds": 1452,
   "clips": [
    {
-    "clip_id": "6vE9b6StC0g-1838",
-    "talk_id": "6vE9b6StC0g",
-    "title": "Prometheus V3 One Year In: OpenMetrics 2.0 and More!",
+    "clip_id": "gH_JzIXFshI-784~861~930",
+    "talk_id": "gH_JzIXFshI",
+    "title": "Jaeger V2: The Maintainers' Guide To OpenTelemetry-Native Tracing",
     "speakers": [
-     "Jan Fajerski",
-     "Bartłomiej Płotka"
+     "Pavol Loffay"
     ],
-    "start_sec": 1836,
-    "end_sec": 1917,
-    "watch_url": "https://www.youtube.com/watch?v=6vE9b6StC0g&t=1836s",
-    "quote": "Certainly. So, um Prometheus has a somewhat formalized proposal process nowadays.",
-    "why": "Mentions Prometheus 5 times in this clip (also OpenTelemetry)",
+    "start_sec": 782,
+    "end_sec": 1006,
+    "watch_url": "https://www.youtube.com/watch?v=gH_JzIXFshI&t=782s",
+    "quote": "Um it receives spans uh it creates metrics and then it sends them to Prometheus. You can send them via remote write or Prometheus scraping or via OTLP. Prometheus uh supports OTLP HTTP as well.",
+    "why": "Explains OpenTelemetry spans becoming metrics sent to Prometheus via remote write, scraping, or OTLP.",
     "matched_tools": [
      "opentelemetry",
      "prometheus"
     ],
     "matched_by": "both",
-    "talk_label": null,
-    "score": 1.384053
-   },
-   {
-    "clip_id": "w1pj0Lz1mW4-394",
-    "talk_id": "w1pj0Lz1mW4",
-    "title": "Fluent Bit V5: Pushing the Limits of Observability at Scale",
-    "speakers": [
-     "Eduardo Silva"
-    ],
-    "start_sec": 392,
-    "end_sec": 470,
-    "watch_url": "https://www.youtube.com/watch?v=w1pj0Lz1mW4&t=392s",
-    "quote": "So the way that fluent bit approach the integration with open telemetry is that we support the schemas of hotel same as we support the schema of prometheus right and we also speak OTLP which is a open telemetry protocol.",
-    "why": "Mentions OpenTelemetry 6 times in this clip (also Prometheus)",
-    "matched_tools": [
-     "opentelemetry",
-     "prometheus"
-    ],
-    "matched_by": "both",
-    "talk_label": null,
-    "score": 1.334521
+    "talk_label": "intro",
+    "score": 0.9
    },
    {
     "clip_id": "Z0oum6Eh1is-790~853~915",
@@ -67,34 +46,181 @@
     "end_sec": 995,
     "watch_url": "https://www.youtube.com/watch?v=Z0oum6Eh1is&t=788s",
     "quote": "were only really paying attention to once we had some OOM kills going on um and then of course OTLP exporter because uh the the format the telemetry data is stored in a different format it's not Prometheus exposition format it's it's called the OTLP uh format by open telemetry um and so we needed…",
-    "why": "Mentions Prometheus 12 times in this clip (also OpenTelemetry)",
+    "why": "OpenTelemetry OTLP exporter discussion, including OOM kills, relevant to your stack and pain points.",
     "matched_tools": [
      "opentelemetry",
      "prometheus"
     ],
     "matched_by": "both",
-    "talk_label": null,
-    "score": 1.277687
+    "talk_label": "deep_dive",
+    "score": 0.8
    },
    {
-    "clip_id": "gH_JzIXFshI-784~861~930",
-    "talk_id": "gH_JzIXFshI",
-    "title": "Jaeger V2: The Maintainers' Guide To OpenTelemetry-Native Tracing",
+    "clip_id": "0zwLl8QGOdM-537",
+    "talk_id": "0zwLl8QGOdM",
+    "title": "OpenTelemetry Collector SIG: Project Updates",
     "speakers": [
-     "Pavol Loffay"
+     "Jade G",
+     "Dmitrii A",
+     "Alex B",
+     "Evan B",
+     "Antoine T"
     ],
-    "start_sec": 782,
-    "end_sec": 1006,
-    "watch_url": "https://www.youtube.com/watch?v=gH_JzIXFshI&t=782s",
-    "quote": "Um it receives spans uh it creates metrics and then it sends them to Prometheus. You can send them via remote write or Prometheus scraping or via OTLP. Prometheus uh supports OTLP HTTP as well.",
-    "why": "Mentions OpenTelemetry 9 times in this clip (also Prometheus)",
+    "start_sec": 535,
+    "end_sec": 614,
+    "watch_url": "https://www.youtube.com/watch?v=0zwLl8QGOdM&t=535s",
+    "quote": "Um, the Prometheus team is working on something that will allow you to wrap existing Prometheus exporters and make them into collector receivers. So if you're looking to consolidate your telemetry collection on the collector, uh this might be for you.",
+    "why": "Prometheus team wrapping exporters as collector receivers helps consolidate telemetry collection on the OpenTelemetry collector.",
+    "matched_tools": [
+     "prometheus"
+    ],
+    "matched_by": "semantic",
+    "talk_label": "deep_dive",
+    "score": 0.7
+   },
+   {
+    "clip_id": "S6z2gd666qg-258",
+    "talk_id": "S6z2gd666qg",
+    "title": "OpenTelemetry Gateways: Enforce, Transform, Route",
+    "speakers": [
+     "Juraci Paixão Kröhling",
+     "Natalie Ujuk"
+    ],
+    "start_sec": 256,
+    "end_sec": 335,
+    "watch_url": "https://www.youtube.com/watch?v=S6z2gd666qg&t=256s",
+    "quote": "The pattern we landed on is a centralized open telemetry collector gateway. Applications send telemetry to edge collectors where the configuration stays simple and lightweight. Those collectors forward telemetry into the gateway layers.",
+    "why": "Describes a centralized OpenTelemetry collector gateway pattern with edge collectors forwarding telemetry.",
+    "matched_tools": [
+     "opentelemetry"
+    ],
+    "matched_by": "both",
+    "talk_label": "deep_dive",
+    "score": 0.7
+   },
+   {
+    "clip_id": "ehKzt_kGEeM-455",
+    "talk_id": "ehKzt_kGEeM",
+    "title": "Retroactive Sampling with OpenTelemetry: Cut 90% Distributed Tracing Bandwidth Usage",
+    "speakers": [
+     "Roman Khavronenko",
+     "Zhu Jiekun"
+    ],
+    "start_sec": 453,
+    "end_sec": 534,
+    "watch_url": "https://www.youtube.com/watch?v=ehKzt_kGEeM&t=453s",
+    "quote": "So, OpenTelemetry Collector becomes a bottleneck. At the moment when you can't scale it vertically anymore, you start scaling it horizontally.",
+    "why": "Explains OpenTelemetry Collector becoming a bottleneck and horizontal scaling once vertical scaling is exhausted.",
+    "matched_tools": [
+     "opentelemetry"
+    ],
+    "matched_by": "both",
+    "talk_label": "deep_dive",
+    "score": 0.7
+   },
+   {
+    "clip_id": "w1pj0Lz1mW4-394",
+    "talk_id": "w1pj0Lz1mW4",
+    "title": "Fluent Bit V5: Pushing the Limits of Observability at Scale",
+    "speakers": [
+     "Eduardo Silva"
+    ],
+    "start_sec": 392,
+    "end_sec": 470,
+    "watch_url": "https://www.youtube.com/watch?v=w1pj0Lz1mW4&t=392s",
+    "quote": "So the way that fluent bit approach the integration with open telemetry is that we support the schemas of hotel same as we support the schema of prometheus right and we also speak OTLP which is a open telemetry protocol.",
+    "why": "Fluent Bit speaks OTLP and supports Prometheus schemas; relevant to OpenTelemetry and Prometheus integration.",
     "matched_tools": [
      "opentelemetry",
      "prometheus"
     ],
     "matched_by": "both",
-    "talk_label": null,
-    "score": 1.265503
+    "talk_label": "intro",
+    "score": 0.6
+   },
+   {
+    "clip_id": "6vE9b6StC0g-194~260",
+    "talk_id": "6vE9b6StC0g",
+    "title": "Prometheus V3 One Year In: OpenMetrics 2.0 and More!",
+    "speakers": [
+     "Jan Fajerski",
+     "Bartłomiej Płotka"
+    ],
+    "start_sec": 192,
+    "end_sec": 339,
+    "watch_url": "https://www.youtube.com/watch?v=6vE9b6StC0g&t=192s",
+    "quote": "Um OTLP. Um we added a whole bunch of stuff to the uh OTLP receive endpoint. So, um there is the first signs of delta ingestion.",
+    "why": "Covers new OTLP receive endpoint features and first signs of delta ingestion for OpenTelemetry.",
+    "matched_tools": [
+     "opentelemetry",
+     "prometheus"
+    ],
+    "matched_by": "both",
+    "talk_label": "intro",
+    "score": 0.6
+   },
+   {
+    "clip_id": "YMqSK6uBhxU-1049~1122",
+    "talk_id": "YMqSK6uBhxU",
+    "title": "DNS Tracing & Metrics Via eBPF in OpenTelemetry",
+    "speakers": [
+     "Endre Sara",
+     "Nikola Grcevski"
+    ],
+    "start_sec": 1047,
+    "end_sec": 1200,
+    "watch_url": "https://www.youtube.com/watch?v=YMqSK6uBhxU&t=1047s",
+    "quote": "So I've done the work and I've used OTEL instrumentation to capture for example traces on the Java service and the node service with maybe NodeJS instrumentation but I also have a go service for which I actually haven't added the SDK I haven't built anything in.",
+    "why": "Uses OpenTelemetry instrumentation for tracing Java and Node services, plus a Go service without an SDK.",
+    "matched_tools": [
+     "opentelemetry"
+    ],
+    "matched_by": "both",
+    "talk_label": "deep_dive",
+    "score": 0.5
+   },
+   {
+    "clip_id": "0zwLl8QGOdM-1130",
+    "talk_id": "0zwLl8QGOdM",
+    "title": "OpenTelemetry Collector SIG: Project Updates",
+    "speakers": [
+     "Jade G",
+     "Dmitrii A",
+     "Alex B",
+     "Evan B",
+     "Antoine T"
+    ],
+    "start_sec": 1128,
+    "end_sec": 1211,
+    "watch_url": "https://www.youtube.com/watch?v=0zwLl8QGOdM&t=1128s",
+    "quote": "So now the the implementation of the internal telemetry of the collector is a bit uh was modularized so that now uh custom collector builds can customize it. So you can use a different hotel SDK and whatnot.",
+    "why": "OpenTelemetry collector internal telemetry is modularized so custom builds can swap SDKs.",
+    "matched_tools": [
+     "opentelemetry"
+    ],
+    "matched_by": "both",
+    "talk_label": "deep_dive",
+    "score": 0.5
+   },
+   {
+    "clip_id": "S6z2gd666qg-0",
+    "talk_id": "S6z2gd666qg",
+    "title": "OpenTelemetry Gateways: Enforce, Transform, Route",
+    "speakers": [
+     "Juraci Paixão Kröhling",
+     "Natalie Ujuk"
+    ],
+    "start_sec": 0,
+    "end_sec": 77,
+    "watch_url": "https://www.youtube.com/watch?v=S6z2gd666qg&t=0s",
+    "quote": "Welcome everyone to open telemetry gateways and force transform route. My name is Judasi and uh I'm a software engineer at O Garden. My name is Natalie Ujuk and I'm observability lead at IG Group.",
+    "why": "Intro to OpenTelemetry gateways and routing; relevant to the stack but excerpt is only introductions.",
+    "matched_tools": [
+     "opentelemetry"
+    ],
+    "matched_by": "both",
+    "talk_label": "deep_dive",
+    "score": 0.5
    },
    {
     "clip_id": "0zwLl8QGOdM-135",
@@ -111,80 +237,14 @@
     "end_sec": 213,
     "watch_url": "https://www.youtube.com/watch?v=0zwLl8QGOdM&t=133s",
     "quote": "All right one of the things that always comes up when we ask our end users what do you want to see on the open telemetry roadmap? What do you care about in the open telemetry collector?",
-    "why": "Mentions OpenTelemetry 3 times in this clip (also Prometheus)",
+    "why": "OpenTelemetry collector roadmap questions from end users; general interest, not a concrete fix.",
     "matched_tools": [
      "opentelemetry",
      "prometheus"
     ],
     "matched_by": "both",
-    "talk_label": null,
-    "score": 1.239622
-   },
-   {
-    "clip_id": "0zwLl8QGOdM-471~537",
-    "talk_id": "0zwLl8QGOdM",
-    "title": "OpenTelemetry Collector SIG: Project Updates",
-    "speakers": [
-     "Jade G",
-     "Dmitrii A",
-     "Alex B",
-     "Evan B",
-     "Antoine T"
-    ],
-    "start_sec": 469,
-    "end_sec": 614,
-    "watch_url": "https://www.youtube.com/watch?v=0zwLl8QGOdM&t=469s",
-    "quote": "Um, the Prometheus team is working on something that will allow you to wrap existing Prometheus exporters and make them into collector receivers. So if you're looking to consolidate your telemetry collection on the collector, uh this might be for you.",
-    "why": "Mentions Prometheus 11 times in this clip",
-    "matched_tools": [
-     "prometheus"
-    ],
-    "matched_by": "both",
-    "talk_label": null,
-    "score": 1.185149
-   },
-   {
-    "clip_id": "6vE9b6StC0g-194~260",
-    "talk_id": "6vE9b6StC0g",
-    "title": "Prometheus V3 One Year In: OpenMetrics 2.0 and More!",
-    "speakers": [
-     "Jan Fajerski",
-     "Bartłomiej Płotka"
-    ],
-    "start_sec": 192,
-    "end_sec": 339,
-    "watch_url": "https://www.youtube.com/watch?v=6vE9b6StC0g&t=192s",
-    "quote": "Um OTLP. Um we added a whole bunch of stuff to the uh OTLP receive endpoint. So, um there is the first signs of delta ingestion.",
-    "why": "Mentions Prometheus 4 times in this clip (also OpenTelemetry)",
-    "matched_tools": [
-     "opentelemetry",
-     "prometheus"
-    ],
-    "matched_by": "both",
-    "talk_label": null,
-    "score": 1.168509
-   },
-   {
-    "clip_id": "mvSGusgcVuw-1183",
-    "talk_id": "mvSGusgcVuw",
-    "title": "OpenTelemetry Project Update and 'Ask the Experts'",
-    "speakers": [
-     "Pablo B",
-     "Juraci P",
-     "Marylia G",
-     "Severin N"
-    ],
-    "start_sec": 1181,
-    "end_sec": 1261,
-    "watch_url": "https://www.youtube.com/watch?v=mvSGusgcVuw&t=1181s",
-    "quote": "Now it's stable. Hotel demo maintainers here.",
-    "why": "Mentions OpenTelemetry 3 times in this clip",
-    "matched_tools": [
-     "opentelemetry"
-    ],
-    "matched_by": "keyword",
-    "talk_label": null,
-    "score": 1.079074
+    "talk_label": "deep_dive",
+    "score": 0.4
    },
    {
     "clip_id": "w1pj0Lz1mW4-1532",
@@ -197,96 +257,35 @@
     "end_sec": 1613,
     "watch_url": "https://www.youtube.com/watch?v=w1pj0Lz1mW4&t=1530s",
     "quote": "So, we don't look to displace open telemetry. Actually, we integrate with open telemetry. Yeah.",
-    "why": "Mentions OpenTelemetry 4 times in this clip",
+    "why": "Says the project integrates with OpenTelemetry rather than displacing it; short excerpt, little detail.",
     "matched_tools": [
      "opentelemetry"
     ],
     "matched_by": "both",
-    "talk_label": null,
-    "score": 1.068152
+    "talk_label": "intro",
+    "score": 0.4
    },
    {
-    "clip_id": "w1pj0Lz1mW4-132",
-    "talk_id": "w1pj0Lz1mW4",
-    "title": "Fluent Bit V5: Pushing the Limits of Observability at Scale",
-    "speakers": [
-     "Eduardo Silva"
-    ],
-    "start_sec": 130,
-    "end_sec": 209,
-    "watch_url": "https://www.youtube.com/watch?v=w1pj0Lz1mW4&t=130s",
-    "quote": "So it's not just to receive over the network but also from the local system even systemd if you want to process systemd lock logs from your Linux box you can use this type and for processor which allow you to modify the data or enrich it we have Lua scripting so you can have your Lua scripts in…",
-    "why": "Mentions OpenTelemetry 3 times in this clip",
-    "matched_tools": [
-     "opentelemetry"
-    ],
-    "matched_by": "both",
-    "talk_label": null,
-    "score": 1.055607
-   },
-   {
-    "clip_id": "OVffupWFEtw-755",
+    "clip_id": "OVffupWFEtw-272",
     "talk_id": "OVffupWFEtw",
     "title": "Enriching Telemetry Signals Through Lookups in the OTel Collector",
     "speakers": [
      "João Duarte"
     ],
-    "start_sec": 753,
-    "end_sec": 841,
-    "watch_url": "https://www.youtube.com/watch?v=OVffupWFEtw&t=753s",
-    "quote": "This name, it is the service name that I already have, but now I also know that it's the hotel demo, the hotel collector, mini cube, etc. So, the value adds up. And now we go to type three.",
-    "why": "Mentions OpenTelemetry twice in this clip",
-    "matched_tools": [
-     "opentelemetry"
-    ],
-    "matched_by": "keyword",
-    "talk_label": null,
-    "score": 1.051985
-   },
-   {
-    "clip_id": "S6z2gd666qg-258",
-    "talk_id": "S6z2gd666qg",
-    "title": "OpenTelemetry Gateways: Enforce, Transform, Route",
-    "speakers": [
-     "Juraci Paixão Kröhling",
-     "Natalie Ujuk"
-    ],
-    "start_sec": 256,
-    "end_sec": 335,
-    "watch_url": "https://www.youtube.com/watch?v=S6z2gd666qg&t=256s",
-    "quote": "The pattern we landed on is a centralized open telemetry collector gateway. Applications send telemetry to edge collectors where the configuration stays simple and lightweight. Those collectors forward telemetry into the gateway layers.",
-    "why": "Mentions OpenTelemetry twice in this clip",
+    "start_sec": 270,
+    "end_sec": 351,
+    "watch_url": "https://www.youtube.com/watch?v=OVffupWFEtw&t=270s",
+    "quote": "The open telemetry collector, what does it support? Should it have all of these types or not? I say that not necessarily.",
+    "why": "Discusses which signal types OpenTelemetry collector should support; design opinion, not troubleshooting.",
     "matched_tools": [
      "opentelemetry"
     ],
     "matched_by": "both",
-    "talk_label": null,
-    "score": 1.039712
-   },
-   {
-    "clip_id": "mvSGusgcVuw-0",
-    "talk_id": "mvSGusgcVuw",
-    "title": "OpenTelemetry Project Update and 'Ask the Experts'",
-    "speakers": [
-     "Pablo B",
-     "Juraci P",
-     "Marylia G",
-     "Severin N"
-    ],
-    "start_sec": 0,
-    "end_sec": 76,
-    "watch_url": "https://www.youtube.com/watch?v=mvSGusgcVuw&t=0s",
-    "quote": "Uh, welcome to the open telemetry product updates. My name is Judas. I am Morelia.",
-    "why": "Mentions OpenTelemetry 3 times in this clip",
-    "matched_tools": [
-     "opentelemetry"
-    ],
-    "matched_by": "both",
-    "talk_label": null,
-    "score": 1.039421
+    "talk_label": "deep_dive",
+    "score": 0.4
    }
   ],
-  "trace_id": "34e92fd6b529703daf1bd4f2385d72f3",
+  "trace_id": "e6c859e7d042a71b7cf5d76f59e862f6",
   "message": null,
   "debug": {
    "query": {
@@ -508,22 +507,25 @@
     }
    },
    "timings_ms": {
-    "hybrid_search": 429.2,
-    "keyword_search": 66.7,
-    "semantic_search": 114.0,
-    "elastic_rerank": 1178.2,
-    "search_wall": 1179.9,
-    "grouping": 0.5,
+    "hybrid_search": 316.0,
+    "keyword_search": 66.6,
+    "semantic_search": 135.7,
+    "elastic_rerank": 1186.8,
+    "search_wall": 1187.3,
+    "grouping": 0.8,
     "clip_building": 0.2,
-    "rerank": 8072.0,
-    "budget": 4.1,
-    "total": 9257.8
+    "rerank_batch_0": 2053.6,
+    "rerank_batch_1": 1850.0,
+    "rerank_batch_2": 2123.1,
+    "rerank": 2130.3,
+    "budget": 3.9,
+    "total": 3322.8
    },
    "hits": 100,
    "talks": 23,
    "rerank": {
     "elastic": "ok",
-    "model": "fallback: LLMError"
+    "model": "ok"
    }
   }
  }

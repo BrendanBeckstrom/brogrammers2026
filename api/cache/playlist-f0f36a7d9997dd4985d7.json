@@ -13,7 +13,7 @@
  "response": {
   "total_seconds": 0,
   "clips": [],
-  "trace_id": "1f820bc147ee73298891d6a8c7b8a0e9",
+  "trace_id": "14431f956ace52bacefa3fec59b8dccf",
   "message": "No talk mentions a-tool-with-no-chunks.",
   "debug": {
    "query": {
@@ -76,12 +76,12 @@
     }
    },
    "timings_ms": {
-    "hybrid_search": 307.6,
-    "keyword_search": 63.9,
-    "semantic_search": 114.7,
-    "elastic_rerank": 1094.5,
-    "search_wall": 1094.9,
-    "total": 1094.9
+    "hybrid_search": 355.1,
+    "keyword_search": 63.6,
+    "semantic_search": 156.7,
+    "elastic_rerank": 1109.6,
+    "search_wall": 1110.0,
+    "total": 1110.0
    },
    "hits": 0,
    "talks": 0,

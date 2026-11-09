@@ -30,7 +30,7 @@
      "argo-cd"
     ],
     "matched_by": "both",
-    "talk_label": null,
+    "talk_label": "deep_dive",
     "score": 0.027237
    },
    {
@@ -51,7 +51,7 @@
      "prometheus"
     ],
     "matched_by": "both",
-    "talk_label": null,
+    "talk_label": "deep_dive",
     "score": 0.026546
    },
    {
@@ -70,7 +70,7 @@
      "argo-cd"
     ],
     "matched_by": "both",
-    "talk_label": null,
+    "talk_label": "deep_dive",
     "score": 0.025694
    },
    {
@@ -90,7 +90,7 @@
      "argo-cd"
     ],
     "matched_by": "both",
-    "talk_label": null,
+    "talk_label": "deep_dive",
     "score": 0.025063
    },
    {
@@ -109,7 +109,7 @@
      "argo-cd"
     ],
     "matched_by": "both",
-    "talk_label": null,
+    "talk_label": "pitch",
     "score": 0.024594
    },
    {
@@ -130,7 +130,7 @@
      "prometheus"
     ],
     "matched_by": "both",
-    "talk_label": null,
+    "talk_label": "intro",
     "score": 0.024394
    },
    {
@@ -149,7 +149,7 @@
      "argo-cd"
     ],
     "matched_by": "both",
-    "talk_label": null,
+    "talk_label": "deep_dive",
     "score": 0.024394
    },
    {
@@ -169,7 +169,7 @@
      "argo-cd"
     ],
     "matched_by": "both",
-    "talk_label": null,
+    "talk_label": "deep_dive",
     "score": 0.024203
    },
    {
@@ -189,7 +189,7 @@
      "argo-cd"
     ],
     "matched_by": "both",
-    "talk_label": null,
+    "talk_label": "deep_dive",
     "score": 0.02411
    },
    {
@@ -209,7 +209,7 @@
      "argo-cd"
     ],
     "matched_by": "both",
-    "talk_label": null,
+    "talk_label": "deep_dive",
     "score": 0.0241
    },
    {
@@ -229,7 +229,7 @@
      "argo-cd"
     ],
     "matched_by": "both",
-    "talk_label": null,
+    "talk_label": "intro",
     "score": 0.023746
    },
    {
@@ -249,7 +249,7 @@
      "argo-cd"
     ],
     "matched_by": "both",
-    "talk_label": null,
+    "talk_label": "intro",
     "score": 0.023392
    },
    {
@@ -269,11 +269,11 @@
      "argo-cd"
     ],
     "matched_by": "both",
-    "talk_label": null,
+    "talk_label": "intro",
     "score": 0.023259
    }
   ],
-  "trace_id": "c88613ffc9481f47354e398ec3335820",
+  "trace_id": "56956b9ed907850a28483553ffb01612",
   "message": null,
   "debug": {
    "query": {
@@ -397,14 +397,14 @@
     }
    },
    "timings_ms": {
-    "hybrid_search": 314.6,
-    "keyword_search": 199.4,
-    "semantic_search": 249.1,
-    "search_wall": 314.9,
-    "grouping": 0.9,
+    "hybrid_search": 307.6,
+    "keyword_search": 67.0,
+    "semantic_search": 139.7,
+    "search_wall": 307.8,
+    "grouping": 0.7,
     "clip_building": 0.2,
-    "budget": 3.3,
-    "total": 319.6
+    "budget": 3.5,
+    "total": 312.5
    },
    "hits": 100,
    "talks": 17,

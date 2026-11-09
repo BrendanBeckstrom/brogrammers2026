@@ -32,7 +32,7 @@
      "envoy"
     ],
     "matched_by": "both",
-    "talk_label": null,
+    "talk_label": "intro",
     "score": 0.032522
    },
    {
@@ -53,7 +53,7 @@
      "envoy"
     ],
     "matched_by": "both",
-    "talk_label": null,
+    "talk_label": "intro",
     "score": 0.031778
    },
    {
@@ -73,7 +73,7 @@
      "envoy"
     ],
     "matched_by": "both",
-    "talk_label": null,
+    "talk_label": "intro",
     "score": 0.030798
    },
    {
@@ -93,7 +93,7 @@
      "istio"
     ],
     "matched_by": "both",
-    "talk_label": null,
+    "talk_label": "deep_dive",
     "score": 0.029236
    },
    {
@@ -113,7 +113,7 @@
      "envoy"
     ],
     "matched_by": "both",
-    "talk_label": null,
+    "talk_label": "deep_dive",
     "score": 0.029206
    },
    {
@@ -132,7 +132,7 @@
      "envoy"
     ],
     "matched_by": "both",
-    "talk_label": null,
+    "talk_label": "deep_dive",
     "score": 0.029199
    },
    {
@@ -151,7 +151,7 @@
      "envoy"
     ],
     "matched_by": "both",
-    "talk_label": null,
+    "talk_label": "deep_dive",
     "score": 0.028624
    },
    {
@@ -171,7 +171,7 @@
      "istio"
     ],
     "matched_by": "both",
-    "talk_label": null,
+    "talk_label": "deep_dive",
     "score": 0.02837
    },
    {
@@ -192,7 +192,7 @@
      "envoy"
     ],
     "matched_by": "both",
-    "talk_label": null,
+    "talk_label": "intro",
     "score": 0.02773
    },
    {
@@ -211,7 +211,7 @@
      "envoy"
     ],
     "matched_by": "both",
-    "talk_label": null,
+    "talk_label": "deep_dive",
     "score": 0.025934
    },
    {
@@ -231,7 +231,7 @@
      "envoy"
     ],
     "matched_by": "both",
-    "talk_label": null,
+    "talk_label": "deep_dive",
     "score": 0.025
    },
    {
@@ -251,11 +251,11 @@
      "istio"
     ],
     "matched_by": "both",
-    "talk_label": null,
+    "talk_label": "deep_dive",
     "score": 0.024027
    }
   ],
-  "trace_id": "d2693ba9d096a4d2ab7e6f2eedb66b98",
+  "trace_id": "7ecdc2b563581cb6ae327cc4b022143f",
   "message": null,
   "debug": {
    "query": {
@@ -389,14 +389,14 @@
     }
    },
    "timings_ms": {
-    "hybrid_search": 318.5,
+    "hybrid_search": 312.1,
     "keyword_search": 66.0,
-    "semantic_search": 117.5,
-    "search_wall": 318.8,
-    "grouping": 0.9,
+    "semantic_search": 145.8,
+    "search_wall": 312.3,
+    "grouping": 0.7,
     "clip_building": 0.2,
-    "budget": 4.1,
-    "total": 324.4
+    "budget": 3.4,
+    "total": 316.9
    },
    "hits": 100,
    "talks": 16,

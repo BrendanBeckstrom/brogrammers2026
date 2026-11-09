@@ -37,7 +37,7 @@
      "istio"
     ],
     "matched_by": "both",
-    "talk_label": null,
+    "talk_label": "deep_dive",
     "score": 0.027629
    },
    {
@@ -58,7 +58,7 @@
      "prometheus"
     ],
     "matched_by": "both",
-    "talk_label": null,
+    "talk_label": "deep_dive",
     "score": 0.026984
    },
    {
@@ -78,8 +78,8 @@
      "cert-manager"
     ],
     "matched_by": "both",
-    "talk_label": null,
-    "score": 0.025362
+    "talk_label": "deep_dive",
+    "score": 0.025245
    },
    {
     "clip_id": "VfVQj4Oa3z0-0",
@@ -97,7 +97,7 @@
      "argo-cd"
     ],
     "matched_by": "both",
-    "talk_label": null,
+    "talk_label": "deep_dive",
     "score": 0.023718
    },
    {
@@ -117,7 +117,7 @@
      "envoy"
     ],
     "matched_by": "both",
-    "talk_label": null,
+    "talk_label": "intro",
     "score": 0.023582
    },
    {
@@ -137,7 +137,7 @@
      "cert-manager"
     ],
     "matched_by": "both",
-    "talk_label": null,
+    "talk_label": "deep_dive",
     "score": 0.022819
    },
    {
@@ -158,7 +158,7 @@
      "prometheus"
     ],
     "matched_by": "both",
-    "talk_label": null,
+    "talk_label": "intro",
     "score": 0.022539
    },
    {
@@ -177,7 +177,7 @@
      "argo-cd"
     ],
     "matched_by": "both",
-    "talk_label": null,
+    "talk_label": "deep_dive",
     "score": 0.022032
    },
    {
@@ -197,7 +197,7 @@
      "argo-cd"
     ],
     "matched_by": "both",
-    "talk_label": null,
+    "talk_label": "deep_dive",
     "score": 0.021869
    },
    {
@@ -218,8 +218,8 @@
      "istio"
     ],
     "matched_by": "both",
-    "talk_label": null,
-    "score": 0.02173
+    "talk_label": "deep_dive",
+    "score": 0.021687
    },
    {
     "clip_id": "fcajag5di68-523~586",
@@ -238,7 +238,7 @@
      "argo-cd"
     ],
     "matched_by": "both",
-    "talk_label": null,
+    "talk_label": "deep_dive",
     "score": 0.021204
    },
    {
@@ -258,7 +258,7 @@
      "argo-cd"
     ],
     "matched_by": "both",
-    "talk_label": null,
+    "talk_label": "deep_dive",
     "score": 0.021083
    },
    {
@@ -278,8 +278,8 @@
      "argo-cd"
     ],
     "matched_by": "both",
-    "talk_label": null,
-    "score": 0.020967
+    "talk_label": "intro",
+    "score": 0.020891
    },
    {
     "clip_id": "4K6s5y8HoBc-790",
@@ -299,7 +299,7 @@
      "istio"
     ],
     "matched_by": "both",
-    "talk_label": null,
+    "talk_label": "intro",
     "score": 0.020595
    },
    {
@@ -321,11 +321,11 @@
      "istio"
     ],
     "matched_by": "both",
-    "talk_label": null,
+    "talk_label": "intro",
     "score": 0.018475
    }
   ],
-  "trace_id": "d6375873356c83e8e988d8ffc9652034",
+  "trace_id": "f28d5fb63a1861023f9fe4f94a4a7eed",
   "message": "No talk mentions Kubernetes; showing the rest of your stack.",
   "debug": {
    "query": {
@@ -704,14 +704,14 @@
     }
    },
    "timings_ms": {
-    "hybrid_search": 324.1,
-    "keyword_search": 69.8,
-    "semantic_search": 121.0,
-    "search_wall": 324.4,
-    "grouping": 1.5,
+    "hybrid_search": 309.3,
+    "keyword_search": 116.0,
+    "semantic_search": 115.1,
+    "search_wall": 309.5,
+    "grouping": 0.6,
     "clip_building": 0.2,
-    "budget": 2.7,
-    "total": 329.3
+    "budget": 2.6,
+    "total": 313.2
    },
    "hits": 100,
    "talks": 28,

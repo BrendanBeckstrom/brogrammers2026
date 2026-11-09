@@ -31,7 +31,7 @@
      "prometheus"
     ],
     "matched_by": "both",
-    "talk_label": null,
+    "talk_label": "intro",
     "score": 0.031754
    },
    {
@@ -52,7 +52,7 @@
      "prometheus"
     ],
     "matched_by": "both",
-    "talk_label": null,
+    "talk_label": "deep_dive",
     "score": 0.030214
    },
    {
@@ -72,7 +72,7 @@
      "prometheus"
     ],
     "matched_by": "both",
-    "talk_label": null,
+    "talk_label": "intro",
     "score": 0.029911
    },
    {
@@ -93,7 +93,7 @@
      "prometheus"
     ],
     "matched_by": "both",
-    "talk_label": null,
+    "talk_label": "intro",
     "score": 0.029572
    },
    {
@@ -114,7 +114,7 @@
      "prometheus"
     ],
     "matched_by": "both",
-    "talk_label": null,
+    "talk_label": "intro",
     "score": 0.028309
    },
    {
@@ -137,7 +137,7 @@
      "opentelemetry"
     ],
     "matched_by": "both",
-    "talk_label": null,
+    "talk_label": "deep_dive",
     "score": 0.027588
    },
    {
@@ -157,7 +157,7 @@
      "prometheus"
     ],
     "matched_by": "both",
-    "talk_label": null,
+    "talk_label": "intro",
     "score": 0.02758
    },
    {
@@ -176,7 +176,7 @@
      "opentelemetry"
     ],
     "matched_by": "both",
-    "talk_label": null,
+    "talk_label": "intro",
     "score": 0.027149
    },
    {
@@ -196,7 +196,7 @@
      "opentelemetry"
     ],
     "matched_by": "both",
-    "talk_label": null,
+    "talk_label": "deep_dive",
     "score": 0.024315
    },
    {
@@ -216,7 +216,7 @@
      "opentelemetry"
     ],
     "matched_by": "both",
-    "talk_label": null,
+    "talk_label": "deep_dive",
     "score": 0.024242
    },
    {
@@ -240,7 +240,7 @@
      "prometheus"
     ],
     "matched_by": "both",
-    "talk_label": null,
+    "talk_label": "deep_dive",
     "score": 0.024108
    },
    {
@@ -260,7 +260,7 @@
      "opentelemetry"
     ],
     "matched_by": "both",
-    "talk_label": null,
+    "talk_label": "intro",
     "score": 0.023016
    },
    {
@@ -280,7 +280,7 @@
      "opentelemetry"
     ],
     "matched_by": "both",
-    "talk_label": null,
+    "talk_label": "deep_dive",
     "score": 0.022497
    },
    {
@@ -300,11 +300,11 @@
      "opentelemetry"
     ],
     "matched_by": "both",
-    "talk_label": null,
+    "talk_label": "deep_dive",
     "score": 0.018519
    }
   ],
-  "trace_id": "6be27a82948c0bedf146a1dcfc0fd5b3",
+  "trace_id": "e4bc4c73ac52509a68799993ffe26941",
   "message": null,
   "debug": {
    "query": {
@@ -518,14 +518,14 @@
     }
    },
    "timings_ms": {
-    "hybrid_search": 318.0,
-    "keyword_search": 68.2,
-    "semantic_search": 120.4,
-    "search_wall": 320.1,
-    "grouping": 1.0,
-    "clip_building": 0.8,
-    "budget": 5.1,
-    "total": 327.4
+    "hybrid_search": 312.2,
+    "keyword_search": 66.7,
+    "semantic_search": 122.2,
+    "search_wall": 312.4,
+    "grouping": 0.6,
+    "clip_building": 0.2,
+    "budget": 3.8,
+    "total": 317.2
    },
    "hits": 100,
    "talks": 23,
