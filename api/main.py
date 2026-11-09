@@ -1,12 +1,14 @@
 """Debrief API: FastAPI app. Routes are added task by task (see docs/BRIEF.md)."""
 
 import os
+from collections.abc import AsyncIterator
+from contextlib import asynccontextmanager
 from pathlib import Path
 
 from fastapi import FastAPI
 from fastapi.staticfiles import StaticFiles
 
-from api import routes_memo, routes_search, routes_stack, telemetry
+from api import llm, routes_memo, routes_search, routes_stack, telemetry
 
 # Set by the image build (the commit's short SHA); "dev" locally.
 APP_VERSION = os.environ.get("APP_VERSION", "dev")
@@ -16,7 +18,16 @@ WEB_DIST = Path(__file__).resolve().parent.parent / "web" / "dist"
 # is set; probes are not traced.
 telemetry.setup(telemetry.API_SERVICE)
 
-app = FastAPI(title="Debrief", version=APP_VERSION)
+
+@asynccontextmanager
+async def lifespan(_: FastAPI) -> AsyncIterator[None]:
+    # Import and build the model SDK client before the first request. Done lazily inside
+    # the first model call, it showed up in production as ~3.3 s before the HTTP request.
+    llm.warm()
+    yield
+
+
+app = FastAPI(title="Debrief", version=APP_VERSION, lifespan=lifespan)
 telemetry.instrument_app(app)
 
 
