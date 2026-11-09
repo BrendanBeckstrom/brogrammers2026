@@ -243,6 +243,21 @@ def test_run_fails_when_a_doc_is_missing(tmp_path: Path) -> None:
     assert idx.run(client, path, progress=None) == 1
 
 
+def test_run_explains_stale_docs_and_recommends_recreate(
+    tmp_path: Path, capsys: pytest.CaptureFixture[str]
+) -> None:
+    path = _write_chunks(tmp_path / "chunks.jsonl", [_chunk("t1", 0)])
+    client = FakeClient()
+    idx.ensure_indexes(client, recreate=False)
+    client.docs["clips"] = {"stale-clip": {"chunk_id": "stale-clip"}}
+
+    assert idx.run(client, path, progress=None) == 1
+
+    stderr = capsys.readouterr().err
+    assert "index doc counts differ from the file" in stderr
+    assert "rerun with --recreate" in stderr
+
+
 def test_read_chunks_skips_blank_lines_and_rejects_bad_ones(tmp_path: Path) -> None:
     path = tmp_path / "chunks.jsonl"
     path.write_text(json.dumps(_chunk("t1", 0)) + "\n\n" + json.dumps(_chunk("t1", 60)) + "\n")

@@ -293,6 +293,12 @@ def run(
         print(f"failed: {failure}", file=sys.stderr)
     if failures:
         print(f"{len(failures)} documents failed to index", file=sys.stderr)
+    if clips_count != len(unique_ids) or talks_count != len(talks):
+        print(
+            "index doc counts differ from the file (stale docs from an earlier load?); "
+            "rerun with --recreate",
+            file=sys.stderr,
+        )
     ok = not failures and clips_count == len(unique_ids) and talks_count == len(talks)
     return 0 if ok else 1
 
