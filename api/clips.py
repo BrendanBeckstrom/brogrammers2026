@@ -182,8 +182,7 @@ def group_by_talk(hits: Iterable[Hit], per_talk: int = MAX_CHUNKS_PER_TALK) -> l
 def merge_talk(hits: Iterable[Hit]) -> list[Clip]:
     """Merge one talk's hits that overlap or sit within MERGE_GAP_SEC into clips.
 
-    A chunk joins the previous clip only if it starts early enough to leave at least
-    MIN_CLIP_SEC of it inside the MAX_CLIP_SEC cap.
+    A chunk joins the previous clip only if all of it fits inside the MAX_CLIP_SEC cap.
     """
     groups: list[list[Hit]] = []
     for hit in sorted(hits, key=lambda h: h.start_sec):
@@ -192,7 +191,7 @@ def merge_talk(hits: Iterable[Hit]) -> list[Clip]:
             start, _ = clip_bounds(group)
             end = max(c.end_sec for c in group)
             near = hit.start_sec <= end + MERGE_GAP_SEC
-            fits = hit.start_sec - start <= MAX_CLIP_SEC - MIN_CLIP_SEC
+            fits = hit.end_sec - start <= MAX_CLIP_SEC
             if near and fits:
                 group.append(hit)
                 continue

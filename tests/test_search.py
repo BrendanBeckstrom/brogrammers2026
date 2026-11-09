@@ -2,6 +2,7 @@
 
 import re
 from collections import Counter, defaultdict
+from collections.abc import Iterator
 from typing import Any
 
 import pytest
@@ -166,7 +167,7 @@ def fake() -> FakeSearchClient:
 
 
 @pytest.fixture
-def api(fake: FakeSearchClient):
+def api(fake: FakeSearchClient) -> Iterator[TestClient]:
     app.dependency_overrides[routes_search.search_client] = lambda: fake
     yield TestClient(app)
     app.dependency_overrides.clear()
@@ -223,6 +224,12 @@ def test_late_chunk_starts_a_new_clip_instead_of_being_cut() -> None:
     clips = clipmod.merge_talk(hits)
     assert [c.clip_id for c in clips] == ["t-100~184", "t-288"]
     assert all(60 <= c.length <= 240 for c in clips)
+
+
+def test_chunk_extending_past_cap_starts_a_new_clip() -> None:
+    clips = clipmod.merge_talk([hit("t-100", 100, 250), hit("t-260", 260, 340)])
+    assert [c.clip_id for c in clips] == ["t-100", "t-260"]
+    assert clips[1].bounds == (258, 340)
 
 
 def test_group_by_talk_keeps_three_best_per_talk() -> None:
