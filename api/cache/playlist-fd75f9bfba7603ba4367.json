@@ -1,0 +1,85 @@
+{
+ "route": "playlist",
+ "request": {
+  "tools": [
+   "a-tool-with-no-chunks"
+  ],
+  "pain": null,
+  "attended_talk_ids": [],
+  "filter": "all",
+  "budget_minutes": 25,
+  "rerank": false
+ },
+ "response": {
+  "total_seconds": 0,
+  "clips": [],
+  "trace_id": "1a6cb2f37350f63e6267a38c3dbfe408",
+  "message": "No talk mentions a-tool-with-no-chunks.",
+  "debug": {
+   "query": {
+    "size": 100,
+    "_source": [
+     "chunk_id",
+     "talk_id",
+     "youtube_id",
+     "title",
+     "speakers",
+     "start_sec",
+     "end_sec",
+     "text",
+     "tools",
+     "talk_label"
+    ],
+    "retriever": {
+     "rrf": {
+      "rank_window_size": 100,
+      "retrievers": [
+       {
+        "standard": {
+         "query": {
+          "bool": {
+           "should": [
+            {
+             "terms": {
+              "tools": [
+               "a-tool-with-no-chunks"
+              ],
+              "boost": 2
+             }
+            }
+           ],
+           "minimum_should_match": 1
+          }
+         }
+        }
+       },
+       {
+        "standard": {
+         "query": {
+          "semantic": {
+           "field": "text_semantic",
+           "query": "a-tool-with-no-chunks"
+          }
+         }
+        }
+       }
+      ]
+     }
+    }
+   },
+   "timings_ms": {
+    "hybrid_search": 303.3,
+    "keyword_search": 63.6,
+    "semantic_search": 115.0,
+    "search_wall": 303.5,
+    "total": 303.5
+   },
+   "hits": 0,
+   "talks": 0,
+   "rerank": {
+    "elastic": "off",
+    "model": "off"
+   }
+  }
+ }
+}

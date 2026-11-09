@@ -1,0 +1,538 @@
+{
+ "route": "playlist",
+ "request": {
+  "tools": [
+   "opentelemetry",
+   "prometheus"
+  ],
+  "pain": null,
+  "attended_talk_ids": [],
+  "filter": "all",
+  "budget_minutes": 25,
+  "rerank": false
+ },
+ "response": {
+  "total_seconds": 1440,
+  "clips": [
+   {
+    "clip_id": "gH_JzIXFshI-784~861~930",
+    "talk_id": "gH_JzIXFshI",
+    "title": "Jaeger V2: The Maintainers' Guide To OpenTelemetry-Native Tracing",
+    "speakers": [
+     "Pavol Loffay"
+    ],
+    "start_sec": 782,
+    "end_sec": 1006,
+    "watch_url": "https://www.youtube.com/watch?v=gH_JzIXFshI&t=782s",
+    "quote": "Um it receives spans uh it creates metrics and then it sends them to Prometheus. You can send them via remote write or Prometheus scraping or via OTLP. Prometheus uh supports OTLP HTTP as well.",
+    "why": "Mentions OpenTelemetry 9 times in this clip (also Prometheus)",
+    "matched_tools": [
+     "opentelemetry",
+     "prometheus"
+    ],
+    "matched_by": "both",
+    "talk_label": "intro",
+    "score": 0.031754
+   },
+   {
+    "clip_id": "Z0oum6Eh1is-915",
+    "talk_id": "Z0oum6Eh1is",
+    "title": "We Deleted Our Observability Stack and Rebuilt It With OTEL: 12 Engineers to 4 at 20K+ Clusters",
+    "speakers": [
+     "Yash Sharma",
+     "Kunju Perath"
+    ],
+    "start_sec": 913,
+    "end_sec": 995,
+    "watch_url": "https://www.youtube.com/watch?v=Z0oum6Eh1is&t=913s",
+    "quote": "were only really paying attention to once we had some OOM kills going on um and then of course OTLP exporter because uh the the format the telemetry data is stored in a different format it's not Prometheus exposition format it's it's called the OTLP uh format by open telemetry um and so we needed…",
+    "why": "Mentions OpenTelemetry 3 times in this clip (also Prometheus)",
+    "matched_tools": [
+     "opentelemetry",
+     "prometheus"
+    ],
+    "matched_by": "both",
+    "talk_label": "deep_dive",
+    "score": 0.030214
+   },
+   {
+    "clip_id": "w1pj0Lz1mW4-394",
+    "talk_id": "w1pj0Lz1mW4",
+    "title": "Fluent Bit V5: Pushing the Limits of Observability at Scale",
+    "speakers": [
+     "Eduardo Silva"
+    ],
+    "start_sec": 392,
+    "end_sec": 470,
+    "watch_url": "https://www.youtube.com/watch?v=w1pj0Lz1mW4&t=392s",
+    "quote": "So the way that fluent bit approach the integration with open telemetry is that we support the schemas of hotel same as we support the schema of prometheus right and we also speak OTLP which is a open telemetry protocol.",
+    "why": "Mentions OpenTelemetry 6 times in this clip (also Prometheus)",
+    "matched_tools": [
+     "opentelemetry",
+     "prometheus"
+    ],
+    "matched_by": "both",
+    "talk_label": "intro",
+    "score": 0.029911
+   },
+   {
+    "clip_id": "6vE9b6StC0g-1838",
+    "talk_id": "6vE9b6StC0g",
+    "title": "Prometheus V3 One Year In: OpenMetrics 2.0 and More!",
+    "speakers": [
+     "Jan Fajerski",
+     "Bartłomiej Płotka"
+    ],
+    "start_sec": 1836,
+    "end_sec": 1917,
+    "watch_url": "https://www.youtube.com/watch?v=6vE9b6StC0g&t=1836s",
+    "quote": "Certainly. So, um Prometheus has a somewhat formalized proposal process nowadays.",
+    "why": "Mentions Prometheus 5 times in this clip (also OpenTelemetry)",
+    "matched_tools": [
+     "opentelemetry",
+     "prometheus"
+    ],
+    "matched_by": "both",
+    "talk_label": "intro",
+    "score": 0.029572
+   },
+   {
+    "clip_id": "6vE9b6StC0g-194",
+    "talk_id": "6vE9b6StC0g",
+    "title": "Prometheus V3 One Year In: OpenMetrics 2.0 and More!",
+    "speakers": [
+     "Jan Fajerski",
+     "Bartłomiej Płotka"
+    ],
+    "start_sec": 192,
+    "end_sec": 275,
+    "watch_url": "https://www.youtube.com/watch?v=6vE9b6StC0g&t=192s",
+    "quote": "Um OTLP. Um we added a whole bunch of stuff to the uh OTLP receive endpoint.",
+    "why": "Mentions OpenTelemetry twice in this clip (also Prometheus)",
+    "matched_tools": [
+     "opentelemetry",
+     "prometheus"
+    ],
+    "matched_by": "both",
+    "talk_label": "intro",
+    "score": 0.028309
+   },
+   {
+    "clip_id": "0zwLl8QGOdM-1130",
+    "talk_id": "0zwLl8QGOdM",
+    "title": "OpenTelemetry Collector SIG: Project Updates",
+    "speakers": [
+     "Jade G",
+     "Dmitrii A",
+     "Alex B",
+     "Evan B",
+     "Antoine T"
+    ],
+    "start_sec": 1128,
+    "end_sec": 1211,
+    "watch_url": "https://www.youtube.com/watch?v=0zwLl8QGOdM&t=1128s",
+    "quote": "So now the the implementation of the internal telemetry of the collector is a bit uh was modularized so that now uh custom collector builds can customize it. So you can use a different hotel SDK and whatnot.",
+    "why": "Mentions OpenTelemetry twice in this clip",
+    "matched_tools": [
+     "opentelemetry"
+    ],
+    "matched_by": "both",
+    "talk_label": "deep_dive",
+    "score": 0.027588
+   },
+   {
+    "clip_id": "6vE9b6StC0g-64",
+    "talk_id": "6vE9b6StC0g",
+    "title": "Prometheus V3 One Year In: OpenMetrics 2.0 and More!",
+    "speakers": [
+     "Jan Fajerski",
+     "Bartłomiej Płotka"
+    ],
+    "start_sec": 62,
+    "end_sec": 144,
+    "watch_url": "https://www.youtube.com/watch?v=6vE9b6StC0g&t=62s",
+    "quote": "So, since we have uh more people than I thought who don't know what Prometheus is, here's what Prometheus is. Um it's uh TSDB at its center, um and it gives you a service discovery to discover scraping targets, where it gets all the metrics that it ingests into the TSDB.",
+    "why": "Mentions Prometheus 5 times in this clip",
+    "matched_tools": [
+     "prometheus"
+    ],
+    "matched_by": "both",
+    "talk_label": "intro",
+    "score": 0.02758
+   },
+   {
+    "clip_id": "w1pj0Lz1mW4-1532",
+    "talk_id": "w1pj0Lz1mW4",
+    "title": "Fluent Bit V5: Pushing the Limits of Observability at Scale",
+    "speakers": [
+     "Eduardo Silva"
+    ],
+    "start_sec": 1530,
+    "end_sec": 1613,
+    "watch_url": "https://www.youtube.com/watch?v=w1pj0Lz1mW4&t=1530s",
+    "quote": "So, we don't look to displace open telemetry. Actually, we integrate with open telemetry. Yeah.",
+    "why": "Mentions OpenTelemetry 4 times in this clip",
+    "matched_tools": [
+     "opentelemetry"
+    ],
+    "matched_by": "both",
+    "talk_label": "intro",
+    "score": 0.027149
+   },
+   {
+    "clip_id": "YMqSK6uBhxU-1049~1122",
+    "talk_id": "YMqSK6uBhxU",
+    "title": "DNS Tracing & Metrics Via eBPF in OpenTelemetry",
+    "speakers": [
+     "Endre Sara",
+     "Nikola Grcevski"
+    ],
+    "start_sec": 1047,
+    "end_sec": 1200,
+    "watch_url": "https://www.youtube.com/watch?v=YMqSK6uBhxU&t=1047s",
+    "quote": "So it's sort of like we're watching for OTLP traces export or OTLP metrics export and whichever is happening that service is deemed that it's already doing the thing. Don't don't duplicate data. But DNS is a signal that doesn't exist in all these services.",
+    "why": "Mentions OpenTelemetry 4 times in this clip",
+    "matched_tools": [
+     "opentelemetry"
+    ],
+    "matched_by": "both",
+    "talk_label": "deep_dive",
+    "score": 0.024315
+   },
+   {
+    "clip_id": "Z0oum6Eh1is-722",
+    "talk_id": "Z0oum6Eh1is",
+    "title": "We Deleted Our Observability Stack and Rebuilt It With OTEL: 12 Engineers to 4 at 20K+ Clusters",
+    "speakers": [
+     "Yash Sharma",
+     "Kunju Perath"
+    ],
+    "start_sec": 720,
+    "end_sec": 804,
+    "watch_url": "https://www.youtube.com/watch?v=Z0oum6Eh1is&t=720s",
+    "quote": "We used uh what's called the open telemetry contrib image we have links at the end um but it basically is an open telemetry uh when you it's basically an open telemetry image that has baked in basically all the community plugins.",
+    "why": "Mentions OpenTelemetry 5 times in this clip",
+    "matched_tools": [
+     "opentelemetry"
+    ],
+    "matched_by": "both",
+    "talk_label": "deep_dive",
+    "score": 0.024242
+   },
+   {
+    "clip_id": "0zwLl8QGOdM-135~202",
+    "talk_id": "0zwLl8QGOdM",
+    "title": "OpenTelemetry Collector SIG: Project Updates",
+    "speakers": [
+     "Jade G",
+     "Dmitrii A",
+     "Alex B",
+     "Evan B",
+     "Antoine T"
+    ],
+    "start_sec": 133,
+    "end_sec": 282,
+    "watch_url": "https://www.youtube.com/watch?v=0zwLl8QGOdM&t=133s",
+    "quote": "Uh this year, I was like, \"Wow, if I if you had said that about a collector in 2024, uh you know, I wouldn't think that it'd be standing here telling you that we're still chasing uh 1.0.\" But in 2024, we opened an issue where we wanted to make an open telemetry collector 1.0.",
+    "why": "Mentions OpenTelemetry 7 times in this clip (also Prometheus)",
+    "matched_tools": [
+     "opentelemetry",
+     "prometheus"
+    ],
+    "matched_by": "both",
+    "talk_label": "deep_dive",
+    "score": 0.024108
+   },
+   {
+    "clip_id": "TKp2snmgvtQ-1910",
+    "talk_id": "TKp2snmgvtQ",
+    "title": "The Fourth Pillar Arrives: OpenTelemetry Profiling Alpha in Action",
+    "speakers": [
+     "Felix Geisendörfer",
+     "Florian Lehner"
+    ],
+    "start_sec": 1908,
+    "end_sec": 1988,
+    "watch_url": "https://www.youtube.com/watch?v=TKp2snmgvtQ&t=1908s",
+    "quote": "So we can refer to a stack trace with a single identifier which prof doesn't have. uh we made a few other uh smaller changes to to pros that are maybe worth noting but uh it is I think the main benefit is just the open telemetry ecosystem that it's just all going to work.",
+    "why": "Mentions OpenTelemetry 3 times in this clip",
+    "matched_tools": [
+     "opentelemetry"
+    ],
+    "matched_by": "both",
+    "talk_label": "intro",
+    "score": 0.023016
+   },
+   {
+    "clip_id": "Z0oum6Eh1is-1565",
+    "talk_id": "Z0oum6Eh1is",
+    "title": "We Deleted Our Observability Stack and Rebuilt It With OTEL: 12 Engineers to 4 at 20K+ Clusters",
+    "speakers": [
+     "Yash Sharma",
+     "Kunju Perath"
+    ],
+    "start_sec": 1563,
+    "end_sec": 1661,
+    "watch_url": "https://www.youtube.com/watch?v=Z0oum6Eh1is&t=1563s",
+    "quote": "It I think the OTLP format is slightly different. Uh like uh we basically have Grafana dashboards to like view this stuff, right? And I think it really was just a change from like underscores to periods or something like that.",
+    "why": "Mentions OpenTelemetry 3 times in this clip",
+    "matched_tools": [
+     "opentelemetry"
+    ],
+    "matched_by": "both",
+    "talk_label": "deep_dive",
+    "score": 0.022497
+   },
+   {
+    "clip_id": "YMqSK6uBhxU-519",
+    "talk_id": "YMqSK6uBhxU",
+    "title": "DNS Tracing & Metrics Via eBPF in OpenTelemetry",
+    "speakers": [
+     "Endre Sara",
+     "Nikola Grcevski"
+    ],
+    "start_sec": 517,
+    "end_sec": 597,
+    "watch_url": "https://www.youtube.com/watch?v=YMqSK6uBhxU&t=517s",
+    "quote": "And then finally this telemetry is then exported uh in open telemetry format uh as metrics or traces. Now it's up to you later if you want to take this export the telemetry and maybe enrich it further with the open telemetry collector or you can use it as is.",
+    "why": "Mentions OpenTelemetry 3 times in this clip",
+    "matched_tools": [
+     "opentelemetry"
+    ],
+    "matched_by": "both",
+    "talk_label": "deep_dive",
+    "score": 0.018519
+   }
+  ],
+  "trace_id": "e4bc4c73ac52509a68799993ffe26941",
+  "message": null,
+  "debug": {
+   "query": {
+    "size": 100,
+    "_source": [
+     "chunk_id",
+     "talk_id",
+     "youtube_id",
+     "title",
+     "speakers",
+     "start_sec",
+     "end_sec",
+     "text",
+     "tools",
+     "talk_label"
+    ],
+    "retriever": {
+     "rrf": {
+      "rank_window_size": 100,
+      "retrievers": [
+       {
+        "standard": {
+         "query": {
+          "bool": {
+           "should": [
+            {
+             "terms": {
+              "tools": [
+               "opentelemetry",
+               "prometheus"
+              ],
+              "boost": 2
+             }
+            },
+            {
+             "match_phrase": {
+              "text": "opentelemetry"
+             }
+            },
+            {
+             "match_phrase": {
+              "text": "open telemetry"
+             }
+            },
+            {
+             "match_phrase": {
+              "text": "otel"
+             }
+            },
+            {
+             "match_phrase": {
+              "text": "otlp"
+             }
+            },
+            {
+             "match_phrase": {
+              "text": "hotel collector"
+             }
+            },
+            {
+             "match_phrase": {
+              "text": "hotel collectors"
+             }
+            },
+            {
+             "match_phrase": {
+              "text": "hotel sdk"
+             }
+            },
+            {
+             "match_phrase": {
+              "text": "hotel sdks"
+             }
+            },
+            {
+             "match_phrase": {
+              "text": "hotel demo"
+             }
+            },
+            {
+             "match_phrase": {
+              "text": "hotel instrumentation"
+             }
+            },
+            {
+             "match_phrase": {
+              "text": "hotel profiles"
+             }
+            },
+            {
+             "match_phrase": {
+              "text": "hotel spans"
+             }
+            },
+            {
+             "match_phrase": {
+              "text": "prometheus"
+             }
+            },
+            {
+             "match_phrase": {
+              "text": "promql"
+             }
+            }
+           ],
+           "minimum_should_match": 1
+          }
+         }
+        }
+       },
+       {
+        "standard": {
+         "query": {
+          "semantic": {
+           "field": "text_semantic",
+           "query": "OpenTelemetry, Prometheus"
+          }
+         }
+        }
+       }
+      ]
+     }
+    },
+    "highlight": {
+     "fields": {
+      "text": {
+       "type": "unified",
+       "boundary_scanner": "sentence",
+       "fragment_size": 200,
+       "number_of_fragments": 1,
+       "no_match_size": 0,
+       "highlight_query": {
+        "bool": {
+         "should": [
+          {
+           "match_phrase": {
+            "text": "opentelemetry"
+           }
+          },
+          {
+           "match_phrase": {
+            "text": "open telemetry"
+           }
+          },
+          {
+           "match_phrase": {
+            "text": "otel"
+           }
+          },
+          {
+           "match_phrase": {
+            "text": "otlp"
+           }
+          },
+          {
+           "match_phrase": {
+            "text": "hotel collector"
+           }
+          },
+          {
+           "match_phrase": {
+            "text": "hotel collectors"
+           }
+          },
+          {
+           "match_phrase": {
+            "text": "hotel sdk"
+           }
+          },
+          {
+           "match_phrase": {
+            "text": "hotel sdks"
+           }
+          },
+          {
+           "match_phrase": {
+            "text": "hotel demo"
+           }
+          },
+          {
+           "match_phrase": {
+            "text": "hotel instrumentation"
+           }
+          },
+          {
+           "match_phrase": {
+            "text": "hotel profiles"
+           }
+          },
+          {
+           "match_phrase": {
+            "text": "hotel spans"
+           }
+          },
+          {
+           "match_phrase": {
+            "text": "prometheus"
+           }
+          },
+          {
+           "match_phrase": {
+            "text": "promql"
+           }
+          }
+         ],
+         "minimum_should_match": 1
+        }
+       }
+      }
+     }
+    }
+   },
+   "timings_ms": {
+    "hybrid_search": 312.2,
+    "keyword_search": 66.7,
+    "semantic_search": 122.2,
+    "search_wall": 312.4,
+    "grouping": 0.6,
+    "clip_building": 0.2,
+    "budget": 3.8,
+    "total": 317.2
+   },
+   "hits": 100,
+   "talks": 23,
+   "rerank": {
+    "elastic": "off",
+    "model": "off"
+   }
+  }
+ }
+}

@@ -1,0 +1,98 @@
+apiVersion: apps/v1
+kind: Deployment
+metadata:
+  name: app
+  labels:
+    app: app
+spec:
+  # Remove this line when you turn on the HPA (examples/hpa), or Argo CD and
+  # the autoscaler will keep resetting each other.
+  replicas: 1
+  selector:
+    matchLabels:
+      app: app
+  template:
+    metadata:
+      labels:
+        app: app
+    spec:
+      containers:
+        - name: app
+          image: app
+          ports:
+            - name: http
+              containerPort: 8080
+          env:
+            - name: TEAM_NAME
+              value: "brogrammers"
+            - name: OTEL_SERVICE_NAME
+              value: debrief-api
+            - name: LLM_PROVIDER
+              value: anthropic
+            # From Secret app-credentials, which a person creates by hand (see
+            # README, Deploy). Optional, so pods start before it exists. Only the
+            # Secret's name goes in git, never a value.
+            - name: ELASTIC_URL
+              valueFrom:
+                secretKeyRef:
+                  name: app-credentials
+                  key: elastic-url
+                  optional: true
+            - name: ELASTIC_API_KEY
+              valueFrom:
+                secretKeyRef:
+                  name: app-credentials
+                  key: elastic-api-key
+                  optional: true
+            - name: LLM_API_KEY
+              valueFrom:
+                secretKeyRef:
+                  name: app-credentials
+                  key: llm-api-key
+                  optional: true
+            - name: OTEL_EXPORTER_OTLP_ENDPOINT
+              valueFrom:
+                secretKeyRef:
+                  name: app-credentials
+                  key: otel-endpoint
+                  optional: true
+            - name: OTEL_EXPORTER_OTLP_HEADERS
+              valueFrom:
+                secretKeyRef:
+                  name: app-credentials
+                  key: otel-headers
+                  optional: true
+          resources:
+            requests:
+              cpu: 100m
+              memory: 256Mi
+            limits:
+              cpu: 500m
+              memory: 512Mi
+          # Give uvicorn time to bind before the first startup check, avoiding
+          # connection-refused warnings. Startup checks then allow up to 60 s
+          # before readiness and liveness checks take over.
+          startupProbe:
+            httpGet:
+              path: /healthz
+              port: http
+            initialDelaySeconds: 3
+            periodSeconds: 2
+            failureThreshold: 30
+          readinessProbe:
+            httpGet:
+              path: /readyz
+              port: http
+            periodSeconds: 5
+          livenessProbe:
+            httpGet:
+              path: /healthz
+              port: http
+            periodSeconds: 10
+          securityContext:
+            runAsNonRoot: true
+            allowPrivilegeEscalation: false
+            seccompProfile:
+              type: RuntimeDefault
+            capabilities:
+              drop: ["ALL"]

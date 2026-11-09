@@ -1,0 +1,46 @@
+[project]
+name = "debrief"
+version = "0.1.0"
+description = "Debrief: the 20 minutes of a conference that matter to your team."
+readme = "README.md"
+requires-python = "==3.12.*"
+dependencies = [
+    "anthropic==2.6.0",
+    "elasticsearch==9.5.1",
+    "fastapi==0.162.2",
+    "openai==3.48.0",
+    "opentelemetry-api==1.45.2",
+    "opentelemetry-exporter-otlp-proto-http==1.45.2",
+    "opentelemetry-instrumentation-fastapi==0.66b2",
+    "opentelemetry-sdk==1.45.2",
+    "pyyaml==6.0.3",
+    "uvicorn[standard]==0.54.0",
+    "yt-dlp==2026.10.26",
+]
+
+[tool.uv]
+package = false
+
+[tool.ruff]
+line-length = 100
+target-version = "py312"
+extend-exclude = ["web", "data"]
+
+[tool.ruff.lint]
+select = ["E", "F", "I", "UP", "B", "ANN"]
+ignore = ["ANN401"]
+
+[tool.ruff.lint.per-file-ignores]
+"tests/**" = ["ANN"]
+
+[tool.pytest.ini_options]
+pythonpath = ["."]
+testpaths = ["tests"]
+
+[dependency-groups]
+dev = [
+    "httpx==0.28.1",
+    "pip-audit==2.10.1",
+    "pytest==9.2.0",
+    "ruff==0.17.4",
+]

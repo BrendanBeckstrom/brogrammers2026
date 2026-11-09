@@ -1,0 +1,494 @@
+# Tool dictionary for Debrief (contract: docs/BRIEF.md "Tool dictionary").
+#
+# Matching (ingest/tag.py): every alias and caption spelling is matched as whole words,
+# case-insensitive. Words inside a term may be joined by spaces, hyphens or nothing,
+# so "argo cd" also matches "Argo-CD" and "argocd". Plurals are not implied: list them.
+#
+# Rules:
+# - Never use an alias that also names another tool (a bare "argo" is also Argo Workflows).
+# - caption_spellings are misheard forms actually seen in YouTube auto-captions of
+#   KubeCon talks. Never add one that is ordinary English (e.g. bare "hotel" or
+#   "customize"); use a longer phrase instead.
+# - packages are real names, used by the stack parser (task 7) to map dependency files
+#   (go.mod, package.json, requirements.txt, Chart.yaml) to tools.
+
+# --- GitOps and delivery -------------------------------------------------------------
+
+- id: argo-cd
+  name: Argo CD
+  aliases: ["argo cd", "argocd"]
+  caption_spellings: ["argo city"]
+  packages:
+    go:
+      - github.com/argoproj/argo-cd
+      - github.com/argoproj/argo-cd/v2
+      - github.com/argoproj/argo-cd/v3
+    npm: []
+    pypi: []
+    helm: ["argo-cd"]
+
+- id: argo-workflows
+  name: Argo Workflows
+  aliases: ["argo workflows", "argo workflow"]
+  caption_spellings: []
+  packages:
+    go: ["github.com/argoproj/argo-workflows/v3"]
+    npm: []
+    pypi: ["argo-workflows", "hera"]
+    helm: ["argo-workflows"]
+
+- id: argo-rollouts
+  name: Argo Rollouts
+  aliases: ["argo rollouts", "argo rollout"]
+  caption_spellings: ["argo routs", "argo roll out", "argo roll outs"]
+  packages:
+    go: ["github.com/argoproj/argo-rollouts"]
+    npm: []
+    pypi: []
+    helm: ["argo-rollouts"]
+
+- id: flux
+  name: Flux
+  aliases: ["flux", "fluxcd", "flux cd"]
+  caption_spellings: []
+  packages:
+    go:
+      - github.com/fluxcd/flux2
+      - github.com/fluxcd/flux2/v2
+      - github.com/fluxcd/pkg
+      - github.com/fluxcd/source-controller/api
+      - github.com/fluxcd/kustomize-controller/api
+      - github.com/fluxcd/helm-controller/api
+    npm: []
+    pypi: []
+    helm: ["flux2"]
+
+- id: helm
+  name: Helm
+  aliases: ["helm", "helm chart", "helm charts"]
+  caption_spellings: []
+  packages:
+    go: ["helm.sh/helm/v3", "helm.sh/helm/v4"]
+    npm: []
+    pypi: []
+    helm: []
+
+- id: kustomize
+  name: Kustomize
+  aliases: ["kustomize", "kustomization", "kustomizations"]
+  # bare "customize" is ordinary English, so only the observed phrase is listed
+  caption_spellings: ["customize overlay", "customize overlays"]
+  packages:
+    go: ["sigs.k8s.io/kustomize/api", "sigs.k8s.io/kustomize/kyaml"]
+    npm: []
+    pypi: []
+    helm: []
+
+- id: crossplane
+  name: Crossplane
+  aliases: ["crossplane"]
+  caption_spellings: ["crossplay"]
+  packages:
+    go:
+      - github.com/crossplane/crossplane
+      - github.com/crossplane/crossplane-runtime
+      - github.com/crossplane/crossplane-runtime/v2
+    npm: []
+    pypi: []
+    helm: ["crossplane"]
+
+- id: terraform
+  name: Terraform / OpenTofu
+  aliases: ["terraform", "opentofu", "open tofu"]
+  caption_spellings: []
+  packages:
+    go:
+      - github.com/hashicorp/terraform-plugin-framework
+      - github.com/hashicorp/terraform-plugin-sdk/v2
+      - github.com/hashicorp/terraform-exec
+    npm: ["cdktf"]
+    pypi: ["cdktf"]
+    helm: []
+
+- id: backstage
+  name: Backstage
+  aliases: ["backstage"]
+  caption_spellings: []
+  packages:
+    go: []
+    npm:
+      - "@backstage/cli"
+      - "@backstage/core-components"
+      - "@backstage/core-plugin-api"
+      - "@backstage/backend-defaults"
+      - "@backstage/plugin-catalog"
+    pypi: []
+    helm: ["backstage"]
+
+# --- Observability ---------------------------------------------------------------------
+
+- id: prometheus
+  name: Prometheus
+  aliases: ["prometheus", "promql"]
+  caption_spellings: []
+  packages:
+    go:
+      - github.com/prometheus/client_golang
+      - github.com/prometheus/prometheus
+      - github.com/prometheus-operator/prometheus-operator
+    npm: ["prom-client"]
+    pypi: ["prometheus-client"]
+    helm: ["prometheus", "kube-prometheus-stack", "prometheus-operator-crds"]
+
+- id: opentelemetry
+  name: OpenTelemetry
+  aliases: ["opentelemetry", "open telemetry", "otel", "otlp"]
+  # captions hear "OTel" as "hotel"; bare "hotel" is ordinary English, so only phrases
+  caption_spellings:
+    - hotel collector
+    - hotel collectors
+    - hotel sdk
+    - hotel sdks
+    - hotel demo
+    - hotel instrumentation
+    - hotel profiles
+    - hotel spans
+  packages:
+    go:
+      - go.opentelemetry.io/otel
+      - go.opentelemetry.io/otel/sdk
+      - go.opentelemetry.io/otel/trace
+      - go.opentelemetry.io/contrib
+      - go.opentelemetry.io/collector
+    npm:
+      - "@opentelemetry/api"
+      - "@opentelemetry/sdk-node"
+      - "@opentelemetry/sdk-trace-web"
+      - "@opentelemetry/auto-instrumentations-node"
+      - "@opentelemetry/exporter-trace-otlp-http"
+    pypi:
+      - opentelemetry-api
+      - opentelemetry-sdk
+      - opentelemetry-distro
+      - opentelemetry-exporter-otlp
+      - opentelemetry-exporter-otlp-proto-http
+      - opentelemetry-instrumentation-fastapi
+    helm: ["opentelemetry-collector", "opentelemetry-operator"]
+
+- id: grafana
+  name: Grafana
+  aliases: ["grafana"]
+  caption_spellings: ["graphana"]
+  packages:
+    go: ["github.com/grafana/grafana-plugin-sdk-go"]
+    npm: ["@grafana/data", "@grafana/ui", "@grafana/runtime"]
+    pypi: []
+    helm: ["grafana"]
+
+- id: jaeger
+  name: Jaeger
+  aliases: ["jaeger"]
+  caption_spellings: []
+  packages:
+    go: ["github.com/jaegertracing/jaeger"]
+    npm: ["jaeger-client"]
+    pypi: ["jaeger-client"]
+    helm: ["jaeger", "jaeger-operator"]
+
+- id: thanos
+  name: Thanos
+  aliases: ["thanos"]
+  caption_spellings: []
+  packages:
+    go: ["github.com/thanos-io/thanos"]
+    npm: []
+    pypi: []
+    helm: ["thanos"]
+
+- id: fluent-bit
+  name: Fluent Bit
+  aliases: ["fluent bit", "fluentbit"]
+  caption_spellings: []
+  packages:
+    go: ["github.com/fluent/fluent-bit-go"]
+    npm: []
+    pypi: []
+    helm: ["fluent-bit"]
+
+# --- Networking and service mesh ---------------------------------------------------------
+
+- id: istio
+  name: Istio
+  aliases: ["istio"]
+  caption_spellings: ["isto", "istto"]
+  packages:
+    go: ["istio.io/istio", "istio.io/api", "istio.io/client-go"]
+    npm: []
+    pypi: []
+    helm: ["istiod", "ztunnel"]
+
+- id: envoy
+  name: Envoy
+  aliases: ["envoy", "envoy proxy", "envoyproxy"]
+  caption_spellings: []
+  packages:
+    go: ["github.com/envoyproxy/go-control-plane", "github.com/envoyproxy/gateway"]
+    npm: []
+    pypi: []
+    helm: ["gateway-helm"]
+
+- id: linkerd
+  name: Linkerd
+  aliases: ["linkerd"]
+  caption_spellings: ["linker d"]
+  packages:
+    go: ["github.com/linkerd/linkerd2"]
+    npm: []
+    pypi: []
+    helm: ["linkerd-control-plane", "linkerd-crds"]
+
+- id: cilium
+  name: Cilium
+  aliases: ["cilium"]
+  caption_spellings: ["psyllium", "celium", "selium"]
+  packages:
+    go: ["github.com/cilium/cilium"]
+    npm: []
+    pypi: []
+    helm: ["cilium"]
+
+- id: gateway-api
+  name: Gateway API
+  aliases: ["gateway api", "gateway apis"]
+  caption_spellings: []
+  packages:
+    go: ["sigs.k8s.io/gateway-api"]
+    npm: []
+    pypi: []
+    helm: []
+
+# --- Security and policy -----------------------------------------------------------------
+
+- id: opa
+  name: Open Policy Agent / Gatekeeper
+  # bare "gatekeeper" is ordinary English ("the gatekeeper is effective"), so only phrases
+  aliases:
+    - open policy agent
+    - opa
+    - opa gatekeeper
+    - gatekeeper policy
+    - gatekeeper policies
+    - rego
+  caption_spellings: ["oper"]
+  packages:
+    go:
+      - github.com/open-policy-agent/opa
+      - github.com/open-policy-agent/gatekeeper/v3
+    npm: ["@open-policy-agent/opa-wasm"]
+    pypi: []
+    helm: ["gatekeeper", "opa-kube-mgmt"]
+
+- id: kyverno
+  name: Kyverno
+  aliases: ["kyverno"]
+  caption_spellings: []
+  packages:
+    go: ["github.com/kyverno/kyverno"]
+    npm: []
+    pypi: []
+    helm: ["kyverno", "kyverno-policies"]
+
+- id: cert-manager
+  name: cert-manager
+  aliases: ["cert manager", "certmanager"]
+  caption_spellings: ["search manager"]
+  packages:
+    go: ["github.com/cert-manager/cert-manager"]
+    npm: []
+    pypi: []
+    helm: ["cert-manager"]
+
+- id: falco
+  name: Falco
+  aliases: ["falco", "falcosidekick"]
+  # captions also say "Falcon", but that is English and another product, so it is left out
+  caption_spellings: []
+  packages:
+    go: ["github.com/falcosecurity/client-go", "github.com/falcosecurity/plugin-sdk-go"]
+    npm: []
+    pypi: []
+    helm: ["falco", "falcosidekick"]
+
+- id: spiffe
+  name: SPIFFE / SPIRE
+  aliases: ["spiffe", "spire"]
+  caption_spellings: ["spiffy id", "spiffy ids"]
+  packages:
+    go: ["github.com/spiffe/go-spiffe/v2", "github.com/spiffe/spire"]
+    npm: []
+    pypi: ["spiffe"]
+    helm: ["spire", "spire-crds"]
+
+- id: keycloak
+  name: Keycloak
+  aliases: ["keycloak", "key cloak"]
+  caption_spellings: []
+  packages:
+    go: []
+    npm: ["keycloak-js", "@keycloak/keycloak-admin-client"]
+    pypi: ["python-keycloak"]
+    helm: ["keycloak", "keycloakx"]
+
+# --- Autoscaling and runtime -------------------------------------------------------------
+
+- id: keda
+  name: KEDA
+  aliases: ["keda"]
+  caption_spellings: []
+  packages:
+    go: ["github.com/kedacore/keda/v2"]
+    npm: []
+    pypi: []
+    helm: ["keda"]
+
+- id: karpenter
+  name: Karpenter
+  aliases: ["karpenter"]
+  caption_spellings: ["carpenter node pool", "carpenter node pools"]
+  packages:
+    go: ["sigs.k8s.io/karpenter", "github.com/aws/karpenter-provider-aws"]
+    npm: []
+    pypi: []
+    helm: ["karpenter"]
+
+- id: containerd
+  name: containerd
+  aliases: ["containerd"]
+  caption_spellings: []
+  packages:
+    go: ["github.com/containerd/containerd", "github.com/containerd/containerd/v2"]
+    npm: []
+    pypi: []
+    helm: []
+
+- id: etcd
+  name: etcd
+  aliases: ["etcd"]
+  caption_spellings: []
+  packages:
+    go: ["go.etcd.io/etcd/client/v3", "go.etcd.io/etcd/server/v3"]
+    npm: ["etcd3"]
+    pypi: ["etcd3"]
+    helm: ["etcd"]
+
+- id: dapr
+  name: Dapr
+  aliases: ["dapr"]
+  caption_spellings: []
+  packages:
+    go: ["github.com/dapr/go-sdk", "github.com/dapr/dapr"]
+    npm: ["@dapr/dapr"]
+    pypi: ["dapr", "dapr-ext-fastapi"]
+    helm: ["dapr"]
+
+# --- Data ----------------------------------------------------------------------------------
+
+- id: postgres
+  name: PostgreSQL / CloudNativePG
+  aliases: ["postgres", "postgresql", "cloud native pg", "cnpg"]
+  caption_spellings: []
+  packages:
+    go: ["github.com/jackc/pgx/v5", "github.com/lib/pq", "github.com/cloudnative-pg/cloudnative-pg"]
+    npm: ["pg", "postgres"]
+    pypi: ["psycopg", "psycopg2", "psycopg2-binary", "asyncpg"]
+    helm: ["postgresql", "cloudnative-pg"]
+
+- id: redis
+  name: Redis
+  aliases: ["redis"]
+  caption_spellings: []
+  packages:
+    go: ["github.com/redis/go-redis/v9"]
+    npm: ["redis", "ioredis"]
+    pypi: ["redis"]
+    helm: ["redis"]
+
+- id: kafka
+  name: Apache Kafka / Strimzi
+  aliases: ["kafka", "strimzi"]
+  caption_spellings: []
+  packages:
+    go:
+      - github.com/segmentio/kafka-go
+      - github.com/IBM/sarama
+      - github.com/twmb/franz-go
+      - github.com/confluentinc/confluent-kafka-go/v2
+    npm: ["kafkajs"]
+    pypi: ["confluent-kafka", "kafka-python", "aiokafka"]
+    helm: ["strimzi-kafka-operator", "kafka"]
+
+# --- AI / ML -------------------------------------------------------------------------------
+
+- id: kserve
+  name: KServe
+  aliases: ["kserve", "k serve"]
+  caption_spellings: []
+  packages:
+    go: ["github.com/kserve/kserve"]
+    npm: []
+    pypi: ["kserve"]
+    helm: ["kserve", "kserve-crd"]
+
+- id: vllm
+  name: vLLM
+  aliases: ["vllm"]
+  caption_spellings: []
+  packages:
+    go: []
+    npm: []
+    pypi: ["vllm"]
+    helm: ["vllm-stack"]
+
+- id: kubeflow
+  name: Kubeflow
+  aliases: ["kubeflow", "kube flow"]
+  caption_spellings: []
+  packages:
+    go: ["github.com/kubeflow/pipelines"]
+    npm: []
+    pypi: ["kubeflow", "kfp", "kubeflow-training"]
+    helm: []
+
+- id: mcp
+  name: Model Context Protocol (MCP)
+  aliases: ["mcp", "model context protocol"]
+  caption_spellings: []
+  packages:
+    go: ["github.com/modelcontextprotocol/go-sdk", "github.com/mark3labs/mcp-go"]
+    npm: ["@modelcontextprotocol/sdk"]
+    pypi: ["mcp", "fastmcp"]
+    helm: []
+
+# --- Said in nearly every talk: kept for the stack parser, never used for matching --------
+
+- id: kubernetes
+  name: Kubernetes
+  aliases: ["kubernetes", "k8s"]
+  caption_spellings: ["kates"]
+  exclude_from_matching: true  # said in nearly every talk, so it matches nothing useful
+  packages:
+    go: ["k8s.io/client-go", "k8s.io/api", "k8s.io/apimachinery", "sigs.k8s.io/controller-runtime"]
+    npm: ["@kubernetes/client-node"]
+    pypi: ["kubernetes"]
+    helm: []
+
+- id: kubectl
+  name: kubectl
+  aliases: ["kubectl"]
+  caption_spellings: ["cube cuddle"]
+  exclude_from_matching: true  # a Kubernetes CLI said in nearly every demo
+  packages:
+    go: ["k8s.io/kubectl"]
+    npm: []
+    pypi: []
+    helm: []

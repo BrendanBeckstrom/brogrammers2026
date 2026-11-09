@@ -1,0 +1,156 @@
+{
+ "route": "tools",
+ "request": {},
+ "response": [
+  {
+   "id": "opentelemetry",
+   "name": "OpenTelemetry",
+   "chunk_count": 129
+  },
+  {
+   "id": "prometheus",
+   "name": "Prometheus",
+   "chunk_count": 106
+  },
+  {
+   "id": "argo-cd",
+   "name": "Argo CD",
+   "chunk_count": 81
+  },
+  {
+   "id": "envoy",
+   "name": "Envoy",
+   "chunk_count": 81
+  },
+  {
+   "id": "helm",
+   "name": "Helm",
+   "chunk_count": 81
+  },
+  {
+   "id": "mcp",
+   "name": "Model Context Protocol (MCP)",
+   "chunk_count": 80
+  },
+  {
+   "id": "flux",
+   "name": "Flux",
+   "chunk_count": 68
+  },
+  {
+   "id": "cilium",
+   "name": "Cilium",
+   "chunk_count": 48
+  },
+  {
+   "id": "gateway-api",
+   "name": "Gateway API",
+   "chunk_count": 48
+  },
+  {
+   "id": "crossplane",
+   "name": "Crossplane",
+   "chunk_count": 36
+  },
+  {
+   "id": "istio",
+   "name": "Istio",
+   "chunk_count": 33
+  },
+  {
+   "id": "opa",
+   "name": "Open Policy Agent / Gatekeeper",
+   "chunk_count": 32
+  },
+  {
+   "id": "fluent-bit",
+   "name": "Fluent Bit",
+   "chunk_count": 27
+  },
+  {
+   "id": "grafana",
+   "name": "Grafana",
+   "chunk_count": 26
+  },
+  {
+   "id": "kyverno",
+   "name": "Kyverno",
+   "chunk_count": 26
+  },
+  {
+   "id": "backstage",
+   "name": "Backstage",
+   "chunk_count": 24
+  },
+  {
+   "id": "dapr",
+   "name": "Dapr",
+   "chunk_count": 24
+  },
+  {
+   "id": "falco",
+   "name": "Falco",
+   "chunk_count": 21
+  },
+  {
+   "id": "keda",
+   "name": "KEDA",
+   "chunk_count": 21
+  },
+  {
+   "id": "cert-manager",
+   "name": "cert-manager",
+   "chunk_count": 20
+  },
+  {
+   "id": "kserve",
+   "name": "KServe",
+   "chunk_count": 18
+  },
+  {
+   "id": "thanos",
+   "name": "Thanos",
+   "chunk_count": 16
+  },
+  {
+   "id": "argo-rollouts",
+   "name": "Argo Rollouts",
+   "chunk_count": 13
+  },
+  {
+   "id": "postgres",
+   "name": "PostgreSQL / CloudNativePG",
+   "chunk_count": 13
+  },
+  {
+   "id": "vllm",
+   "name": "vLLM",
+   "chunk_count": 11
+  },
+  {
+   "id": "linkerd",
+   "name": "Linkerd",
+   "chunk_count": 10
+  },
+  {
+   "id": "argo-workflows",
+   "name": "Argo Workflows",
+   "chunk_count": 9
+  },
+  {
+   "id": "spiffe",
+   "name": "SPIFFE / SPIRE",
+   "chunk_count": 9
+  },
+  {
+   "id": "etcd",
+   "name": "etcd",
+   "chunk_count": 5
+  },
+  {
+   "id": "terraform",
+   "name": "Terraform / OpenTofu",
+   "chunk_count": 5
+  }
+ ]
+}

@@ -1,0 +1,43 @@
+{
+ "route": "memo",
+ "request": {
+  "tools": [
+   "argo-cd",
+   "cert-manager",
+   "envoy",
+   "istio",
+   "kubernetes",
+   "opentelemetry",
+   "prometheus"
+  ],
+  "clip_ids": [
+   "4K6s5y8HoBc-1051",
+   "4K6s5y8HoBc-790",
+   "7YuMvcW5wRA-803~871",
+   "HvX4nGkhfZw-1253",
+   "ToKv7JntLvY-1321",
+   "VfVQj4Oa3z0-0",
+   "VfVQj4Oa3z0-1007",
+   "VfVQj4Oa3z0-870",
+   "Wrek7kjrcs0-739",
+   "fcajag5di68-523~586",
+   "fcajag5di68-779",
+   "iC15zeOLZQA-537",
+   "iC15zeOLZQA-926~990",
+   "vzBGkY_HIyM-63~127",
+   "x5nVyVZSd0A-1004"
+  ]
+ },
+ "response": {
+  "markdown": "# Debrief: Argo CD, cert-manager, Envoy, Prometheus, OpenTelemetry, Istio, Kubernetes\n\nThese clips give the team practical guidance on Argo CD patterns and pitfalls, plus cert-manager, Istio ambient mesh, Envoy and Prometheus-related context relevant to their stack. ([Declarative...ish? Fixing Hidden Argo CD Pitfalls in Your GitOps Setup · 16:45](https://www.youtube.com/watch?v=VfVQj4Oa3z0&t=1005s); [Argo CD: Previewing Pull Request Changes in SECONDS! · 8:41](https://www.youtube.com/watch?v=fcajag5di68&t=521s); [The Good, The Ugly, and The Bad: Leaving Sidecars Behind with Istio Ambient Mesh · 21:59](https://www.youtube.com/watch?v=ToKv7JntLvY&t=1319s); [Evolution or Revolution: Istio as the Network Platform for Cloud Native · 13:08](https://www.youtube.com/watch?v=4K6s5y8HoBc&t=788s); [Cert-manager – Project Update: Beyond 2026 · 1:01](https://www.youtube.com/watch?v=vzBGkY_HIyM&t=61s))\n\n## Top 3 takeaways\n\n1. Use ApplicationSets instead of hand-written Applications or Helm charts that template Applications; one ApplicationSet can replace 50 Applications (five infrastructure apps across ten clusters), and versioning Argo CD Applications is called an anti-pattern. ([Declarative...ish? Fixing Hidden Argo CD Pitfalls in Your GitOps Setup · 16:45](https://www.youtube.com/watch?v=VfVQj4Oa3z0&t=1005s); [Declarative...ish? Fixing Hidden Argo CD Pitfalls in Your GitOps Setup · 14:28](https://www.youtube.com/watch?v=VfVQj4Oa3z0&t=868s))\n2. For Argo CD pull request previews, use a dedicated Argo CD instance, not production: the tool creates and deletes applications constantly, which hurts the UI and can overload and crash a production instance. ([Argo CD: Previewing Pull Request Changes in SECONDS! · 8:41](https://www.youtube.com/watch?v=fcajag5di68&t=521s))\n3. Moving to Istio ambient mesh raised ugly side effects for one team using cert-manager and Argo Rollouts: cert-manager's ACME support needs an experimental feature, and Gateway API needs plugins, so tooling must be updated. ([The Good, The Ugly, and The Bad: Leaving Sidecars Behind with Istio Ambient Mesh · 21:59](https://www.youtube.com/watch?v=ToKv7JntLvY&t=1319s))\n\n## Action items\n\n- [ ] Audit your Argo CD repos for individually written Applications or Helm charts that generate Applications, and prototype replacing them with a single ApplicationSet per cluster category. ([Declarative...ish? Fixing Hidden Argo CD Pitfalls in Your GitOps Setup · 16:45](https://www.youtube.com/watch?v=VfVQj4Oa3z0&t=1005s); [Declarative...ish? Fixing Hidden Argo CD Pitfalls in Your GitOps Setup · 14:28](https://www.youtube.com/watch?v=VfVQj4Oa3z0&t=868s))\n- [ ] If you try pull request diff previews, stand up a dedicated Argo CD instance for them, and consider a self-hosted runner if security rules restrict cluster access from pipelines. ([Argo CD: Previewing Pull Request Changes in SECONDS! · 8:41](https://www.youtube.com/watch?v=fcajag5di68&t=521s))\n- [ ] Before evaluating Istio ambient mesh, list tooling affected by Gateway API and cert-manager's experimental ACME support, and check which plugins or settings would need changing. ([The Good, The Ugly, and The Bad: Leaving Sidecars Behind with Istio Ambient Mesh · 21:59](https://www.youtube.com/watch?v=ToKv7JntLvY&t=1319s))\n\n## Watch together (8 min)\n\n1. [Declarative...ish? Fixing Hidden Argo CD Pitfalls in Your GitOps Setup · 16:45](https://www.youtube.com/watch?v=VfVQj4Oa3z0&t=1005s) (1:22), Regina Voloshin: Concrete ApplicationSet example covering cert-manager, Prometheus and Istio across clusters.\n2. [Argo CD: Previewing Pull Request Changes in SECONDS! · 8:41](https://www.youtube.com/watch?v=fcajag5di68&t=521s) (2:21), Dag Bjerre Andersen, Sergey Shevchenko: Warns against previewing on production Argo CD; suggests dedicated instance.\n3. [The Good, The Ugly, and The Bad: Leaving Sidecars Behind with Istio Ambient Mesh · 21:59](https://www.youtube.com/watch?v=ToKv7JntLvY&t=1319s) (1:21), Alfonso Ming, Jorge Turrado: Candid ambient mesh migration costs involving cert-manager and Gateway API.\n4. [Evolution or Revolution: Istio as the Network Platform for Cloud Native · 13:08](https://www.youtube.com/watch?v=4K6s5y8HoBc&t=788s) (1:19), Mitch Connors, Daniel Grimm: Explains ztunnel's role in ambient mesh versus full Envoy proxy.\n5. [Evolution or Revolution: Istio as the Network Platform for Cloud Native · 17:29](https://www.youtube.com/watch?v=4K6s5y8HoBc&t=1049s) (1:18), Mitch Connors, Daniel Grimm: Istio generating Prometheus metrics and OpenTelemetry-compatible traces without code changes.\n",
+  "cited_clip_ids": [
+   "VfVQj4Oa3z0-1007",
+   "fcajag5di68-523~586",
+   "ToKv7JntLvY-1321",
+   "4K6s5y8HoBc-790",
+   "vzBGkY_HIyM-63~127",
+   "VfVQj4Oa3z0-870",
+   "4K6s5y8HoBc-1051"
+  ]
+ }
+}

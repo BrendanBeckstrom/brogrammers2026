@@ -1,0 +1,409 @@
+{
+ "route": "playlist",
+ "request": {
+  "tools": [
+   "envoy",
+   "istio"
+  ],
+  "pain": null,
+  "attended_talk_ids": [],
+  "filter": "all",
+  "budget_minutes": 25,
+  "rerank": false
+ },
+ "response": {
+  "total_seconds": 1456,
+  "clips": [
+   {
+    "clip_id": "4K6s5y8HoBc-790",
+    "talk_id": "4K6s5y8HoBc",
+    "title": "Evolution or Revolution: Istio as the Network Platform for Cloud Native",
+    "speakers": [
+     "Mitch Connors",
+     "Daniel Grimm"
+    ],
+    "start_sec": 788,
+    "end_sec": 867,
+    "watch_url": "https://www.youtube.com/watch?v=4K6s5y8HoBc&t=788s",
+    "quote": "And it's it has way higher throughput, and lower latency than if you were to use like full-fledged Envoy proxy, simply because the code base is much smaller, it's written in Rust. It's also easier to maintain because it's a much smaller code base.",
+    "why": "Mentions Istio 3 times in this clip (also Envoy)",
+    "matched_tools": [
+     "istio",
+     "envoy"
+    ],
+    "matched_by": "both",
+    "talk_label": "intro",
+    "score": 0.032522
+   },
+   {
+    "clip_id": "4K6s5y8HoBc-131",
+    "talk_id": "4K6s5y8HoBc",
+    "title": "Evolution or Revolution: Istio as the Network Platform for Cloud Native",
+    "speakers": [
+     "Mitch Connors",
+     "Daniel Grimm"
+    ],
+    "start_sec": 129,
+    "end_sec": 209,
+    "watch_url": "https://www.youtube.com/watch?v=4K6s5y8HoBc&t=129s",
+    "quote": "Uh so that's why a lot of people have asked, \"Why doesn't Istio just expose the Envoy API directly? Envoy gateway and other projects do that.\" Well, that's because the goal was always to abstract which particular proxy you were using under the hood.",
+    "why": "Mentions Istio 4 times in this clip (also Envoy)",
+    "matched_tools": [
+     "istio",
+     "envoy"
+    ],
+    "matched_by": "both",
+    "talk_label": "intro",
+    "score": 0.031778
+   },
+   {
+    "clip_id": "HvX4nGkhfZw-1190~1253",
+    "talk_id": "HvX4nGkhfZw",
+    "title": "Envoy in the Era of Agentic Workloads",
+    "speakers": [
+     "Yan Avlasov",
+     "Erica Hughberg"
+    ],
+    "start_sec": 1188,
+    "end_sec": 1333,
+    "watch_url": "https://www.youtube.com/watch?v=HvX4nGkhfZw&t=1188s",
+    "quote": "We do. So I have mentioned several times here about Envoy AI gateway which is really a showcase of the extensibility of both Envoy proxy and envoy gateway.",
+    "why": "Mentions Envoy 13 times in this clip",
+    "matched_tools": [
+     "envoy"
+    ],
+    "matched_by": "both",
+    "talk_label": "intro",
+    "score": 0.030798
+   },
+   {
+    "clip_id": "2fXwQylR2lw-254",
+    "talk_id": "2fXwQylR2lw",
+    "title": "Istio in Production: Expected Value, Results, and Effort at GitHub Scale",
+    "speakers": [
+     "Mitch Connors",
+     "Golnaz Rouhi"
+    ],
+    "start_sec": 252,
+    "end_sec": 330,
+    "watch_url": "https://www.youtube.com/watch?v=2fXwQylR2lw&t=252s",
+    "quote": "If you've been familiar with ISTTO, I'm abstracting over a lot of details, but at a high level, ISTTO captures all traffic in coming into pods and leaving pods. It automatically performs MTLS negotiation and forwards that traffic along a mutual TLS tunnel.",
+    "why": "Mentions Istio 3 times in this clip",
+    "matched_tools": [
+     "istio"
+    ],
+    "matched_by": "both",
+    "talk_label": "deep_dive",
+    "score": 0.029236
+   },
+   {
+    "clip_id": "wix_PfQ61jY-862~925~992",
+    "talk_id": "wix_PfQ61jY",
+    "title": "Zero-Downtime Migration from ingress-nginx to Istio in a Multi-Cluster Kubernetes Platform at Bloomberg",
+    "speakers": [
+     "Joe Abellard"
+    ],
+    "start_sec": 860,
+    "end_sec": 1077,
+    "watch_url": "https://www.youtube.com/watch?v=wix_PfQ61jY&t=860s",
+    "quote": "uh we'll bring we'll bring up envoy envoy and at this point um the migration is completed. Um for this migration we had a roll back strategy in place in case anything went wrong but it ended up going well so we ended up not using it. Okay.",
+    "why": "Mentions Envoy 6 times in this clip (also Istio)",
+    "matched_tools": [
+     "istio",
+     "envoy"
+    ],
+    "matched_by": "both",
+    "talk_label": "deep_dive",
+    "score": 0.029206
+   },
+   {
+    "clip_id": "CAn22mnA6kE-848~891",
+    "talk_id": "CAn22mnA6kE",
+    "title": "Inside Spotify’s Envoy Architecture: What We Learned the Hard Way",
+    "speakers": [
+     "Leonardo da Mata"
+    ],
+    "start_sec": 846,
+    "end_sec": 953,
+    "watch_url": "https://www.youtube.com/watch?v=CAn22mnA6kE&t=846s",
+    "quote": "Yeah, so actually those who are interested in how you can inject your own logic into Envoy proxy in the runtime, Ro Head is going to speak after Yiannis. So, those who like to customize things for their needs, definitely you know, come and listen to that. I think that's that's it.",
+    "why": "Mentions Envoy 10 times in this clip",
+    "matched_tools": [
+     "envoy"
+    ],
+    "matched_by": "both",
+    "talk_label": "deep_dive",
+    "score": 0.029199
+   },
+   {
+    "clip_id": "9VqzQgin6vk-203~272~337",
+    "talk_id": "9VqzQgin6vk",
+    "title": "Not Yet Another Envoy Implementation - Exploring Kgateway To Write Your Own GatewayAPI Backend",
+    "speakers": [
+     "Ricardo Katz"
+    ],
+    "start_sec": 201,
+    "end_sec": 417,
+    "watch_url": "https://www.youtube.com/watch?v=9VqzQgin6vk&t=201s",
+    "quote": "uh but consuming envoy API it's kind of complicated uh and it's worse if you are not an envoy implementation right because you need to actually understand how that API works what all of those fields and you know it's made for envoy it's not made for a generic approach then K gateway and Asian…",
+    "why": "Mentions Envoy 16 times in this clip",
+    "matched_tools": [
+     "envoy"
+    ],
+    "matched_by": "both",
+    "talk_label": "deep_dive",
+    "score": 0.028624
+   },
+   {
+    "clip_id": "2fXwQylR2lw-1280~1344",
+    "talk_id": "2fXwQylR2lw",
+    "title": "Istio in Production: Expected Value, Results, and Effort at GitHub Scale",
+    "speakers": [
+     "Mitch Connors",
+     "Golnaz Rouhi"
+    ],
+    "start_sec": 1278,
+    "end_sec": 1416,
+    "watch_url": "https://www.youtube.com/watch?v=2fXwQylR2lw&t=1278s",
+    "quote": "and with ISTTO vendors such as the partnership that we have with GitHub. We do have a few things to talk about uh that are coming up in ISTO. We already mentioned ambient multicluster and you can visit the blog post to learn more about how that works.",
+    "why": "Mentions Istio 5 times in this clip",
+    "matched_tools": [
+     "istio"
+    ],
+    "matched_by": "both",
+    "talk_label": "deep_dive",
+    "score": 0.02837
+   },
+   {
+    "clip_id": "4K6s5y8HoBc-266",
+    "talk_id": "4K6s5y8HoBc",
+    "title": "Evolution or Revolution: Istio as the Network Platform for Cloud Native",
+    "speakers": [
+     "Mitch Connors",
+     "Daniel Grimm"
+    ],
+    "start_sec": 264,
+    "end_sec": 349,
+    "watch_url": "https://www.youtube.com/watch?v=4K6s5y8HoBc&t=264s",
+    "quote": "We'd spent 5 years running just Envoy uh as a sidecar. Basically, every pod gets its own Envoy. It was a brute force way of capturing traffic and directing things.",
+    "why": "Mentions Envoy twice in this clip (also Istio)",
+    "matched_tools": [
+     "istio",
+     "envoy"
+    ],
+    "matched_by": "both",
+    "talk_label": "intro",
+    "score": 0.02773
+   },
+   {
+    "clip_id": "CAn22mnA6kE-67",
+    "talk_id": "CAn22mnA6kE",
+    "title": "Inside Spotify’s Envoy Architecture: What We Learned the Hard Way",
+    "speakers": [
+     "Leonardo da Mata"
+    ],
+    "start_sec": 65,
+    "end_sec": 147,
+    "watch_url": "https://www.youtube.com/watch?v=CAn22mnA6kE&t=65s",
+    "quote": "but every request goes through GCO G GCOB, and then reached our version of Envoy proxy, uh where we make some uh decoration on it, and sends to to our back-end uh services with this internal information that is used by Envoy.",
+    "why": "Mentions Envoy 3 times in this clip",
+    "matched_tools": [
+     "envoy"
+    ],
+    "matched_by": "both",
+    "talk_label": "deep_dive",
+    "score": 0.025934
+   },
+   {
+    "clip_id": "qFVJmnvmAQ4-200~265",
+    "talk_id": "qFVJmnvmAQ4",
+    "title": "Scaling LLMs at Bloomberg Using Envoy AI Gateway: A Hybrid Cloud Approach",
+    "speakers": [
+     "Xiaolin Lin",
+     "Aaron Choo"
+    ],
+    "start_sec": 198,
+    "end_sec": 346,
+    "watch_url": "https://www.youtube.com/watch?v=qFVJmnvmAQ4&t=198s",
+    "quote": "So we initiate uh and propose the idea in envoy communities and work with the community to start building the envoy AI gateway. Uh it builds on top of envoy and envoy gateway. Uh enoway is a high performance and battle test proxy uh with large companies uh out there being many years.",
+    "why": "Mentions Envoy 5 times in this clip",
+    "matched_tools": [
+     "envoy"
+    ],
+    "matched_by": "both",
+    "talk_label": "deep_dive",
+    "score": 0.025
+   },
+   {
+    "clip_id": "ToKv7JntLvY-1321",
+    "talk_id": "ToKv7JntLvY",
+    "title": "The Good, The Ugly, and The Bad: Leaving Sidecars Behind with Istio Ambient Mesh",
+    "speakers": [
+     "Alfonso Ming",
+     "Jorge Turrado"
+    ],
+    "start_sec": 1319,
+    "end_sec": 1400,
+    "watch_url": "https://www.youtube.com/watch?v=ToKv7JntLvY&t=1319s",
+    "quote": "That's the point. Isto has native support, but is without CRD this aka Gateway API needs to use the gateway API plug-in for Argo rollout as well as for other tooling because gateway API is a the new in my opinion the new standard for for ingress but it's not native in all the systems.",
+    "why": "Mentions Istio once in this clip",
+    "matched_tools": [
+     "istio"
+    ],
+    "matched_by": "both",
+    "talk_label": "deep_dive",
+    "score": 0.024027
+   }
+  ],
+  "trace_id": "7ecdc2b563581cb6ae327cc4b022143f",
+  "message": null,
+  "debug": {
+   "query": {
+    "size": 100,
+    "_source": [
+     "chunk_id",
+     "talk_id",
+     "youtube_id",
+     "title",
+     "speakers",
+     "start_sec",
+     "end_sec",
+     "text",
+     "tools",
+     "talk_label"
+    ],
+    "retriever": {
+     "rrf": {
+      "rank_window_size": 100,
+      "retrievers": [
+       {
+        "standard": {
+         "query": {
+          "bool": {
+           "should": [
+            {
+             "terms": {
+              "tools": [
+               "istio",
+               "envoy"
+              ],
+              "boost": 2
+             }
+            },
+            {
+             "match_phrase": {
+              "text": "istio"
+             }
+            },
+            {
+             "match_phrase": {
+              "text": "isto"
+             }
+            },
+            {
+             "match_phrase": {
+              "text": "istto"
+             }
+            },
+            {
+             "match_phrase": {
+              "text": "envoy"
+             }
+            },
+            {
+             "match_phrase": {
+              "text": "envoy proxy"
+             }
+            },
+            {
+             "match_phrase": {
+              "text": "envoyproxy"
+             }
+            }
+           ],
+           "minimum_should_match": 1
+          }
+         }
+        }
+       },
+       {
+        "standard": {
+         "query": {
+          "semantic": {
+           "field": "text_semantic",
+           "query": "Istio, Envoy"
+          }
+         }
+        }
+       }
+      ]
+     }
+    },
+    "highlight": {
+     "fields": {
+      "text": {
+       "type": "unified",
+       "boundary_scanner": "sentence",
+       "fragment_size": 200,
+       "number_of_fragments": 1,
+       "no_match_size": 0,
+       "highlight_query": {
+        "bool": {
+         "should": [
+          {
+           "match_phrase": {
+            "text": "istio"
+           }
+          },
+          {
+           "match_phrase": {
+            "text": "isto"
+           }
+          },
+          {
+           "match_phrase": {
+            "text": "istto"
+           }
+          },
+          {
+           "match_phrase": {
+            "text": "envoy"
+           }
+          },
+          {
+           "match_phrase": {
+            "text": "envoy proxy"
+           }
+          },
+          {
+           "match_phrase": {
+            "text": "envoyproxy"
+           }
+          }
+         ],
+         "minimum_should_match": 1
+        }
+       }
+      }
+     }
+    }
+   },
+   "timings_ms": {
+    "hybrid_search": 312.1,
+    "keyword_search": 66.0,
+    "semantic_search": 145.8,
+    "search_wall": 312.3,
+    "grouping": 0.7,
+    "clip_building": 0.2,
+    "budget": 3.4,
+    "total": 316.9
+   },
+   "hits": 100,
+   "talks": 16,
+   "rerank": {
+    "elastic": "off",
+    "model": "off"
+   }
+  }
+ }
+}

@@ -1,0 +1,55 @@
+youtube_id,title,speakers,track
+iC15zeOLZQA,The 10x DevOps Engineer’s Toolkit: Argo CD + AI-Driven MCP Automation,Alexander Matyushentsev; Leonardo Luz Almeida,
+VfVQj4Oa3z0,Declarative...ish? Fixing Hidden Argo CD Pitfalls in Your GitOps Setup,Regina Voloshin,ArgoCon
+fcajag5di68,Argo CD: Previewing Pull Request Changes in SECONDS!,Dag Bjerre Andersen; Sergey Shevchenko,ArgoCon
+Wrek7kjrcs0,From FTP To Argo CD & Argo Rollouts: An Adoption History Inside a Corp,Alfonso Ming; Meritxell Rodríguez,ArgoCon
+q2b9niAdFII,"Backend-First IDP: A Production Roadmap With Argo CD, Crossplane, and OPA",Abhinav Sharma; Aditya Soni,Platform Engineering Day
+6xZdcPQL3xs,Decoupling Canary Deployments From DBs With Argo Rollouts,Anastasiia Gubska,ArgoCon
+x5nVyVZSd0A,GitOps Your Costs: Automated FinOps Through Argo Workflows,Kunal Das; Hrittik Roy,ArgoCon
+tGaHB5uF7XA,Empowering Autonomy: BYD's Journey Taming Million-Task Scale With Argo Workflows,Shuangkun Tian; Zhang Bao,ArgoCon
+6vE9b6StC0g,Prometheus V3 One Year In: OpenMetrics 2.0 and More!,Jan Fajerski; Bartłomiej Płotka,
+iN5vQjDuiWc,Smoothed and Anchored Rate Calculation in PromQL,Björn Rabenstein,
+PySEmqtrvL8,Accelerating Thanos at Scale: Faster and Cheaper Queries With Parquet,Giedrius Statkevičius,
+Z0oum6Eh1is,We Deleted Our Observability Stack and Rebuilt It With OTEL: 12 Engineers to 4 at 20K+ Clusters,Yash Sharma; Kunju Perath,
+TKp2snmgvtQ,The Fourth Pillar Arrives: OpenTelemetry Profiling Alpha in Action,Felix Geisendörfer; Florian Lehner,
+0zwLl8QGOdM,OpenTelemetry Collector SIG: Project Updates,Jade G; Dmitrii A; Alex B; Evan B; Antoine T,
+gH_JzIXFshI,Jaeger V2: The Maintainers' Guide To OpenTelemetry-Native Tracing,Pavol Loffay,
+mvSGusgcVuw,OpenTelemetry Project Update and 'Ask the Experts',Pablo B; Juraci P; Marylia G; Severin N,
+OVffupWFEtw,Enriching Telemetry Signals Through Lookups in the OTel Collector,João Duarte,
+ehKzt_kGEeM,Retroactive Sampling with OpenTelemetry: Cut 90% Distributed Tracing Bandwidth Usage,Roman Khavronenko; Zhu Jiekun,
+YMqSK6uBhxU,DNS Tracing & Metrics Via eBPF in OpenTelemetry,Endre Sara; Nikola Grcevski,
+S6z2gd666qg,"OpenTelemetry Gateways: Enforce, Transform, Route",Juraci Paixão Kröhling; Natalie Ujuk,Observability Day
+4K6s5y8HoBc,Evolution or Revolution: Istio as the Network Platform for Cloud Native,Mitch Connors; Daniel Grimm,
+ToKv7JntLvY,"The Good, The Ugly, and The Bad: Leaving Sidecars Behind with Istio Ambient Mesh",Alfonso Ming; Jorge Turrado,Istio Day
+wix_PfQ61jY,Zero-Downtime Migration from ingress-nginx to Istio in a Multi-Cluster Kubernetes Platform at Bloomberg,Joe Abellard,Istio Day
+2fXwQylR2lw,"Istio in Production: Expected Value, Results, and Effort at GitHub Scale",Mitch Connors; Golnaz Rouhi,Platform Engineering Day
+HvX4nGkhfZw,Envoy in the Era of Agentic Workloads,Yan Avlasov; Erica Hughberg,
+CAn22mnA6kE,Inside Spotify’s Envoy Architecture: What We Learned the Hard Way,Leonardo da Mata,EnvoyCon
+kIj2U13VZJY,"From ingress-nginx to Envoy Gateway at Zapier: The Benefits, Challenges, and Migration Lessons That Matter",Kalen Wessel,EnvoyCon
+qFVJmnvmAQ4,Scaling LLMs at Bloomberg Using Envoy AI Gateway: A Hybrid Cloud Approach,Xiaolin Lin; Aaron Choo,Cloud Native AI + Kubeflow Day
+9VqzQgin6vk,Not Yet Another Envoy Implementation - Exploring Kgateway To Write Your Own GatewayAPI Backend,Ricardo Katz,
+EN_77SkK5jg,"10 Years of Cilium: Connecting, Securing, and Simplifying the Cloud Native Stack",Bill M; Paul A; Marcelo M; Neha A,
+ENgE6V1M3zg,Connecting the World: Your Hands-on Guide To Cilium ClusterMesh and MCS-API,Arthur Outhenin-Chalandre; Quentin Swiech,CiliumCon
+Q4E9GDAslIk,GenAI Observability: Keeping GenAI Honest Without Oversharing,Liudmila Molkova,
+uGhHeYZ4zGg,Pull Request Wars: The Flux Awakens - Ephemeral Kubernetes Environments Strike Back,Matteo Bianchi; Stefan Prodan,
+pSfmhblzE-Y,Visualizing GitOps: A Tour of Flux UIs in the Open Source Ecosystem,Stefan Prodan,
+cmHFJikhmyY,"Helm 4 Is Here. So, Now What?",Andrew Block; Scott Rigby; Robert Sirchia,
+7YuMvcW5wRA,Advanced Kyverno Patterns : Automating Platform Security and Operations,Frank Jogeleit; Johannes Sonner,
+bgL7QC75tFE,Policy & GitOps Unite! Kyverno and Flux Save Cluster City,Cortney Nickerson; Leigh Capili,KyvernoCon
+TENlj4r6IXk,Open Policy Agent. (OPA) Intro & Deep Dive,Charlie Egan; Anders Eknert,
+vzBGkY_HIyM,Cert-manager – Project Update: Beyond 2026,Tim Ramlot; Maël Valais,
+zu6V34BFksk,Crossplane - The Cloud Native Framework for Platform Engineering,Jared Watts; Adam Wolfe Gordon,
+tFsp5bpKwdk,The State of Backstage in 2026,Ben Lambert; Patrik Oldsberg,
+VCNxcBjVOIk,Unleashing Event Driven Capabilities With KEDA,Jorge Turrado; Zbynek Roubalik,
+m0LBKjlxrog,From VMs to Kubernetes in a Large Global Bank: A DBA's Journey,Gabriele Bartolini; Laurent Parodi,Data on Kubernetes Day
+w1pj0Lz1mW4,Fluent Bit V5: Pushing the Limits of Observability at Scale,Eduardo Silva,
+jPWsMZFpihA,Linkerd: Reliable Production in an AI/MCP World,William Morgan,
+Ztt3Wvd-pbI,In Falco's Nest: The Evolution of Cloud Native Runtime Security,Iacopo Rozzo; Aldo Lacuku,
+9gejXxl5JzE,Dapr in the AI Era: Orchestrating Complex Multi-agent Workflows With Automatic Recovery,Yaron Schneider,
+zcdrXu1Fpy0,Evolving KServe: The Unified Model Inference Platform for Both Predictive and Generative AI,F. Spolti; J. Lee,
+FKcG5M_rRT4,Federated llm-d: Elevating Distributed Inference Beyond Cluster Boundaries,Madhuri Yechuri; Abhishek Malvankar,Cloud Native AI + Kubeflow Day
+6G2Rr2rQ2RI,Sponsored Keynote: Argo CD vs the World,Steve Fenton,ArgoCon
+y_63qmgAklI,"Sponsored Keynote: Your Backstage, Our Grunt Work: Migrating to Spotify Portal Without Pausing Your Roadmap",Joe Combopiano,BackstageCon
+XQuLlpI2FI4,"Sponsored Keynote: Built in the Open: Why Cisco Is Betting on eBPF, Cilium, and Tetragon",Bill Mulligan,CiliumCon
+2zudwGs3bMM,Sponsored Keynote: Agentic GitOps: Evolving Enterprise Delivery,Andy Martin,FluxCon
+Sdoc3aQN-f4,Sponsored Keynote: Building an IDP in 5 Minutes Not 5 Months,Matar Peles,BackstageCon
