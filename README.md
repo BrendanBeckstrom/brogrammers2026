@@ -6,6 +6,8 @@ Debrief turns a conference's recorded talks into a short, cited briefing for one
 
 Built by team **Brogrammers** at the [WeMakeDevs Cloud Native Hackathon](https://www.wemakedevs.org/hackathons/cnh), Salt Lake City, Nov 9, 2026.
 
+**Judges:** how Debrief uses Elastic, Gitar, Dash0, Radar and Merge Forward, with links to the evidence: [`docs/TRACKS.md`](docs/TRACKS.md).
+
 ## How it works
 
 - **Ingest (offline, once per conference):** download KubeCon auto-captions → clean → cut 60–90 s chunks → tag the tools each chunk mentions → label each talk (deep dive / intro / pitch) → index into Elastic.
@@ -59,8 +61,9 @@ make label                # label new talks (data/talk_labels.csv), set talk_lab
 
 GitOps through Argo CD, operated through [Radar](https://radarhq.io), on the [Radar hackathon starter](https://github.com/skyhook-io/cnh-starter) layout:
 
-- Every push to `main` runs `.github/workflows/deploy.yaml`: it builds one image from the root `Dockerfile` (the API plus the built web app, on port 8080), pushes it to GHCR, and commits the new tag into `deploy/kustomization.yaml`.
-- Argo CD in our vcluster syncs `deploy/` (Kustomize) into namespace `team-<team>`. The platform routes `https://<team>.cnh.radarhq.io` to Service `app`, port 80. The page footer shows the deployed commit (from `/api/version`).
+- `main` is protected (ruleset `protect-main`): changes land only through pull requests with green CI (`python`, `web`), and every PR is reviewed by Gitar.
+- Every merge to `main` runs `.github/workflows/deploy.yaml`: it builds one image from the root `Dockerfile` (the API plus the built web app, on port 8080) and pushes it to GHCR. It then force-pushes the **`deploy` branch**, which is that commit plus one `deploy: <sha> [skip ci]` commit setting the image tag. Nothing is ever committed to `main` by the bot.
+- Argo CD in our vcluster (Application `app`, `targetRevision: deploy`) syncs `deploy/` (Kustomize) into namespace `team-<team>`. The platform routes `https://<team>.cnh.radarhq.io` to Service `app`, port 80. The page footer shows the deployed commit (from `/api/version`).
 - We watch syncs, rollouts, logs and Checks in Radar Cloud; agents use Radar's MCP server (see `AGENTS.md` and `.agents/skills/`).
 
 Once the team name is known:
@@ -86,7 +89,42 @@ kubectl -n team-<team> create secret generic app-credentials \
   --from-literal=otel-headers="$OTEL_HEADERS"
 ```
 
-Every key is optional in `deploy/deployment.yaml`, so pods start before the Secret exists. Restart the app after creating or changing it.
+Every key is optional in `deploy/deployment.yaml`, so pods start before the Secret exists. Restart the app after creating or changing it. A sixth key, `dash0-web-token`, is the ingest-only Dash0 website token for browser RUM; the app hands it to the page at runtime through `GET /api/config`, so it is never in git or in the image.
+
+## Operating Debrief
+
+How we ran Debrief on the hackathon's Kubernetes cluster today, through [Radar](https://radarhq.io): the Radar Cloud UI, plus Radar's MCP server from our coding agent.
+
+**Cluster:** `brogrammers` in the Cloud Native Hackathon org; namespace `team-brogrammers`; live at https://brogrammers.cnh.radarhq.io. The app runs as 2 pods (`replicas: 2`, a PodDisruptionBudget, soft topology spread) with a read-only root filesystem and no service-account token.
+
+### MCP question log (coding agent → Radar)
+
+| What we asked | Radar MCP tool | What it told us / what we did |
+|---|---|---|
+| Which cluster is ours, and what's running in it? | `list_clusters`, `list_resources` | The starter app was running 2/2, with no Argo CD Application and no Secrets yet |
+| Start GitOps | `apply_resource` (Argo CD `Application` → `targetRevision: deploy`) | Argo CD synced our image; the platform's placeholder pod was replaced |
+| Is the Secret valid before a person applies it? | `apply_resource` with `dry_run: true` (dummy values) | The Secret structure was accepted, so a UI rejection was down to the pasted value, not our YAML |
+| Did the rollout finish? | `manage_gitops` refresh, `wait_for`, `diagnose` | Rollouts confirmed after each merge; `diagnose` showed the new pod pulling the 300 MB image |
+| Why are reranked playlists slow? | `get_workload_logs` (grep `rerank\|llm\|error`) | `llm call failed … model=claude-haiku-5-5 … error=APITimeoutError duration_ms=10858.4`, which started the incident below |
+| Did secret changes take effect? | `list_resources` (key names only, never values), `manage_workload` restart | Restarted pods picked up the model, Dash0 and web-token keys |
+| Is the cluster well configured? | `get_cluster_audit` (namespace `team-brogrammers`) | 3 findings → fixed in [#18](https://github.com/BrendanBeckstrom/brogrammers2026/pull/18); 2 multi-replica findings → fixed in [#19](https://github.com/BrendanBeckstrom/brogrammers2026/pull/19); now **0** |
+| Will the PDB be accepted? | `apply_resource` with `dry_run: true` | Accepted by the vcluster before we merged #19 |
+
+Secrets were always created by a person in Radar's UI. The agent only ever read key names.
+
+### AI investigation of a real issue
+
+We ran a Radar AI investigation on `Deployment team-brogrammers/app`.
+- **Finding:** the app was healthy, but every rollout logged readiness and liveness probe failures, because Python took about 16 s to start listening. We added a `startupProbe` in [#14](https://github.com/BrendanBeckstrom/brogrammers2026/pull/14).
+- **Follow-up** ("could anything in the cluster explain 12–14 s playlist requests?"): Radar checked Prometheus. CPU was about 0.3% of its limit with zero CFS throttling, memory about 22%, and no dropped packets. It concluded the time was spent outside Kubernetes, on the external LLM call. That ruled out the cluster.
+
+### One incident through three tools
+
+1. **Radar logs** showed the model call timing out (`APITimeoutError` after 10.9 s).
+2. **Dash0 trace** `a9172d99794ae9239dd69ed65a29af54` showed `POST /api/playlist` at 12.6 s: `rerank.model` 11.5 s, of which the Anthropic `POST /v1/messages` call took 8.2 s, after a 3.3 s gap. **Dash0 Agent0** found the call sent 29 clips and got back 1,970 output tokens, 341 of them reasoning.
+3. **Radar's investigation** ruled out the cluster.
+4. **The fix** in [#15](https://github.com/BrendanBeckstrom/brogrammers2026/pull/15), reviewed by Gitar: at most 18 clips, in 3 parallel batches, with thinking off, a tight `max_tokens`, and the client built once at startup. Gitar also caught and fixed a thread-pool starvation bug in the same PR.
+5. **After:** reranked playlists take about 3–4 s, and the model writes real why lines instead of falling back to templates.
 
 ## Team
 

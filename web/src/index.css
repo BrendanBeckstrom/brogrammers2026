@@ -1,14 +1,170 @@
 @import "tailwindcss";
 
+/*
+ * Debrief's visual identity: warm "briefing paper" surfaces, deep teal ink for
+ * actions, and an ember accent for emphasis and focus. Every colour is a token
+ * that flips with prefers-color-scheme, so components only use semantic names
+ * (bg-canvas, text-ink-2, bg-brand ...). Text tokens keep at least 4.5:1 against
+ * canvas, surface and surface-2; line-strong keeps 3:1 for control borders.
+ */
+:root {
+  color-scheme: light dark;
+
+  --canvas: #f6f5f1;
+  --surface: #ffffff;
+  --surface-2: #efede6;
+  --ink: #15181e;
+  --ink-2: #4b5160;
+  --line: #dedbd2;
+  --line-strong: #858a96;
+
+  --brand: #0b6b66;
+  --brand-strong: #07504c;
+  --brand-ink: #ffffff;
+  --brand-soft: #e0f1ee;
+  --brand-text: #09605b;
+
+  --accent: #c2410c;
+  --accent-soft: #fdeee4;
+  --focus: #c2410c;
+
+  --danger-bg: #fdecec;
+  --danger-line: #d97777;
+  --danger-text: #8a1c1c;
+  --ok-bg: #e6f4ea;
+  --ok-line: #2f7d4a;
+  --ok-text: #14532d;
+
+  --deep-bg: #e6f4ea;
+  --deep-line: #2f7d4a;
+  --deep-text: #14532d;
+  --intro-bg: #e7f0fb;
+  --intro-line: #2f64a8;
+  --intro-text: #1e3a6e;
+  --pitch-bg: #fdf1e3;
+  --pitch-line: #b45309;
+  --pitch-text: #78350f;
+
+  --code-bg: #1b2125;
+  --code-ink: #e8ecea;
+}
+
+/* Dark: a teal-black room with soft paper text. */
+@media (prefers-color-scheme: dark) {
+  :root {
+    --canvas: #0e1314;
+    --surface: #151c1e;
+    --surface-2: #1c2528;
+    --ink: #e9eeec;
+    --ink-2: #a9b4b2;
+    --line: #2a3437;
+    --line-strong: #6b7a79;
+
+    --brand: #5ccfc3;
+    --brand-strong: #86e0d6;
+    --brand-ink: #062320;
+    --brand-soft: #123532;
+    --brand-text: #73dacf;
+
+    --accent: #fb9a52;
+    --accent-soft: #2e1c10;
+    --focus: #fb9a52;
+
+    --danger-bg: #2c1515;
+    --danger-line: #a04848;
+    --danger-text: #fbb4b4;
+    --ok-bg: #13281b;
+    --ok-line: #3f9c62;
+    --ok-text: #a7f3c0;
+
+    --deep-bg: #13281b;
+    --deep-line: #3f9c62;
+    --deep-text: #a7f3c0;
+    --intro-bg: #13213a;
+    --intro-line: #4f86d1;
+    --intro-text: #c4dcfd;
+    --pitch-bg: #2d1f0e;
+    --pitch-line: #c97a2a;
+    --pitch-text: #fcd9a8;
+
+    --code-bg: #0a0e0f;
+    --code-ink: #dfe6e4;
+  }
+}
+
+@theme inline {
+  --color-canvas: var(--canvas);
+  --color-surface: var(--surface);
+  --color-surface-2: var(--surface-2);
+  --color-ink: var(--ink);
+  --color-ink-2: var(--ink-2);
+  --color-line: var(--line);
+  --color-line-strong: var(--line-strong);
+  --color-brand: var(--brand);
+  --color-brand-strong: var(--brand-strong);
+  --color-brand-ink: var(--brand-ink);
+  --color-brand-soft: var(--brand-soft);
+  --color-brand-text: var(--brand-text);
+  --color-accent: var(--accent);
+  --color-accent-soft: var(--accent-soft);
+  --color-danger-bg: var(--danger-bg);
+  --color-danger-line: var(--danger-line);
+  --color-danger-text: var(--danger-text);
+  --color-ok-bg: var(--ok-bg);
+  --color-ok-line: var(--ok-line);
+  --color-ok-text: var(--ok-text);
+  --color-deep-bg: var(--deep-bg);
+  --color-deep-line: var(--deep-line);
+  --color-deep-text: var(--deep-text);
+  --color-intro-bg: var(--intro-bg);
+  --color-intro-line: var(--intro-line);
+  --color-intro-text: var(--intro-text);
+  --color-pitch-bg: var(--pitch-bg);
+  --color-pitch-line: var(--pitch-line);
+  --color-pitch-text: var(--pitch-text);
+  --color-code-bg: var(--code-bg);
+  --color-code-ink: var(--code-ink);
+}
+
+@theme {
+  /* Editorial serif for headings and quotes; the system sans for everything else. */
+  --font-display: "Iowan Old Style", "Palatino Linotype", Palatino, "Book Antiqua", Charter, "Bitstream Charter",
+    Georgia, ui-serif, serif;
+  --font-sans: ui-sans-serif, system-ui, -apple-system, "Segoe UI", Roboto, "Helvetica Neue", Arial, sans-serif;
+  --font-mono: ui-monospace, "SF Mono", SFMono-Regular, Menlo, Consolas, "Liberation Mono", monospace;
+}
+
 @layer base {
   html {
-    color-scheme: light;
+    background-color: var(--canvas);
+    color: var(--ink);
+    /* Keep focused controls clear of the sticky playlist bar (WCAG 2.4.11). */
+    scroll-padding-top: 5.5rem;
+    -webkit-text-size-adjust: 100%;
+  }
+
+  body {
+    background-color: var(--canvas);
+    color: var(--ink);
+    font-family: var(--font-sans);
+    text-rendering: optimizeLegibility;
   }
 
   /* One visible focus ring for every control (WCAG 2.4.7, 2.4.11). */
   :focus-visible {
-    outline: 3px solid var(--color-indigo-600);
+    outline: 3px solid var(--focus);
     outline-offset: 2px;
+  }
+
+  ::selection {
+    background-color: var(--brand-soft);
+    color: var(--ink);
+  }
+}
+
+@media (prefers-reduced-motion: no-preference) {
+  html {
+    scroll-behavior: smooth;
   }
 }
 

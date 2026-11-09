@@ -69,12 +69,39 @@ export interface PlaylistDebug {
   timings_ms: Record<string, number>
 }
 
+/** A significant term Elasticsearch found in the clips that match the stack. */
+export interface SignificantTerm {
+  term: string
+  score: number
+  doc_count: number
+}
+
 export interface PlaylistResponse {
   total_seconds: number
   clips: Clip[]
   trace_id: string
   message?: string
   debug?: PlaylistDebug
+  /** "What this conference said about your stack": optional, absent on older APIs. */
+  terms?: SignificantTerm[]
+}
+
+/** POST /api/playlists: save a playlist so it can be shared by link. */
+export interface SavePlaylistRequest {
+  request: PlaylistRequest
+  clip_ids: string[]
+}
+
+export interface SavePlaylistResponse {
+  id: string
+  url: string
+}
+
+/** GET /api/playlists/{id}: a saved playlist, rendered as-is. */
+export interface SharedPlaylist {
+  request: PlaylistRequest
+  response: PlaylistResponse
+  created_at: string
 }
 
 export interface ClipText {
@@ -212,6 +239,35 @@ export function getClipText(clipId: string, fetchFn?: FetchFn): Promise<ClipText
 
 export function postMemo(body: MemoRequest, fetchFn?: FetchFn): Promise<MemoResponse> {
   return request<MemoResponse>('/api/memo', postJson(body), fetchFn)
+}
+
+export function savePlaylist(body: SavePlaylistRequest, fetchFn?: FetchFn): Promise<SavePlaylistResponse> {
+  return request<SavePlaylistResponse>('/api/playlists', postJson(body), fetchFn)
+}
+
+export function getSharedPlaylist(id: string, fetchFn?: FetchFn): Promise<SharedPlaylist> {
+  return request<SharedPlaylist>(`/api/playlists/${encodeURIComponent(id)}`, undefined, fetchFn)
+}
+
+/** The link a shared playlist lives at: `https://<host>/?p=<id>`. */
+export function shareLink(origin: string, id: string): string {
+  return `${origin.replace(/\/+$/, '')}/?p=${encodeURIComponent(id)}`
+}
+
+/** The shared playlist id in a page URL's query string (`?p=<id>`), if any. */
+export function sharedPlaylistId(search: string): string | null {
+  const id = new URLSearchParams(search).get('p')?.trim()
+  return id ? id : null
+}
+
+/** Up to `max` significant terms, strongest first; [] when the API sent none. */
+export function topTerms(terms: SignificantTerm[] | null | undefined, max = 8): SignificantTerm[] {
+  if (!Array.isArray(terms)) return []
+  return terms
+    .filter((t) => t && typeof t.term === 'string' && t.term.trim())
+    .slice()
+    .sort((a, b) => b.score - a.score)
+    .slice(0, max)
 }
 
 export function errorMessage(error: unknown): string {
