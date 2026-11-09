@@ -11,10 +11,12 @@ sentence.
 from __future__ import annotations
 
 import contextvars
+import logging
 import os
 import time
 from collections.abc import Callable, Mapping, Sequence
 from concurrent.futures import Future, ThreadPoolExecutor
+from concurrent.futures import TimeoutError as FutureTimeout
 from dataclasses import dataclass, field
 from functools import lru_cache
 from pathlib import Path
@@ -23,7 +25,9 @@ from typing import Any, Literal, Protocol
 from opentelemetry import trace
 
 from api import clips as clipmod
+from api import rerank
 from api.clips import Hit
+from api.llm import LLMClient, LLMError
 from ingest.tag import Tool, load_tools
 
 CLIPS_INDEX = "clips"
@@ -31,6 +35,11 @@ TALKS_INDEX = "talks"
 WINDOW = 100  # hits per half and per RRF request (rank_window_size)
 MIN_TOOL_CHUNKS = 5  # /api/tools lists only tools with at least this many chunks
 REQUEST_TIMEOUT_SEC = 10.0
+# Rerank inside Elastic: Jina reorders the top RRF hits. 50 hits take about 1 s on the
+# serverless project (100 take about 2.8 s); past the timeout the plain RRF order wins.
+ELASTIC_RERANK_ID = ".jina-reranker-v3"
+ELASTIC_RERANK_WINDOW = 50
+ELASTIC_RERANK_TIMEOUT_SEC = 3.0
 SOURCE_FIELDS = [
     "chunk_id",
     "talk_id",
@@ -48,6 +57,7 @@ TOOLS_PATH = Path(__file__).resolve().parent.parent / "data" / "tools.yaml"
 Filter = Literal["all", "attended", "missed"]
 
 tracer = trace.get_tracer("debrief")
+log = logging.getLogger("debrief.search")
 _pool = ThreadPoolExecutor(max_workers=12, thread_name_prefix="search")
 
 
@@ -218,6 +228,35 @@ def ids_body(
     return body
 
 
+def reranker_body(body: dict[str, Any], inference_text: str) -> dict[str, Any]:
+    """`body` with its retriever wrapped in Elastic's `text_similarity_reranker` (Jina)."""
+    return {
+        **body,
+        "size": ELASTIC_RERANK_WINDOW,
+        "retriever": {
+            "text_similarity_reranker": {
+                "retriever": body["retriever"],
+                "field": "text",
+                "inference_id": ELASTIC_RERANK_ID,
+                "inference_text": inference_text,
+                "rank_window_size": ELASTIC_RERANK_WINDOW,
+            }
+        },
+    }
+
+
+def merge_reranked(
+    reranked: Mapping[str, Any], rrf_hits: Sequence[dict[str, Any]]
+) -> list[dict[str, Any]]:
+    """The reranked hits, then the RRF hits past the rerank window in their RRF order."""
+    head = list(reranked.get("hits", {}).get("hits", []))
+    seen = {h["_id"] for h in head}
+    tail = [h for h in rrf_hits if h["_id"] not in seen]
+    # Keep scores monotonic: tail hits rank below every reranked hit.
+    floor = min((h.get("_score") or 0.0 for h in head), default=0.0)
+    return head + [{**h, "_score": floor - 1.0 - i / max(1, len(tail))} for i, h in enumerate(tail)]
+
+
 # --- Playlist -------------------------------------------------------------------------
 
 
@@ -273,15 +312,28 @@ def _names(tool_ids: Sequence[str]) -> str:
     return names[0] if len(names) == 1 else ", ".join(names[:-1]) + " or " + names[-1]
 
 
-def build_playlist(client: SearchClient, req: PlaylistRequest) -> dict[str, Any]:
+def build_playlist(
+    client: SearchClient, req: PlaylistRequest, llm: LLMClient | None = None
+) -> dict[str, Any]:
     """Search, group by talk, build clips and fill the budget.
 
-    Returns the playlist response without `trace_id` (the route adds it).
+    With `req.rerank`, Elastic's Jina reranker reorders the hybrid hits (falling back to
+    the plain RRF order on error or after ELASTIC_RERANK_TIMEOUT_SEC), then `llm` scores
+    the top clips and writes their why lines (falling back to Elastic's order and the
+    template lines on any model failure). Returns the playlist response without
+    `trace_id` (the route adds it).
     """
     total_started = time.perf_counter()
     tool_ids = list(dict.fromkeys(t.strip() for t in req.tools if t.strip()))
     timings: dict[str, float] = {}
-    debug: dict[str, Any] = {"query": None, "timings_ms": timings, "hits": 0, "talks": 0}
+    rerank_status = {"elastic": "off", "model": "off"}
+    debug: dict[str, Any] = {
+        "query": None,
+        "timings_ms": timings,
+        "hits": 0,
+        "talks": 0,
+        "rerank": rerank_status,
+    }
     if not tool_ids:
         return _empty("Pick at least one tool from your stack.", debug)
     if req.filter == "attended" and not req.attended_talk_ids:
@@ -295,8 +347,16 @@ def build_playlist(client: SearchClient, req: PlaylistRequest) -> dict[str, Any]
     body = rrf_body(keyword, semantic, filter_, terms)
     debug["query"] = body
     attrs = {"debrief.tools": tool_ids, "debrief.filter": req.filter}
+    playlist_span = trace.get_current_span()
 
     search_started = time.perf_counter()
+    reranked_f: Future[Any] | None = None
+    if req.rerank:
+        inference_text = ", ".join(tool_name(t) for t in tool_ids) + (f". {pain}" if pain else "")
+        reranked_body = reranker_body(body, inference_text)
+        reranked_f = _submit(
+            lambda: _timed_search(client, "search.elastic_rerank", reranked_body, attrs)
+        )
     hybrid_f = _submit(lambda: _timed_search(client, "search.hybrid", body, attrs))
     keyword_f = _submit(
         lambda: _timed_search(client, "search.keyword", ids_body(keyword, filter_, tool_ids), attrs)
@@ -307,6 +367,22 @@ def build_playlist(client: SearchClient, req: PlaylistRequest) -> dict[str, Any]
     hybrid, timings["hybrid_search"] = hybrid_f.result()
     keyword_resp, timings["keyword_search"] = keyword_f.result()
     semantic_resp, timings["semantic_search"] = semantic_f.result()
+    raw_hits: list[dict[str, Any]] = list(hybrid.get("hits", {}).get("hits", []))
+    if reranked_f is not None:
+        wait = max(0.0, ELASTIC_RERANK_TIMEOUT_SEC - (time.perf_counter() - search_started))
+        try:
+            reranked, timings["elastic_rerank"] = reranked_f.result(timeout=wait)
+        except FutureTimeout:
+            rerank_status["elastic"] = "fallback: timeout"
+        except Exception:  # SearchBackendError, or anything else: keep the RRF order
+            rerank_status["elastic"] = "fallback: error"
+        else:
+            raw_hits = merge_reranked(reranked, raw_hits)
+            rerank_status["elastic"] = "ok"
+            debug["query"] = reranked_body
+        if rerank_status["elastic"] != "ok":
+            log.warning("elastic rerank fell back: %s", rerank_status["elastic"])
+        playlist_span.set_attribute("debrief.elastic_rerank", rerank_status["elastic"])
     timings["search_wall"] = _ms(search_started)
 
     covered = _tool_hits(keyword_resp)
@@ -322,7 +398,7 @@ def build_playlist(client: SearchClient, req: PlaylistRequest) -> dict[str, Any]
         semantic_ids = set(_hit_ids(semantic_resp))
         attended = set(req.attended_talk_ids)
         hits: list[Hit] = []
-        for raw in hybrid.get("hits", {}).get("hits", []):
+        for raw in raw_hits:
             source = raw.get("_source") or {}
             if req.filter == "missed" and source.get("talk_id") in attended:
                 continue
@@ -348,21 +424,62 @@ def build_playlist(client: SearchClient, req: PlaylistRequest) -> dict[str, Any]
             }
         )
 
+    catalog = tool_catalog()
+    names = {t: tool_name(t) for t in tool_ids}
+    tool_term_map = {t: catalog[t].terms for t in tool_ids if t in catalog}
+
+    def record(clip: clipmod.Clip) -> dict[str, Any]:
+        return clipmod.clip_record(clip, tool_ids, names, tool_term_map, pain or None)
+
     with tracer.start_as_current_span("search.clips") as span:
         started = time.perf_counter()
         candidates = clipmod.build_clips(groups)
-        chosen = clipmod.fill_budget(candidates, req.budget_minutes * 60, tool_ids)
-        catalog = tool_catalog()
-        names = {t: tool_name(t) for t in tool_ids}
-        tool_term_map = {t: catalog[t].terms for t in tool_ids if t in catalog}
-        records = [
-            clipmod.clip_record(c, tool_ids, names, tool_term_map, pain or None) for c in chosen
-        ]
-        total_seconds = sum(r["end_sec"] - r["start_sec"] for r in records)
         timings["clip_building"] = _ms(started)
+        span.set_attribute("debrief.candidate_clips", len(candidates))
+
+    budget_sec = req.budget_minutes * 60
+    chosen: list[clipmod.Clip] | None = None
+    judged: dict[str, rerank.Judgement] = {}
+    if req.rerank and llm is not None and candidates:
+        with tracer.start_as_current_span("rerank.model") as span:
+            started = time.perf_counter()
+            top = candidates[: rerank.TOP_N]
+            span.set_attribute("debrief.clips_sent", len(top))
+            try:
+                judged, stats = rerank.judge(
+                    llm, [record(c) for c in top], top, tool_ids, names, tool_term_map, pain
+                )
+                chosen = rerank.choose(candidates, judged, budget_sec, tool_ids)
+            except (LLMError, rerank.RerankError) as e:
+                judged = {}
+                rerank_status["model"] = f"fallback: {type(e).__name__}"
+                span.set_attributes({"debrief.fallback": True, "error.type": type(e).__name__})
+                log.warning("model rerank fell back: %s", type(e).__name__)
+            else:
+                rerank_status["model"] = "ok"
+                below = sum(1 for j in judged.values() if j.score < rerank.SCORE_THRESHOLD)
+                span.set_attributes(
+                    {f"debrief.rerank.{k}": v for k, v in stats.items()}
+                    | {"debrief.fallback": False, "debrief.rerank.below_threshold": below}
+                )
+            timings["rerank"] = _ms(started)
+        playlist_span.set_attribute("debrief.model_rerank", rerank_status["model"])
+
+    with tracer.start_as_current_span("search.budget") as span:
+        started = time.perf_counter()
+        if chosen is None:
+            chosen = clipmod.fill_budget(candidates, budget_sec, tool_ids)
+        records = [record(c) for c in chosen]
+        if judged:
+            for r in records:
+                judgement = judged.get(r["clip_id"])
+                r["score"] = round(judgement.score, 3) if judgement else 0.0
+                if judgement and judgement.why:
+                    r["why"] = judgement.why
+        total_seconds = sum(r["end_sec"] - r["start_sec"] for r in records)
+        timings["budget"] = _ms(started)
         span.set_attributes(
             {
-                "debrief.candidate_clips": len(candidates),
                 "debrief.clips": len(records),
                 "debrief.clip_ids": [r["clip_id"] for r in records],
                 "debrief.scores": [r["score"] for r in records],
@@ -417,15 +534,8 @@ def list_talks(client: SearchClient) -> list[dict[str, Any]]:
     return sorted(talks, key=lambda t: (t["title"].lower(), t["talk_id"]))
 
 
-def clip_text(client: SearchClient, clip_or_chunk_id: str) -> dict[str, Any] | None:
-    """The clip's chunks loaded from the index by id, with its full cleaned text.
-
-    Raises ValueError for a malformed id; returns None when no chunk is found.
-    """
-    chunk_ids = clipmod.parse_clip_id(clip_or_chunk_id)
-    sources = client.mget(CLIPS_INDEX, chunk_ids)
-    if not sources:
-        return None
+def _clip_from_sources(sources: Sequence[Mapping[str, Any]]) -> dict[str, Any]:
+    """One clip (full cleaned text) from its chunks' `_source`s. Raises ValueError."""
     chunks = sorted((Hit.from_source(s) for s in sources), key=lambda h: h.start_sec)
     if len({c.talk_id for c in chunks}) != 1:
         raise ValueError("chunks of a clip must come from one talk")
@@ -441,3 +551,46 @@ def clip_text(client: SearchClient, clip_or_chunk_id: str) -> dict[str, Any] | N
         "watch_url": clipmod.watch_url(clip.first.youtube_id, start),
         "text": clip.text,
     }
+
+
+def clip_text(client: SearchClient, clip_or_chunk_id: str) -> dict[str, Any] | None:
+    """The clip's chunks loaded from the index by id, with its full cleaned text.
+
+    Raises ValueError for a malformed id; returns None when no chunk is found.
+    """
+    chunk_ids = clipmod.parse_clip_id(clip_or_chunk_id)
+    sources = client.mget(CLIPS_INDEX, chunk_ids)
+    if not sources:
+        return None
+    return _clip_from_sources(sources)
+
+
+def resolve_clips(
+    client: SearchClient, clip_ids: Sequence[str]
+) -> tuple[dict[str, dict[str, Any]], list[str]]:
+    """Load several clips from the index by id in one `mget` (the memo's only source).
+
+    Returns (clips by the requested id, ids that are malformed or not fully in the index).
+    """
+    wanted: dict[str, list[str]] = {}
+    unknown: list[str] = []
+    for clip_id in dict.fromkeys(clip_ids):
+        try:
+            wanted[clip_id] = clipmod.parse_clip_id(clip_id)
+        except ValueError:
+            unknown.append(clip_id)
+    all_chunks = list(dict.fromkeys(c for chunks in wanted.values() for c in chunks))
+    by_id = (
+        {str(s["chunk_id"]): s for s in client.mget(CLIPS_INDEX, all_chunks)} if all_chunks else {}
+    )
+    found: dict[str, dict[str, Any]] = {}
+    for clip_id, chunk_ids in wanted.items():
+        if not all(c in by_id for c in chunk_ids):
+            unknown.append(clip_id)
+            continue
+        clip = _clip_from_sources([by_id[c] for c in chunk_ids])
+        if clip["clip_id"] != clip_id:  # not the canonical form the playlist hands out
+            unknown.append(clip_id)
+            continue
+        found[clip_id] = clip
+    return found, unknown

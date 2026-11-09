@@ -39,7 +39,7 @@ docs/       BRIEF.md
 
 - **One PR per task**, titled `Task N: <what>`, branched from `main`. Keep PRs small so Gitar's review says something. Never push straight to `main`: a push to `main` deploys.
 - `make test` must pass before you open a PR. Run the task's own check and paste its output in the PR body.
-- Config comes only from env vars (`.env.example` lists every one). Only `api/llm.py` talks to the model provider (`LLM_PROVIDER` = `anthropic` | `openai`).
+- Config comes only from env vars (`.env.example` lists every one). Only `api/llm.py` talks to the model provider (`LLM_PROVIDER` = `elastic` | `anthropic` | `openai`; the Elastic project's hosted chat models currently return 403, so use `anthropic` or `openai` with `LLM_API_KEY`).
 - Type hints on all Python. Pin every dependency exactly (`uv add --bounds exact`, `npm i -E`) and run `uv run pip-audit` / `npm audit` after adding one.
 - Every module that calls Elastic or the model must run against a fake, so unit tests need no network.
 - Spans and logs carry ids, counts, scores and token totals — never transcript text, prompts or keys.
