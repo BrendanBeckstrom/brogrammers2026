@@ -11,5 +11,5 @@ resources:
   - pdb.yaml
 images:
   - name: app
-    newName: ghcr.io/OWNER/REPO
-    newTag: latest
+    newName: ghcr.io/brendanbeckstrom/brogrammers2026
+    newTag: 9cbe52e
