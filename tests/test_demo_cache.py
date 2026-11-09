@@ -165,7 +165,7 @@ def test_miss_falls_through_to_the_live_path(cache_dir: Path, client: TestClient
 
 
 def test_miss_with_the_network_off_is_a_clear_503(cache_dir: Path, client: TestClient) -> None:
-    use(Offline())
+    use(demo_cache.OfflineSearchClient())
     for method, path, body in (
         ("post", "/api/playlist", GITOPS),
         ("post", "/api/memo", {"tools": ["argo-cd"], "clip_ids": ["talka0000-0"]}),
@@ -177,6 +177,20 @@ def test_miss_with_the_network_off_is_a_clear_503(cache_dir: Path, client: TestC
         assert response.status_code == 503, (path, response.text)
         assert "offline demo cache" in response.json()["detail"]
         assert response.headers[demo_cache.HEADER] == "miss"
+
+
+def test_elastic_errors_are_not_offline_cache_misses(cache_dir: Path, client: TestClient) -> None:
+    use(Offline())
+    for method, path, body in (
+        ("post", "/api/playlist", GITOPS),
+        ("post", "/api/memo", {"tools": ["argo-cd"], "clip_ids": ["talka0000-0"]}),
+        ("get", "/api/tools", None),
+        ("get", "/api/talks", None),
+        ("get", "/api/clips/talka0000-0", None),
+    ):
+        response = getattr(client, method)(path, **({"json": body} if body else {}))
+        assert response.status_code == 502, (path, response.text)
+        assert "offline demo cache" not in response.json()["detail"]
 
 
 def test_cache_on_without_elastic_config_still_serves_hits(

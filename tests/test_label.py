@@ -1,6 +1,7 @@
 import csv
 import json
 import threading
+from collections.abc import Sequence
 from pathlib import Path
 from typing import Any
 
@@ -199,7 +200,9 @@ class FakeIndices:
 class FakeES:
     """Applies bulk partial updates to an in-memory store, like Elastic's noop detection."""
 
-    def __init__(self, docs: dict[str, dict[str, dict[str, Any]]], statuses: list[int] = ()):
+    def __init__(
+        self, docs: dict[str, dict[str, dict[str, Any]]], statuses: Sequence[int] = ()
+    ) -> None:
         self.docs = docs
         self.indices = FakeIndices()
         self.bulk_calls: list[list[dict[str, Any]]] = []
