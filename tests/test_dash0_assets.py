@@ -47,7 +47,6 @@ def test_every_panel_is_placed_once_on_a_24_wide_grid() -> None:
         "Rerank batch outcomes",
         "Memo latency p50 / p95",
         "Playlists shared",
-        "HTTP requests by route and status (req/s)",
     } <= names
 
 

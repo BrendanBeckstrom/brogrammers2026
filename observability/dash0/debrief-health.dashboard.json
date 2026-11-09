@@ -109,15 +109,6 @@
               "content": {
                 "$ref": "#/spec/panels/error_rate"
               }
-            },
-            {
-              "x": 0,
-              "y": 8,
-              "width": 24,
-              "height": 8,
-              "content": {
-                "$ref": "#/spec/panels/http_requests_by_status"
-              }
             }
           ]
         }
@@ -700,43 +691,6 @@
                   "spec": {
                     "query": "sum(increase({otel_metric_name=\"debrief.playlists.shared\", otel_metric_type=\"sum\"}[1h]))",
                     "seriesNameFormat": "shared"
-                  }
-                }
-              }
-            }
-          ]
-        }
-      },
-      "http_requests_by_status": {
-        "kind": "Panel",
-        "spec": {
-          "display": {
-            "name": "HTTP requests by route and status (req/s)",
-            "description": "http.server.duration from the FastAPI instrumentation (probes excluded), counted per route template (http.target) and status code."
-          },
-          "plugin": {
-            "kind": "TimeSeriesChart",
-            "spec": {
-              "legend": {
-                "position": "right"
-              },
-              "yAxis": {
-                "min": 0
-              },
-              "visual": {
-                "display": "line"
-              }
-            }
-          },
-          "queries": [
-            {
-              "kind": "TimeSeriesQuery",
-              "spec": {
-                "plugin": {
-                  "kind": "PrometheusTimeSeriesQuery",
-                  "spec": {
-                    "query": "sum by (http_target, http_status_code) (histogram_count(rate({otel_metric_name=\"http.server.duration\", otel_metric_type=\"histogram\", service_name=\"debrief-api\"}[1h])))",
-                    "seriesNameFormat": "{{http_target}} {{http_status_code}}"
                   }
                 }
               }

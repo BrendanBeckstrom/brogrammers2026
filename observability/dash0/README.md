@@ -154,11 +154,10 @@ On 2026-11-09, every query below ran against Dash0's PromQL API (`https://api.us
 | Most requested tools (top 10) | `debrief.playlist.tool_requests` | Build a playlist |
 | Clip label mix (PieChart) | `debrief.playlist.clip_labels` | Build a playlist; clips from unlabelled talks show as `unlabelled` |
 | Playlists shared | `debrief.playlists.shared` | Click **Share** (POST /api/playlists) |
-| HTTP requests by route and status | `http.server.duration` (labels `http_target`, `http_status_code`) | Any request except the probes |
 | Rerank batch outcomes (stacked) | `debrief.rerank.batches` | Playlist with rerank on; `timeout` and `fallback` show only when a batch fails |
 | Memo latency p50 / p95 | `debrief.memo.duration`, `outcome="ok"` | Make a memo (cached memos are not recorded) |
 
-There is no logs panel on the dashboard: Dash0 returned "Error loading log list" for the `LogTable` shape we inferred, so it was removed. To show the event logs, open **Logging** and filter `event.name` is `playlist.served` (or any event in section 5). The "Demo cache lookups" panel was removed too: the cache is off in production, so it was always empty.
+There is no logs panel on the dashboard: Dash0 returned "Error loading log list" for the `LogTable` shape we inferred, so it was removed. To show the event logs, open **Logging** and filter `event.name` is `playlist.served` (or any event in section 5). The "Demo cache lookups" panel was removed too: the cache is off in production, so it was always empty. So was "HTTP requests by route and status": the API exports `http.server.duration` (checked with `DEBRIEF_OTEL_CONSOLE=1`: `http.target`, `http.status_code`), but the panel stayed empty in Dash0, and "API request rate by route" plus "API error rate" already cover it.
 
 To find the RUM data itself, use the **Web Events** explorer:
 - The **Custom Events** view lists `watch_click`, `memo_copy`, `memo_make` and `playlist_build`.
