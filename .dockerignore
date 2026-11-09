@@ -1,0 +1,19 @@
+# Kept out of the image build context.
+.git
+**/node_modules
+**/*kubeconfig*
+**/.env
+**/.env.*
+**/*.pem
+**/*.key
+
+# Local environments, caches and build output (the image builds its own).
+.venv
+**/__pycache__
+.pytest_cache
+.ruff_cache
+web/dist
+
+# Downloaded and generated data (gitignored).
+data/raw
+data/chunks.jsonl

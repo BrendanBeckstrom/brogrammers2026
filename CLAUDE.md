@@ -53,3 +53,9 @@ The repo and the container image are **public**. Never commit or log `.env`, API
 ## AI disclosure
 
 The hackathon requires disclosing AI assistance. Commits made with an agent carry a `Co-Authored-By` trailer, and the README has an AI disclosure section — keep both.
+
+## Cluster and Radar
+
+We deploy with the Radar hackathon starter (skyhook-io/cnh-starter): a push to `main` builds one image from the root `Dockerfile` (API plus built web app on port 8080), the Action commits its tag into `deploy/kustomization.yaml`, and Argo CD syncs `deploy/` into namespace `team-<team>`. Operate the cluster through the `radar-cloud` MCP, using the skills in `.agents/skills/`. The starter's agent notes follow; where they say "push to `main`", our one-PR-per-task rule above still applies.
+
+@AGENTS.md

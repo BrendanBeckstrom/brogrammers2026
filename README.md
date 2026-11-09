@@ -51,6 +51,39 @@ make index                # create Elastic indexes, bulk load chunks
 | `OTEL_SERVICE_NAME`, `OTEL_EXPORTER_OTLP_ENDPOINT`, `OTEL_EXPORTER_OTLP_HEADERS` | ingest, API | OpenTelemetry export to Dash0 |
 | `DEBRIEF_CACHE` | API | `on` serves cached answers for the golden stacks (offline demo) |
 
+## Deploy
+
+GitOps through Argo CD, operated through [Radar](https://radarhq.io), on the [Radar hackathon starter](https://github.com/skyhook-io/cnh-starter) layout:
+
+- Every push to `main` runs `.github/workflows/deploy.yaml`: it builds one image from the root `Dockerfile` (the API plus the built web app, on port 8080), pushes it to GHCR, and commits the new tag into `deploy/kustomization.yaml`.
+- Argo CD in our vcluster syncs `deploy/` (Kustomize) into namespace `team-<team>`. The platform routes `https://<team>.cnh.radarhq.io` to Service `app`, port 80. The page footer shows the deployed commit (from `/api/version`).
+- We watch syncs, rollouts, logs and Checks in Radar Cloud; agents use Radar's MCP server (see `AGENTS.md` and `.agents/skills/`).
+
+Once the team name is known:
+
+```bash
+./scripts/setup.sh <team>   # fills in the team name and GitHub repo in deploy/, argocd/, examples/, AGENTS.md
+```
+
+Then apply `argocd/application.yaml` to the cluster once (through Radar) to start the sync.
+
+### Secrets
+
+The repo and the image are public, so the app reads its keys from the Kubernetes Secret `app-credentials` in `team-<team>`. **A person creates it by hand: never an agent, and never committed.** It has five keys: `elastic-url`, `elastic-api-key`, `llm-api-key`, `otel-endpoint` and `otel-headers`. Create it in Radar Cloud (**Resources** > **Secrets** > **+**), or with kubectl:
+
+```bash
+# Paste each value and press Enter; nothing is echoed.
+read -rs ELASTIC_URL; read -rs ELASTIC_API_KEY; read -rs LLM_API_KEY; read -rs OTEL_ENDPOINT; read -rs OTEL_HEADERS
+kubectl -n team-<team> create secret generic app-credentials \
+  --from-literal=elastic-url="$ELASTIC_URL" \
+  --from-literal=elastic-api-key="$ELASTIC_API_KEY" \
+  --from-literal=llm-api-key="$LLM_API_KEY" \
+  --from-literal=otel-endpoint="$OTEL_ENDPOINT" \
+  --from-literal=otel-headers="$OTEL_HEADERS"
+```
+
+Every key is optional in `deploy/deployment.yaml`, so pods start before the Secret exists. Restart the app after creating or changing it.
+
 ## Team
 
 - Dillan Mena
