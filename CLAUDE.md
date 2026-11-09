@@ -53,3 +53,15 @@ The repo and the container image are **public**. Never commit or log `.env`, API
 ## AI disclosure
 
 The hackathon requires disclosing AI assistance. Commits made with an agent carry a `Co-Authored-By` trailer, and the README has an AI disclosure section — keep both.
+
+## Cluster and Radar
+
+We deploy with the Radar hackathon starter (skyhook-io/cnh-starter): merging a PR into `main` builds one image from the root `Dockerfile` (API plus built web app on port 8080), and Argo CD syncs `deploy/` into namespace `team-<team>`.
+
+**Differences from the starter (these win over AGENTS.md and the skills):**
+- `main` is protected: changes land only through PRs with green CI (`python`, `web`), reviewed by Gitar. Never push to `main`; "ship" means open a PR and have a person merge it.
+- The Action does not commit to `main`. It force-pushes the `deploy` branch (the built commit plus one `deploy: <sha> [skip ci]` commit that sets the image), and Argo CD's `targetRevision` is `deploy`. So there is no deploy commit to `git pull --rebase` after a merge; to check a rollout, compare the `deploy` branch head with the synced revision.
+
+Operate the cluster through the `radar-cloud` MCP, using the skills in `.agents/skills/`. The starter's agent notes follow.
+
+@AGENTS.md
