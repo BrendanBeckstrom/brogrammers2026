@@ -9,6 +9,7 @@ Run: uv run python -m ingest.download [--talks data/talks.csv] [--raw-dir data/r
 
 import argparse
 import csv
+import logging
 import sys
 from collections.abc import Callable, Sequence
 from dataclasses import dataclass, field
@@ -16,6 +17,9 @@ from pathlib import Path
 from typing import Any
 
 import yt_dlp
+from opentelemetry import trace
+
+from api import telemetry
 
 DEFAULT_TALKS = Path("data/talks.csv")
 DEFAULT_RAW_DIR = Path("data/raw")
@@ -86,6 +90,18 @@ def ydl_options(raw_dir: Path) -> dict[str, Any]:
     }
 
 
+log = logging.getLogger("debrief.ingest")
+tracer = trace.get_tracer("debrief")
+
+
+def _failed(report: DownloadReport, youtube_id: str, reason: str) -> None:
+    report.failed.append((youtube_id, reason))
+    log.warning(
+        "caption fetch failed",
+        extra={"debrief.youtube_id": youtube_id, "debrief.reason": reason[:200]},
+    )
+
+
 def fetch_captions(youtube_id: str, raw_dir: Path) -> None:
     """Ask yt-dlp for one video's English auto-captions. The only network call here."""
     url = f"https://www.youtube.com/watch?v={youtube_id}"
@@ -115,12 +131,12 @@ def download_all(
         try:
             fetch(talk.youtube_id, raw_dir)
         except Exception as exc:  # one bad talk must not stop the batch
-            report.failed.append((talk.youtube_id, _reason(exc)))
+            _failed(report, talk.youtube_id, _reason(exc))
             continue
         if target.exists():
             report.fetched.append(talk.youtube_id)
         else:
-            report.failed.append((talk.youtube_id, "no English automatic captions"))
+            _failed(report, talk.youtube_id, "no English automatic captions")
     return report
 
 
@@ -144,10 +160,23 @@ def main(argv: Sequence[str] | None = None) -> int:
     parser.add_argument("--raw-dir", type=Path, default=DEFAULT_RAW_DIR, help="caption dir")
     args = parser.parse_args(argv)
 
-    talks = read_talks(args.talks)
-    report = download_all(talks, args.raw_dir)
-    print_report(talks, report)
-    return 1 if report.failed else 0
+    telemetry.setup(telemetry.INGEST_SERVICE)
+    try:
+        with tracer.start_as_current_span("ingest.download") as span:
+            talks = read_talks(args.talks)
+            report = download_all(talks, args.raw_dir)
+            span.set_attributes(
+                {
+                    "debrief.talks": len(talks),
+                    "debrief.present": len(report.present),
+                    "debrief.fetched": len(report.fetched),
+                    "debrief.failed": len(report.failed),
+                }
+            )
+            print_report(talks, report)
+            return 1 if report.failed else 0
+    finally:
+        telemetry.flush()
 
 
 if __name__ == "__main__":

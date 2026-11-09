@@ -348,7 +348,7 @@ def test_playlist_contract_and_debug(api: TestClient) -> None:
     assert response.status_code == 200
     data = response.json()
     assert set(data) == {"total_seconds", "clips", "trace_id", "message", "debug"}
-    assert data["trace_id"] is None  # no tracer provider configured: no-op
+    assert re.fullmatch(r"[0-9a-f]{32}", data["trace_id"])  # telemetry.setup() ran at import
     clip = data["clips"][0]
     assert set(clip) == {
         "clip_id", "talk_id", "title", "speakers", "start_sec", "end_sec", "watch_url",
