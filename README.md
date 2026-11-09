@@ -6,6 +6,8 @@ Debrief turns a conference's recorded talks into a short, cited briefing for one
 
 Built by team **Brogrammers** at the [WeMakeDevs Cloud Native Hackathon](https://www.wemakedevs.org/hackathons/cnh), Salt Lake City, Nov 9, 2026.
 
+**Judges:** how Debrief uses Elastic, Gitar, Dash0, Radar and Merge Forward, with links to the evidence: [`docs/TRACKS.md`](docs/TRACKS.md).
+
 ## How it works
 
 - **Ingest (offline, once per conference):** download KubeCon auto-captions → clean → cut 60–90 s chunks → tag the tools each chunk mentions → label each talk (deep dive / intro / pitch) → index into Elastic.
