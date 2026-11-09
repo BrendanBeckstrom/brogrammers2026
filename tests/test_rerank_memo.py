@@ -2,19 +2,24 @@
 
 import json
 import re
+import statistics
+import threading
 import time
 from collections import Counter
 from collections.abc import Callable
+from types import SimpleNamespace
 from typing import Any
 
 import pytest
 from fastapi.testclient import TestClient
+from opentelemetry.sdk.metrics import MeterProvider
+from opentelemetry.sdk.metrics.export import InMemoryMetricReader
 from opentelemetry.sdk.trace import TracerProvider
 from opentelemetry.sdk.trace.export import SimpleSpanProcessor
 from opentelemetry.sdk.trace.export.in_memory_span_exporter import InMemorySpanExporter
 from opentelemetry.trace import StatusCode
 
-from api import llm, memo, rerank, routes_memo, routes_search, search
+from api import llm, memo, rerank, routes_memo, routes_search, search, telemetry
 from api.clips import count_mentions
 from api.llm import LLMError, LLMResult
 from api.main import app
@@ -102,7 +107,7 @@ def spans(monkeypatch: pytest.MonkeyPatch) -> InMemorySpanExporter:
     provider = TracerProvider()
     provider.add_span_processor(SimpleSpanProcessor(exporter))
     tracer = provider.get_tracer("debrief")
-    for module in (search, routes_search, routes_memo, llm):
+    for module in (search, routes_search, routes_memo, llm, rerank):
         monkeypatch.setattr(module, "tracer", tracer)
     return exporter
 
@@ -206,21 +211,29 @@ def test_unknown_ids_dropped_and_order_follows_model_score(use_model) -> None:
     assert scores == sorted(scores, reverse=True) and all(0 <= s <= 1 for s in scores)
 
 
-def test_one_batched_call_with_at_most_30_clips_and_short_excerpts(use_model) -> None:
+def test_small_batches_with_at_most_18_clips_and_short_excerpts(use_model) -> None:
     model = FakeLLM(scored_reply())
     playlist(use_model(model))
-    assert len(model.calls) == 1 and model.calls[0][0] == "rerank"
-    clips = prompt_clips(model.calls[0][1])
-    assert 0 < len(clips) <= rerank.TOP_N
-    assert all(len(c["excerpt"]) <= 400 for c in clips)
-    assert "our Argo CD syncs are slow" in model.calls[0][1]
-    assert "Argo CD, Prometheus" in model.calls[0][1]
+    assert search.clipmod.MAX_CLIPS <= rerank.TOP_N <= 18
+    assert 1 < len(model.calls) <= -(-rerank.TOP_N // rerank.BATCH_SIZE)
+    sent = [prompt_clips(prompt) for purpose, prompt in model.calls if purpose == "rerank"]
+    assert len(sent) == len(model.calls)
+    assert all(0 < len(batch) <= rerank.BATCH_SIZE for batch in sent)
+    ids = [c["clip_id"] for batch in sent for c in batch]
+    assert len(ids) == len(set(ids)) <= rerank.TOP_N  # each clip in exactly one batch
+    assert all(len(c["excerpt"]) <= 300 for batch in sent for c in batch)
+    for _, prompt in model.calls:
+        assert "our Argo CD syncs are slow" in prompt and "Argo CD, Prometheus" in prompt
 
 
-def test_low_scores_are_dropped_but_never_below_the_golden_minimum(use_model) -> None:
+def test_low_scores_are_dropped_but_never_below_the_golden_minimum(
+    use_model, fake: FakeSearchClient
+) -> None:
     # Everything scores under the threshold except two clips: the playlist still meets
     # the minimum, with the two high scorers first.
-    reply = scored_reply(score=lambda i, c: 0.9 if i in (3, 5) else 0.1)
+    order = elastic_order(fake)
+    high = {order[3], order[5]}
+    reply = scored_reply(score=lambda i, c: 0.9 if c["clip_id"] in high else 0.1)
     data = playlist(use_model(FakeLLM(reply)))
     clips = data["clips"]
     assert [c["score"] for c in clips[:2]] == [0.9, 0.9]
@@ -527,14 +540,274 @@ def test_memo_span_carries_counts_only(use_model, spans: InMemorySpanExporter) -
 def test_playlist_spans_cover_rerank_and_carry_no_text(
     use_model, spans: InMemorySpanExporter
 ) -> None:
-    playlist(use_model(FakeLLM(scored_reply())))
+    model = FakeLLM(scored_reply())
+    playlist(use_model(model))
     finished = spans.get_finished_spans()
     names = Counter(s.name for s in finished)
     assert {"search.elastic_rerank", "rerank.model", "search.budget"} <= set(names)
+    assert names["rerank.batch"] == len(model.calls) > 1  # one span per batch
     model_span = next(s for s in finished if s.name == "rerank.model")
-    assert model_span.attributes["debrief.rerank.input_tokens"] == 120
+    assert model_span.attributes["debrief.rerank.input_tokens"] == 120 * len(model.calls)
+    assert model_span.attributes["debrief.rerank.batches_failed"] == 0
+    for batch_span in (s for s in finished if s.name == "rerank.batch"):
+        assert batch_span.parent.span_id == model_span.context.span_id
+        attrs = batch_span.attributes
+        assert attrs["debrief.rerank.batch.outcome"] == "ok"
+        assert 0 < attrs["debrief.rerank.batch.size"] <= rerank.BATCH_SIZE
+        assert "debrief.duration_ms" in attrs and "debrief.rerank.batch.index" in attrs
     assert model_span.attributes["debrief.fallback"] is False
     for span in finished:
         for value in span.attributes.values():
             flat = " ".join(map(str, value)) if isinstance(value, tuple) else str(value)
             assert "syncs are slow" not in flat and "You run" not in flat, span.name
+
+
+# --- Bounded latency: small parallel batches, each with its own deadline ---------------
+
+TEMPLATE_STARTS = ("Mentions ", "Tagged ", "Close in meaning")
+
+
+class SleepyLLM(FakeLLM):
+    """A FakeLLM that sleeps `delay(prompt)` seconds before answering."""
+
+    def __init__(self, reply: Reply, delay: Callable[[str], float]) -> None:
+        super().__init__(reply)
+        self.delay = delay
+
+    def complete(self, prompt: str, **kw: Any) -> LLMResult:
+        time.sleep(self.delay(prompt))
+        return super().complete(prompt, **kw)
+
+
+class SlowFirstLLM(FakeLLM):
+    """Whichever call arrives first sleeps `delay` seconds; the others answer at once."""
+
+    def __init__(self, reply: Reply, delay: float) -> None:
+        super().__init__(reply)
+        self.delay = delay
+        self.lock = threading.Lock()
+        self.slow_prompt: str | None = None
+
+    def complete(self, prompt: str, **kw: Any) -> LLMResult:
+        with self.lock:
+            slow = self.slow_prompt is None
+            if slow:
+                self.slow_prompt = prompt
+        if slow:
+            time.sleep(self.delay)
+        return super().complete(prompt, **kw)
+
+
+def synthetic(n: int = 18) -> tuple[list[dict[str, Any]], list[Any]]:
+    """`n` one-chunk clips from different talks, and their records, all about Argo CD."""
+    clips = []
+    for i in range(n):
+        source = {"chunk_id": f"talk{i:02d}-10", "talk_id": f"talk{i:02d}", "start_sec": 10,
+                  "end_sec": 130, "tools": ["argo-cd"]}  # fmt: skip
+        clips.append(search.clipmod.Clip((search.Hit.from_source(source, score=1.0 - i / 100),)))
+    records = [
+        {"clip_id": c.clip_id, "matched_tools": ["argo-cd"], "quote": "Argo CD syncs."}
+        for c in clips
+    ]
+    return records, clips
+
+
+def judge(model: Any) -> tuple[rerank.Verdict, float]:
+    records, clips = synthetic()
+    started = time.perf_counter()
+    verdict = rerank.judge(model, records, clips, ["argo-cd"], NAMES, {}, "slow syncs")
+    return verdict, time.perf_counter() - started
+
+
+def test_batches_are_round_robin_and_small() -> None:
+    assert rerank.batch_indexes(18) == [
+        [0, 3, 6, 9, 12, 15],
+        [1, 4, 7, 10, 13, 16],
+        [2, 5, 8, 11, 14, 17],
+    ]
+    assert rerank.batch_indexes(7) == [[0, 2, 4, 6], [1, 3, 5]]
+    assert rerank.batch_indexes(2) == [[0, 1]]
+    assert rerank.max_tokens_for(rerank.BATCH_SIZE) <= 1000
+
+
+def test_batches_run_concurrently() -> None:
+    delay = 0.3
+    verdict, elapsed = judge(SleepyLLM(scored_reply(), lambda prompt: delay))
+    assert [b.outcome for b in verdict.batches] == ["ok", "ok", "ok"]
+    assert elapsed < 2 * delay < 3 * delay  # parallel: well under the sum of the delays
+    assert len(verdict.judged) == 18 and all(j.why for j in verdict.judged.values())
+    assert verdict.stats["input_tokens"] == 3 * 120 and verdict.stats["batches_failed"] == 0
+
+
+def test_slow_batch_falls_back_alone_within_the_deadline(
+    monkeypatch: pytest.MonkeyPatch,
+) -> None:
+    monkeypatch.setattr(rerank, "BATCH_TIMEOUT_SEC", 0.3)
+    monkeypatch.setattr(rerank, "DEADLINE_SLACK_SEC", 0.05)
+    records, _ = synthetic()
+    slow_first = records[1]["clip_id"]  # batch 1 starts with clip 1 (round-robin)
+
+    def delay(prompt: str) -> float:
+        return 2.0 if prompt_clips(prompt)[0]["clip_id"] == slow_first else 0.0
+
+    reply = scored_reply(score=lambda i, c: 0.9 - i / 10)
+    verdict, elapsed = judge(SleepyLLM(reply, delay))
+    assert elapsed < 1.0  # bounded by the deadline, not by the slow call
+    assert [b.outcome for b in verdict.batches] == ["ok", "timeout", "ok"]
+    slow_ids = set(verdict.batches[1].clip_ids)
+    assert len(slow_ids) == 6 and verdict.stats["imputed"] == 6
+    answered = [j.score for cid, j in verdict.judged.items() if cid not in slow_ids]
+    for clip_id, judgement in verdict.judged.items():
+        if clip_id in slow_ids:  # template line, placed at the median of the others
+            assert judgement.why is None
+            assert judgement.score == pytest.approx(statistics.median(answered))
+        else:
+            assert judgement.why and judgement.why.startswith("You run ")
+
+
+def test_slow_batch_keeps_model_lines_for_the_rest_of_the_playlist(
+    use_model, monkeypatch: pytest.MonkeyPatch
+) -> None:
+    monkeypatch.setattr(rerank, "BATCH_TIMEOUT_SEC", 0.3)
+    monkeypatch.setattr(rerank, "DEADLINE_SLACK_SEC", 0.05)
+    model = SlowFirstLLM(scored_reply(), delay=2.0)
+    data = playlist(use_model(model))
+    timings = data["debug"]["timings_ms"]
+    batches = sum(1 for k in timings if k.startswith("rerank_batch_"))
+    assert batches == len(model.calls) + 1 > 1  # the slow call hasn't returned yet
+    assert data["debug"]["rerank"]["model"] == f"partial: 1/{batches} batches fell back (timeout)"
+    assert timings["rerank"] < 1000
+    slow_ids = {c["clip_id"] for c in prompt_clips(model.slow_prompt or "")}
+    shown = data["clips"]
+    assert any(c["clip_id"] in slow_ids for c in shown)  # its clips still play
+    assert any(c["why"].startswith("You run ") for c in shown)  # the others keep model lines
+    for clip in shown:
+        if clip["clip_id"] in slow_ids:
+            assert clip["why"].startswith(TEMPLATE_STARTS), clip
+        elif clip["matched_tools"]:
+            assert clip["why"].startswith("You run "), clip
+
+
+def test_every_batch_late_returns_elastic_order_in_bounded_time(
+    use_model, fake: FakeSearchClient, monkeypatch: pytest.MonkeyPatch
+) -> None:
+    monkeypatch.setattr(rerank, "BATCH_TIMEOUT_SEC", 0.2)
+    monkeypatch.setattr(rerank, "DEADLINE_SLACK_SEC", 0.05)
+    started = time.perf_counter()
+    data = playlist(use_model(SleepyLLM(scored_reply(), lambda prompt: 2.0)))
+    assert time.perf_counter() - started < 1.5
+    assert data["debug"]["rerank"]["model"] == "fallback: LLMError"
+    assert data["debug"]["timings_ms"]["rerank"] < 800
+    assert [c["clip_id"] for c in data["clips"]] == elastic_order(fake)
+
+
+# --- api/llm.py: no SDK retries, warm client, token metric ----------------------------
+
+
+class FakeAnthropicSDK:
+    """Stands in for `anthropic.Anthropic`: records options and request arguments."""
+
+    def __init__(self) -> None:
+        self.options: list[dict[str, Any]] = []
+        self.requests: list[dict[str, Any]] = []
+        self.beta = SimpleNamespace(messages=SimpleNamespace(create=self.create))
+
+    def with_options(self, **options: Any) -> "FakeAnthropicSDK":
+        self.options.append(options)
+        return self
+
+    def create(self, **params: Any) -> Any:
+        self.requests.append(params)
+        return SimpleNamespace(
+            stop_reason="end_turn",
+            content=[SimpleNamespace(type="text", text="[]")],
+            usage=SimpleNamespace(input_tokens=50, output_tokens=20),
+        )
+
+
+def test_anthropic_calls_never_retry_and_rerank_skips_thinking_on_haiku(
+    spans: InMemorySpanExporter,
+) -> None:
+    backend = llm.AnthropicBackend("test-key-not-real")
+    sdk = FakeAnthropicSDK()
+    backend._sdk = sdk
+    client = llm.LLM(backend, {"rerank": "claude-haiku-5-5", "memo": "claude-sonnet-5-5"})
+    client.complete("p", purpose="rerank", max_tokens=500, json=True, timeout=6.0)
+    client.complete("p", purpose="memo", max_tokens=4000, json=True, timeout=45.0)
+    assert sdk.options == [{"timeout": 6.0, "max_retries": 0}, {"timeout": 45.0, "max_retries": 0}]
+    rerank_req, memo_req = sdk.requests
+    assert rerank_req["model"] == "claude-haiku-5-5" and rerank_req["max_tokens"] == 500
+    assert rerank_req["thinking"] == {"type": "disabled"}
+    assert rerank_req["output_config"] == {"effort": "low"}
+    assert "fallbacks" not in rerank_req and "betas" not in rerank_req  # none on Haiku
+    assert "thinking" not in memo_req and memo_req["fallbacks"] == "default"
+    prepare = [s for s in spans.get_finished_spans() if s.name == "llm.prepare"]
+    complete = [s for s in spans.get_finished_spans() if s.name == "llm.complete"]
+    assert len(prepare) == 2 and prepare[0].parent.span_id == complete[0].context.span_id
+    assert prepare[0].attributes["debrief.llm.client_cached"] is True
+
+
+def test_sdk_client_is_built_once_at_warm_up_without_retries() -> None:
+    llm.anthropic_sdk.cache_clear()
+    backend = llm.AnthropicBackend("test-key-not-real")
+    llm.LLM(backend, {"rerank": "claude-haiku-5-5"}).warm()  # builds it; no network
+    assert backend._sdk is not None and backend._sdk.max_retries == 0
+    assert llm.AnthropicBackend("test-key-not-real")._client() is backend._sdk  # shared
+    llm.anthropic_sdk.cache_clear()
+    llm.LLM(RaisingBackend(LLMError("x")), {}).warm()  # no warm(): logged, never raised
+    llm.build_llm({"LLM_PROVIDER": "anthropic"}).warm()  # no key: nothing to build
+
+
+def test_api_startup_warms_the_model_client(monkeypatch: pytest.MonkeyPatch) -> None:
+    calls: list[str] = []
+    monkeypatch.setattr(llm, "warm", lambda: calls.append("warm"))
+    with TestClient(app) as api:
+        assert api.get("/healthz").status_code == 200
+    assert calls == ["warm"]
+
+
+@pytest.fixture
+def reader(monkeypatch: pytest.MonkeyPatch) -> InMemoryMetricReader:
+    reader = InMemoryMetricReader()
+    meter = MeterProvider(metric_readers=[reader]).get_meter("debrief")
+    monkeypatch.setattr(telemetry, "instruments", telemetry.Instruments(meter))
+    return reader
+
+
+def metric_points(reader: InMemoryMetricReader, name: str) -> list[Any]:
+    data = reader.get_metrics_data()
+    return [
+        point
+        for rm in (data.resource_metrics if data else [])
+        for sm in rm.scope_metrics
+        for metric in sm.metrics
+        if metric.name == name
+        for point in metric.data.data_points
+    ]
+
+
+def test_every_model_call_records_its_tokens(reader: InMemoryMetricReader) -> None:
+    client = llm.LLM(EchoBackend(), {"rerank": "m", "memo": "m"})
+    client.complete("p", purpose="rerank", max_tokens=10)
+    client.complete("p", purpose="rerank", max_tokens=10)
+    tokens = {
+        (p.attributes["purpose"], p.attributes["provider"], p.attributes["token_type"]): p.value
+        for p in metric_points(reader, "debrief.llm.tokens")
+    }
+    assert tokens == {("rerank", "fake", "input"): 22, ("rerank", "fake", "output"): 14}
+
+
+def test_memo_dropped_lines_are_counted_by_reason(use_model, reader: InMemoryMetricReader) -> None:
+    api = use_model(None)
+    ids = clip_ids_for(api)
+    response = use_model(FakeLLM(memo_reply(ids))).post(
+        "/api/memo", json={"tools": GITOPS["tools"], "clip_ids": ids}
+    )
+    assert response.status_code == 200
+    dropped = {
+        p.attributes["reason"]: p.value
+        for p in metric_points(reader, "debrief.memo.citations_dropped")
+    }
+    # "Invented advice", "Half-invented step" and "Does not exist" cite unknown ids;
+    # "Uncited opinion" cites nothing.
+    assert dropped == {"unknown_clip": 3, "uncited": 1}

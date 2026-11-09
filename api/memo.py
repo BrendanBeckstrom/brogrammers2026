@@ -15,6 +15,7 @@ from collections.abc import Mapping, Sequence
 from dataclasses import dataclass, field
 from typing import Any
 
+from api import telemetry
 from api.llm import LLMClient
 
 MAX_CLIP_IDS = 25
@@ -137,6 +138,22 @@ def cited_line(item: Any, requested: set[str], ids_key: str = "clip_ids") -> Lin
     return Line(text, list(dict.fromkeys(ids)))
 
 
+def record_drop(item: Any, requested: set[str], ids_key: str = "clip_ids") -> None:
+    """Count one dropped line in telemetry, with its reason and the bad id; never its text."""
+    raw = item.get(ids_key) if isinstance(item, dict) else None
+    ids = [raw] if isinstance(raw, str) else raw if isinstance(raw, list) else []
+    unknown = [i for i in ids if not (isinstance(i, str) and i in requested)]
+    if not ids:
+        telemetry.record_memo_line_dropped("uncited")
+    elif unknown:
+        first = unknown[0]
+        telemetry.record_memo_line_dropped(
+            "unknown_clip", first if isinstance(first, str) else None
+        )
+    else:  # cited, but with no text left after cleaning
+        telemetry.record_memo_line_dropped("other")
+
+
 def validate(data: Mapping[str, Any], requested: Sequence[str]) -> Memo:
     """Keep only the lines that cite requested clips; count what was dropped."""
     allowed = set(requested)
@@ -150,6 +167,7 @@ def validate(data: Mapping[str, Any], requested: Sequence[str]) -> Memo:
             line = cited_line(item, allowed, ids_key)
             if line is None:
                 dropped += 1
+                record_drop(item, allowed, ids_key)
             elif len(kept) < limit:
                 kept.append(line)
         return kept
@@ -157,6 +175,7 @@ def validate(data: Mapping[str, Any], requested: Sequence[str]) -> Memo:
     summary = cited_line(data.get("summary"), allowed)
     if data.get("summary") is not None and summary is None:
         dropped += 1
+        record_drop(data.get("summary"), allowed)
     takeaways = lines("takeaways", TAKEAWAYS)
     actions = lines("action_items", MAX_ACTIONS)
     watch: list[Line] = []
