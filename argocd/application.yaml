@@ -5,16 +5,16 @@ apiVersion: argoproj.io/v1alpha1
 kind: Application
 metadata:
   name: app
-  namespace: team-__TEAM__
+  namespace: team-brogrammers
 spec:
-  project: team-__TEAM__
+  project: team-brogrammers
   source:
-    repoURL: https://github.com/OWNER/REPO.git
+    repoURL: https://github.com/BrendanBeckstrom/brogrammers2026.git
     targetRevision: deploy
     path: deploy
   destination:
     server: https://kubernetes.default.svc
-    namespace: team-__TEAM__
+    namespace: team-brogrammers
   syncPolicy:
     automated:
       prune: true
