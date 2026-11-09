@@ -95,7 +95,11 @@ def _segments(sentences: Sequence[Sentence]) -> list[list[Sentence]]:
         segments[-1].append(sentence)
     merged: list[list[Sentence]] = []
     for segment in segments:
-        if merged and segment[-1].end_sec - segment[0].start_sec < TAIL_SEC:
+        if (
+            merged
+            and segment[-1].end_sec - segment[0].start_sec < TAIL_SEC
+            and segment[-1].end_sec - merged[-1][0].start_sec <= HARD_MAX_SEC
+        ):
             merged[-1].extend(segment)
         else:
             merged.append(segment)

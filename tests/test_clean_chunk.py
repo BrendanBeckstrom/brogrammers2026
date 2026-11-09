@@ -137,6 +137,17 @@ def test_short_caption_segment_after_gap_joins_previous() -> None:
     assert chunks[0].text.endswith("s85")
 
 
+def test_short_caption_segment_after_long_segment_does_not_join() -> None:
+    sentences = [Sentence(float(t), float(t) + 4.0, f"s{t}") for t in range(0, 240, 5)]
+    sentences += [Sentence(float(t), float(t) + 4.0, f"s{t}") for t in range(300, 310, 5)]
+
+    chunks = chunk_sentences(sentences)
+
+    assert chunks[-1].start_sec == 300
+    assert chunks[-1].end_sec == 309
+    assert not any(chunk.start_sec < 300 < chunk.end_sec for chunk in chunks)
+
+
 def test_cli_writes_contract_records(tmp_path: Path, capsys: pytest.CaptureFixture[str]) -> None:
     raw = tmp_path / "raw"
     raw.mkdir()
