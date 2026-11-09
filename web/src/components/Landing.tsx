@@ -107,8 +107,8 @@ export function Landing({ toolNames, busy, onStart, onExample }: Props) {
             </h2>
             <div className="mt-5 max-w-prose space-y-4 text-lg leading-relaxed text-ink">
               <p>
-                One person gets to a handful of talks. The recordings arrive weeks later, nobody has time to scrub
-                hours of video for the part about their tools, and the team back home hears &ldquo;it was great.&rdquo;
+                One person gets to a handful of talks. The recordings go online, but nobody has time to scrub
+                hours of video for the part about their tools, so the team back home hears &ldquo;it was great.&rdquo;
               </p>
               <p>
                 Debrief is for the teammates who stayed home and{' '}
@@ -176,7 +176,7 @@ export function Landing({ toolNames, busy, onStart, onExample }: Props) {
             ))}
           </ul>
           <p className="mt-5 text-sm text-ink-2">
-            Clips come from the {CONFERENCE} recordings, the latest KubeCon with talks online.
+            Clips come from talks recorded at {CONFERENCE}.
           </p>
         </div>
       </section>
