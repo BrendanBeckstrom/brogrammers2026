@@ -7,7 +7,7 @@
 - Deploy: follows the Radar starter (skyhook-io/cnh-starter), not `deploy/k8s/`. Manifests live in `deploy/` (Kustomize), Argo CD syncs them from `main`, a GitHub Action builds one image per push to `main`. The image serves the API and the built web app together on port 8080 behind Service `app` port 80 at `https://<team>.cnh.radarhq.io`. The ingest Job uses the same image. Secrets come from a Kubernetes Secret created by a person, never committed.
 - Elastic: a serverless Elasticsearch project at `ELASTIC_URL`.
 - Language model: Claude or OpenAI, selected by `LLM_PROVIDER` (`anthropic` | `openai`); still only `api/llm.py` talks to the provider.
-- Code host: GitHub (DillanMena/wemakedevs-brogrammers); one PR per task titled `Task N: ...`, reviewed by Gitar. Nothing is pushed until Gitar is installed on the repo.
+- Code host: GitHub (BrendanBeckstrom/brogrammers2026); one PR per task titled `Task N: ...`, reviewed by Gitar. Nothing is pushed until Gitar is installed on the repo.
 - Search grouping: group hits by `talk_id` in Python (at most three per talk), as the Contracts section says. Where the Product/Architecture/Data pipeline sections (from the overview) say "collapse" or list a bare "Argo" alias, the Contracts and Tasks sections win.
 
 **How to use this brief:** build version one exactly as described: stack in, clip playlist out, memo on request. Work through the tasks in order where they depend on each other; each task ends with a check. Run it and paste its output into the PR. If a check still fails after two attempts at a fix, stop and report what you tried.
