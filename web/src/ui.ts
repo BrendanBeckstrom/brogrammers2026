@@ -8,7 +8,7 @@ export const btnSecondary =
   'inline-flex items-center justify-center gap-2 rounded-xl border border-line-strong bg-surface px-4 py-2 text-sm font-semibold text-ink hover:bg-surface-2 aria-disabled:cursor-not-allowed aria-disabled:opacity-60 motion-safe:transition-colors'
 
 export const fieldClass =
-  'mt-1 block w-full rounded-xl border border-line-strong bg-surface px-3 py-2 text-ink placeholder:text-ink-2'
+  'mt-1 block w-full rounded-xl border border-line-strong bg-surface px-3 py-2 text-ink placeholder:text-ink-3 placeholder:italic'
 
 export const sectionCard = 'rounded-3xl border border-line bg-surface p-5 shadow-sm sm:p-8'
 
