@@ -22,6 +22,7 @@ from functools import lru_cache
 from pathlib import Path
 from typing import Any, Literal, Protocol
 
+import elastic_transport
 from opentelemetry import trace
 
 from api import clips as clipmod
@@ -64,6 +65,10 @@ _pool = ThreadPoolExecutor(max_workers=12, thread_name_prefix="search")
 class SearchBackendError(RuntimeError):
     """Elastic failed or is not configured. The message never holds secrets."""
 
+    def __init__(self, message: str, *, unreachable: bool = False) -> None:
+        super().__init__(message)
+        self.unreachable = unreachable
+
 
 class SearchClient(Protocol):
     """The two Elastic calls Debrief needs; `FakeSearchClient` in the tests implements it."""
@@ -87,13 +92,23 @@ class ElasticSearchClient:
         try:
             return dict(self._es.search(index=index, body=body).body)
         except Exception as e:  # ApiError, TransportError: keep the type, drop details
-            raise SearchBackendError(f"Elastic search failed ({type(e).__name__})") from e
+            unreachable = isinstance(
+                e, (elastic_transport.ConnectionError, elastic_transport.ConnectionTimeout)
+            )
+            raise SearchBackendError(
+                f"Elastic search failed ({type(e).__name__})", unreachable=unreachable
+            ) from e
 
     def mget(self, index: str, ids: Sequence[str]) -> list[dict[str, Any]]:
         try:
             docs = self._es.mget(index=index, ids=list(ids), source_includes=SOURCE_FIELDS)
         except Exception as e:
-            raise SearchBackendError(f"Elastic mget failed ({type(e).__name__})") from e
+            unreachable = isinstance(
+                e, (elastic_transport.ConnectionError, elastic_transport.ConnectionTimeout)
+            )
+            raise SearchBackendError(
+                f"Elastic mget failed ({type(e).__name__})", unreachable=unreachable
+            ) from e
         return [d["_source"] for d in docs["docs"] if d.get("found")]
 
 

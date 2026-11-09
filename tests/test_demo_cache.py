@@ -5,6 +5,7 @@ from collections.abc import Iterator, Sequence
 from pathlib import Path
 from typing import Any
 
+import elastic_transport
 import pytest
 from fastapi.testclient import TestClient
 from opentelemetry.sdk.trace import TracerProvider
@@ -39,14 +40,25 @@ class Untouchable:
         raise AssertionError("a cache hit must not call the model")
 
 
-class Offline:
-    """Elastic with the network off."""
+class FailingElastic:
+    """Elastic transport that fails with the supplied cause."""
+
+    def __init__(self, cause: Exception) -> None:
+        self.cause = cause
 
     def search(self, index: str, body: dict[str, Any]) -> dict[str, Any]:
-        raise search.SearchBackendError("Elastic search failed (ConnectionError)")
+        raise self.cause
 
-    def mget(self, index: str, ids: Sequence[str]) -> list[dict[str, Any]]:
-        raise search.SearchBackendError("Elastic mget failed (ConnectionError)")
+    def mget(
+        self, index: str, ids: Sequence[str], source_includes: Sequence[str]
+    ) -> dict[str, Any]:
+        raise self.cause
+
+
+def elastic_client(cause: Exception) -> search.ElasticSearchClient:
+    client = object.__new__(search.ElasticSearchClient)
+    client._es = FailingElastic(cause)
+    return client
 
 
 @pytest.fixture
@@ -179,8 +191,30 @@ def test_miss_with_the_network_off_is_a_clear_503(cache_dir: Path, client: TestC
         assert response.headers[demo_cache.HEADER] == "miss"
 
 
-def test_elastic_errors_are_not_offline_cache_misses(cache_dir: Path, client: TestClient) -> None:
-    use(Offline())
+@pytest.mark.parametrize(
+    "cause_type", [elastic_transport.ConnectionError, elastic_transport.ConnectionTimeout]
+)
+def test_elastic_connection_failures_are_offline_cache_misses(
+    cache_dir: Path, client: TestClient, cause_type: type[Exception]
+) -> None:
+    use(elastic_client(cause_type("network is unavailable")))
+    for method, path, body in (
+        ("post", "/api/playlist", GITOPS),
+        ("post", "/api/memo", {"tools": ["argo-cd"], "clip_ids": ["talka0000-0"]}),
+        ("get", "/api/tools", None),
+        ("get", "/api/talks", None),
+        ("get", "/api/clips/talka0000-0", None),
+    ):
+        response = getattr(client, method)(path, **({"json": body} if body else {}))
+        assert response.status_code == 503, (path, response.text)
+        assert "offline demo cache" in response.json()["detail"]
+        assert response.headers[demo_cache.HEADER] == "miss"
+
+
+def test_other_elastic_errors_are_not_offline_cache_misses(
+    cache_dir: Path, client: TestClient
+) -> None:
+    use(elastic_client(RuntimeError("server rejected request")))
     for method, path, body in (
         ("post", "/api/playlist", GITOPS),
         ("post", "/api/memo", {"tools": ["argo-cd"], "clip_ids": ["talka0000-0"]}),
@@ -226,7 +260,7 @@ def test_flag_off_is_a_no_op(
     assert demo_cache.HEADER not in response.headers
     assert "cache" not in response.json()["debug"]
     assert response.json()["clips"]  # the live answer, not the stored empty one
-    use(Offline())
+    use(demo_cache.OfflineSearchClient())
     assert client.post("/api/playlist", json=GITOPS).status_code == 502  # unchanged
 
 
@@ -353,7 +387,7 @@ def test_built_cache_passes_golden_offline(
     # 2. Network off, cache on: every golden stack passes, with and without rerank.
     monkeypatch.setenv("DEBRIEF_CACHE", "on")
     monkeypatch.setenv("DEBRIEF_CACHE_DIR", str(tmp_path))
-    use(Offline())
+    use(demo_cache.OfflineSearchClient())
 
     def fetch(body: dict[str, Any]) -> dict[str, Any]:
         response = client.post("/api/playlist", json=body)
