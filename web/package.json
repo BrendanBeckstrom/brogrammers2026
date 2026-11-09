@@ -11,6 +11,7 @@
     "test": "vitest run"
   },
   "dependencies": {
+    "@dash0/sdk-web": "0.30.0",
     "react": "19.3.1",
     "react-dom": "19.3.1"
   },

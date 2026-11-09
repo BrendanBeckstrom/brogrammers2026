@@ -62,6 +62,16 @@ spec:
                   name: app-credentials
                   key: otel-headers
                   optional: true
+            # Browser RUM (GET /api/config -> web/src/rum.ts): a Dash0 token limited to
+            # "Ingesting". Unset means the browser sends no telemetry.
+            - name: DASH0_WEB_TOKEN
+              valueFrom:
+                secretKeyRef:
+                  name: app-credentials
+                  key: dash0-web-token
+                  optional: true
+            - name: DASH0_WEB_ENDPOINT
+              value: https://ingress.us-west-2.aws.dash0.com
           resources:
             requests:
               cpu: 100m
