@@ -2,7 +2,9 @@
 
 One RRF request (keyword + semantic) ranks the chunks; the two halves also run on their
 own as small `_id`-only queries, in parallel, so every clip says which half found it.
-Elastic sits behind `SearchClient`, so unit tests run against a fake.
+A fifth request, also in parallel, finds the stack's significant terms: a `significant_text`
+aggregation over a sample of the chunks that match the tools ("what this conference said
+about your stack"). Elastic sits behind `SearchClient`, so unit tests run against a fake.
 
 Spans carry ids, counts, scores and timings only, never transcript text or the pain
 sentence.
@@ -13,6 +15,8 @@ from __future__ import annotations
 import contextvars
 import logging
 import os
+import re
+import threading
 import time
 from collections.abc import Callable, Mapping, Sequence
 from concurrent.futures import Future, ThreadPoolExecutor
@@ -53,6 +57,27 @@ SOURCE_FIELDS = [
     "talk_label",
 ]
 TOOLS_PATH = Path(__file__).resolve().parent.parent / "data" / "tools.yaml"
+# Significant terms: JLH over a sample of the best keyword-half chunks, the whole index as
+# background. The playlist waits for them only until SIGNIFICANT_TIMEOUT_SEC after the
+# searches start, so they never hold up the answer.
+SIGNIFICANT_TERMS = 8
+SIGNIFICANT_CANDIDATES = 40  # asked of Elastic before the Python filter below
+SIGNIFICANT_SHARD_SIZE = 200
+SIGNIFICANT_MIN_DOCS = 3
+SIGNIFICANT_TIMEOUT_SEC = 1.5
+# Auto-caption filler and talk-speak that a sample of chunks can make look significant.
+FILLER_WORDS = frozenset(
+    """um uh umm uhh hmm ah oh like gonna wanna gotta yeah yep yes okay ok right so
+    just really actually basically literally kind sort know mean think thing things stuff
+    lot lots pretty going want get got let see look said say says well also much many
+    had has have was were did does done been being able need make made way time times
+    people folks guys everybody everyone something anything everything one two three
+    first next last today slide slides talk question questions thank thanks awesome cool
+    great good nice sure maybe probably different example data information use uses used
+    using per create change""".split()
+)
+_TERM = re.compile(r"^[a-z][a-z0-9]{2,}$")
+_WORD = re.compile(r"[^\W_]+")
 
 Filter = Literal["all", "attended", "missed"]
 
@@ -277,6 +302,159 @@ def merge_reranked(
     return head + [{**h, "_score": floor - 1.0 - i / max(1, len(tail))} for i, h in enumerate(tail)]
 
 
+# --- Significant terms ----------------------------------------------------------------
+
+
+def _words(text: str) -> set[str]:
+    return {w for w in _WORD.findall(text.lower()) if w}
+
+
+@lru_cache(maxsize=1)
+def tool_words() -> frozenset[str]:
+    """Every word of every tool's name, id, aliases and caption spellings in tools.yaml."""
+    words: set[str] = set()
+    for tool in tool_catalog().values():
+        for form in (tool.name, tool.id, *tool.terms):
+            words |= _words(form)
+    return frozenset(words)
+
+
+_speakers: dict[str, frozenset[str]] = {}
+_speakers_lock = threading.Lock()
+
+
+def speaker_words(client: SearchClient) -> frozenset[str]:
+    """Words of every speaker's name (the `talks` index), fetched once per process.
+
+    Speakers say their names in every intro, so names look significant. On failure this
+    returns an empty set and tries again next time.
+    """
+    with _speakers_lock:
+        cached = _speakers.get("words")
+    if cached is not None:
+        return cached
+    try:
+        talks = list_talks(client)
+    except Exception as e:  # SearchBackendError or a bad document: terms go on without it
+        log.warning("speaker names unavailable: %s", type(e).__name__)
+        return frozenset()
+    words = frozenset(w for t in talks for s in t["speakers"] for w in _words(str(s)))
+    with _speakers_lock:
+        _speakers["words"] = words
+    return words
+
+
+def excluded_terms(client: SearchClient) -> list[str]:
+    """What Elastic must never return as a significant term (sorted, for a stable body)."""
+    return sorted(tool_words() | FILLER_WORDS | speaker_words(client))
+
+
+def significant_terms_body(
+    tool_ids: Sequence[str], terms: Sequence[str], exclude: Sequence[str]
+) -> dict[str, Any]:
+    """`significant_text` on `text` over a sample of the keyword-half chunks."""
+    return {
+        "size": 0,
+        "track_total_hits": False,
+        "query": keyword_query(tool_ids, terms),
+        "aggs": {
+            "sample": {
+                "sampler": {"shard_size": SIGNIFICANT_SHARD_SIZE},
+                "aggs": {
+                    "keywords": {
+                        "significant_text": {
+                            "field": "text",
+                            "size": SIGNIFICANT_CANDIDATES,
+                            "min_doc_count": SIGNIFICANT_MIN_DOCS,
+                            "filter_duplicate_text": True,
+                            "jlh": {},
+                            "exclude": list(exclude),
+                        }
+                    }
+                },
+            }
+        },
+    }
+
+
+def parse_significant_terms(
+    response: Mapping[str, Any], exclude: Sequence[str] | frozenset[str] = frozenset()
+) -> list[dict[str, Any]]:
+    """At most SIGNIFICANT_TERMS `{term, score, doc_count}`, best first.
+
+    Drops excluded words, terms under 3 characters or starting with a digit, and a plural
+    whose singular already made the list (or the other way round).
+    """
+    excluded = set(exclude)
+    sample = (response.get("aggregations") or {}).get("sample") or {}
+    buckets = (sample.get("keywords") or {}).get("buckets") or []
+    out: list[dict[str, Any]] = []
+    stems: set[str] = set()
+    for bucket in sorted(buckets, key=lambda b: -float(b.get("score") or 0.0)):
+        term = str(bucket.get("key") or "").lower()
+        if not _TERM.match(term) or term in excluded:
+            continue
+        stem = term[:-1] if term.endswith("s") and len(term) > 4 else term
+        if stem in stems:
+            continue
+        stems.add(stem)
+        out.append(
+            {
+                "term": term,
+                "score": round(float(bucket.get("score") or 0.0), 3),
+                "doc_count": int(bucket.get("doc_count") or 0),
+            }
+        )
+        if len(out) == SIGNIFICANT_TERMS:
+            break
+    return out
+
+
+def significant_terms(
+    client: SearchClient, tool_ids: Sequence[str], terms: Sequence[str]
+) -> tuple[list[dict[str, Any]], float, dict[str, Any]]:
+    """(terms, milliseconds, the request body). Raises SearchBackendError."""
+    with tracer.start_as_current_span("search.significant_terms") as span:
+        started = time.perf_counter()
+        exclude = excluded_terms(client)
+        body = significant_terms_body(tool_ids, terms, exclude)
+        response = client.search(CLIPS_INDEX, body)
+        found = parse_significant_terms(response, exclude)
+        elapsed = _ms(started)
+        sample = (response.get("aggregations") or {}).get("sample") or {}
+        span.set_attributes(
+            {
+                "debrief.tools": list(tool_ids),
+                "debrief.sample_docs": int(sample.get("doc_count") or 0),
+                "debrief.candidates": len((sample.get("keywords") or {}).get("buckets") or []),
+                "debrief.excluded": len(exclude),
+                "debrief.terms": len(found),
+                "debrief.elastic_took_ms": int(response.get("took", 0)),
+                "debrief.duration_ms": elapsed,
+            }
+        )
+        return found, elapsed, body
+
+
+def _collect_terms(
+    future: Future[Any], search_started: float, timings: dict[str, float], debug: dict[str, Any]
+) -> list[dict[str, Any]]:
+    """The significant terms if they are ready by the deadline, else [] (never raises)."""
+    wait = max(0.0, SIGNIFICANT_TIMEOUT_SEC - (time.perf_counter() - search_started))
+    try:
+        found, timings["significant_terms"], debug["terms_query"] = future.result(timeout=wait)
+    except FutureTimeout:
+        debug["terms_status"] = "timeout"
+        log.warning("significant terms missed the deadline")
+        return []
+    except Exception as e:  # SearchBackendError or a malformed answer: no terms, same playlist
+        debug["terms_status"] = "error"
+        log.warning("significant terms failed: %s", type(e).__name__)
+        return []
+    debug["terms_status"] = "ok"
+    return found
+
+
 # --- Playlist -------------------------------------------------------------------------
 
 
@@ -294,10 +472,13 @@ def _ms(started: float) -> float:
     return round((time.perf_counter() - started) * 1000, 1)
 
 
-def _submit(fn: Callable[[], Any]) -> Future[Any]:
+def submit(fn: Callable[[], Any]) -> Future[Any]:
     """Run `fn` on the pool inside a copy of the current context, so spans nest."""
     ctx = contextvars.copy_context()
     return _pool.submit(ctx.run, fn)
+
+
+_submit = submit
 
 
 def _timed_search(
@@ -324,7 +505,7 @@ def _tool_hits(response: Mapping[str, Any]) -> dict[str, int]:
 
 
 def _empty(message: str, debug: dict[str, Any]) -> dict[str, Any]:
-    return {"total_seconds": 0, "clips": [], "message": message, "debug": debug}
+    return {"total_seconds": 0, "clips": [], "terms": [], "message": message, "debug": debug}
 
 
 def _names(tool_ids: Sequence[str]) -> str:
@@ -354,6 +535,9 @@ def build_playlist(
         "hits": 0,
         "talks": 0,
         "rerank": rerank_status,
+        "terms_query": None,
+        "terms_status": "off",
+        "uncovered_tools": [],
     }
     if not tool_ids:
         return _empty("Pick at least one tool from your stack.", debug)
@@ -379,6 +563,7 @@ def build_playlist(
             lambda: _timed_search(client, "search.elastic_rerank", reranked_body, attrs)
         )
     hybrid_f = _submit(lambda: _timed_search(client, "search.hybrid", body, attrs))
+    terms_f = _submit(lambda: significant_terms(client, tool_ids, terms))
     keyword_f = _submit(
         lambda: _timed_search(client, "search.keyword", ids_body(keyword, filter_, tool_ids), attrs)
     )
@@ -408,6 +593,7 @@ def build_playlist(
 
     covered = _tool_hits(keyword_resp)
     uncovered = [t for t in tool_ids if not covered.get(t)]
+    debug["uncovered_tools"] = uncovered
     if len(uncovered) == len(tool_ids):
         where = {"all": "", "attended": " you attended", "missed": " you missed"}[req.filter]
         timings["total"] = _ms(total_started)
@@ -522,6 +708,7 @@ def build_playlist(
             }
         )
 
+    found_terms = _collect_terms(terms_f, search_started, timings, debug)
     debug["hits"] = len(hits)
     debug["talks"] = len(groups)
     timings["total"] = _ms(total_started)
@@ -530,7 +717,13 @@ def build_playlist(
         message = "No clips fit this filter and budget."
     elif uncovered:
         message = f"No talk mentions {_names(uncovered)}; showing the rest of your stack."
-    return {"total_seconds": total_seconds, "clips": records, "message": message, "debug": debug}
+    return {
+        "total_seconds": total_seconds,
+        "clips": records,
+        "terms": found_terms,
+        "message": message,
+        "debug": debug,
+    }
 
 
 # --- Tools, talks, clip text -----------------------------------------------------------

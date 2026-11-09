@@ -1,12 +1,15 @@
 """Demo cache (task 13): with DEBRIEF_CACHE=on, known requests are answered from api/cache/.
 
 Demo safety on bad venue Wi-Fi. `python -m tests.build_cache` (or `make cache`) sends the golden
-stacks, their memos, the demo go.mod, /api/tools, /api/talks and every returned clip to a
-running API and writes one JSON file per answer here. With the flag on, the routes look the
-request up first: a hit is returned without touching Elastic or the model, marked with the
-header `X-Debrief-Cache: hit` (and `debug.cache` when the answer has a `debug` object); a miss
-falls through to the live path, and if that is unreachable the route answers 503 with a clear
-message instead of crashing. With the flag off nothing here runs.
+stacks, their memos, the demo go.mod, /api/tools, /api/talks, /api/insights and every returned
+clip to a running API and writes one JSON file per answer here. Saving a playlist
+(POST /api/playlists) and loading one (GET /api/playlists/{id}) are never cached: a save must
+reach Elastic. A cached playlist from before significant terms is served with `terms: []`.
+With the flag on, the routes look the request up first: a hit is returned without touching
+Elastic or the model, marked with the header `X-Debrief-Cache: hit` (and `debug.cache` when
+the answer has a `debug` object); a miss falls through to the live path, and if that is
+unreachable the route answers 503 with a clear message instead of crashing. With the flag
+off nothing here runs.
 
 A file is keyed by the route plus a SHA-256 of the normalised request body: sorted keys,
 sorted and de-duplicated id lists (`tools`, `attended_talk_ids`, `clip_ids`), and an empty
@@ -37,7 +40,7 @@ HIT, MISS = "hit", "miss"
 SPAN_ATTRIBUTE = "cache.hit"
 # Request fields that are sets of ids: order and repeats never change the answer.
 ID_LISTS = ("tools", "attended_talk_ids", "clip_ids")
-ROUTES = ("playlist", "memo", "stack", "tools", "talks", "clips")
+ROUTES = ("playlist", "memo", "stack", "tools", "talks", "clips", "insights")
 
 log = logging.getLogger("debrief.cache")
 

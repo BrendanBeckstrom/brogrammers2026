@@ -8,7 +8,16 @@ from pathlib import Path
 from fastapi import FastAPI
 from fastapi.staticfiles import StaticFiles
 
-from api import llm, routes_config, routes_memo, routes_search, routes_stack, telemetry
+from api import (
+    llm,
+    routes_config,
+    routes_memo,
+    routes_playlists,
+    routes_search,
+    routes_stack,
+    store,
+    telemetry,
+)
 
 # Set by the image build (the commit's short SHA); "dev" locally.
 APP_VERSION = os.environ.get("APP_VERSION", "dev")
@@ -24,6 +33,8 @@ async def lifespan(_: FastAPI) -> AsyncIterator[None]:
     # Import and build the model SDK client before the first request. Done lazily inside
     # the first model call, it showed up in production as ~3.3 s before the HTTP request.
     llm.warm()
+    # Create the playlists, queries and answers indexes now, in the background.
+    store.warm()
     yield
 
 
@@ -49,6 +60,7 @@ def version() -> dict[str, str]:
 app.include_router(routes_search.router)
 app.include_router(routes_stack.router)
 app.include_router(routes_memo.router)
+app.include_router(routes_playlists.router)
 app.include_router(routes_config.router)
 
 # Keep this at the end of the file: a mount at "/" matches every path, so routes

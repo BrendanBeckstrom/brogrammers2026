@@ -81,6 +81,26 @@ def why_names_tool(clip: dict[str, Any]) -> bool:
     return False
 
 
+def terms_check(response: dict[str, Any]) -> Check:
+    """`terms`, when present, is a list of at most 8 `{term, score, doc_count}`."""
+    if "terms" not in response:
+        return Check("terms is a list when present", True, "absent")
+    terms = response["terms"]
+    ok = (
+        isinstance(terms, list)
+        and len(terms) <= 8
+        and all(
+            isinstance(t, dict)
+            and isinstance(t.get("term"), str)
+            and isinstance(t.get("score"), int | float)
+            and isinstance(t.get("doc_count"), int)
+            for t in terms
+        )
+    )
+    detail = ", ".join(t["term"] for t in terms[:8]) if ok else repr(terms)[:120]
+    return Check("terms is a list when present", ok, detail or "[]")
+
+
 def check_playlist(stack: dict[str, Any], response: dict[str, Any]) -> list[Check]:
     """Every structural check from the brief that applies to this stack."""
     clips: list[dict[str, Any]] = response.get("clips") or []
@@ -88,6 +108,7 @@ def check_playlist(stack: dict[str, Any], response: dict[str, Any]) -> list[Chec
         return [
             Check("zero clips", not clips, f"{len(clips)} clips"),
             Check("has a message", bool(response.get("message")), repr(response.get("message"))),
+            terms_check(response),
         ]
 
     per_talk = Counter(c["talk_id"] for c in clips)
@@ -135,6 +156,7 @@ def check_playlist(stack: dict[str, Any], response: dict[str, Any]) -> list[Chec
             f"{matched}/{len(clips)}",
         ),
     ]
+    checks.append(terms_check(response))
     unnamed = [c.get("clip_id", "?") for c in clips if not why_names_tool(c)]
     checks.append(
         Check(

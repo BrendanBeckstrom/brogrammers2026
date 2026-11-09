@@ -4,7 +4,7 @@
 
 Sends, and stores one JSON file per answer (see api/demo_cache.py for the key):
 
-- `GET /api/tools` and `GET /api/talks`
+- `GET /api/tools`, `GET /api/talks` and `GET /api/insights`
 - the demo go.mod (tests/fixtures/go.mod) through `POST /api/stack`, as the web app sends it
 - every stack in tests/golden_stacks.yaml (a `dependency_file` stack is resolved through
   /api/stack first), plus the demo go.mod stack, to `POST /api/playlist` with rerank off and on
@@ -244,6 +244,16 @@ def build(
                 continue
             save("clips", {"clip_id": clip_id}, result)
         out(f"clips: {len(clip_ids) - clip_failures}/{len(clip_ids)} stored")
+
+    # Last, so the counts include this run's playlist requests.
+    try:
+        insights = api.get("/api/insights")
+    except ApiError as e:
+        summary.failures.append(f"insights: {e}")
+        out(f"FAIL insights: {e}")
+    else:
+        save("insights", None, insights)
+        out(f"insights: {insights.get('requests')} requests")
 
     for path in list(summary.written):
         hits = find_secrets(path.read_text(encoding="utf-8"))
