@@ -679,10 +679,7 @@
           "plugin": {
             "kind": "PieChart",
             "spec": {
-              "calculation": "sum",
-              "visual": {
-                "palette": "categorical"
-              }
+              "calculation": "sum"
             }
           },
           "queries": [

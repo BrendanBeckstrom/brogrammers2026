@@ -440,8 +440,6 @@ spec:
           kind: PieChart
           spec:
             calculation: sum
-            visual:
-              palette: categorical
         queries:
           - kind: TimeSeriesQuery
             spec:
