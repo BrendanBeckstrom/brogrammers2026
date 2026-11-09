@@ -66,8 +66,9 @@ def model_client() -> LLMClient:
 Model = Annotated[LLMClient, Depends(model_client)]
 
 
-def _backend_error(e: SearchBackendError) -> HTTPException:
-    if demo_cache.enabled():
+def _backend_error(e: SearchBackendError, client: SearchClient | None = None) -> HTTPException:
+    offline = isinstance(client, demo_cache.OfflineSearchClient) or e.unreachable
+    if demo_cache.enabled() and offline:
         return demo_cache.miss_error(str(e))
     return HTTPException(status_code=502, detail=str(e))
 
@@ -106,7 +107,7 @@ def playlist(
         except SearchBackendError as e:
             elapsed = (time.perf_counter() - started) * 1000
             telemetry.record_playlist(elapsed, 0, tool_ids, body.filter, "error")
-            raise _backend_error(e) from e
+            raise _backend_error(e, client) from e
         elapsed = (time.perf_counter() - started) * 1000
         clips = len(result["clips"])
         outcome = "ok" if clips else "empty"
@@ -143,7 +144,7 @@ def tools(client: Client, response: Response) -> list[dict[str, Any]]:
         try:
             rows = search.list_tools(client)
         except SearchBackendError as e:
-            raise _backend_error(e) from e
+            raise _backend_error(e, client) from e
         span.set_attribute("debrief.tools_count", len(rows))
         return rows
 
@@ -158,7 +159,7 @@ def talks(client: Client, response: Response) -> list[dict[str, Any]]:
         try:
             rows = search.list_talks(client)
         except SearchBackendError as e:
-            raise _backend_error(e) from e
+            raise _backend_error(e, client) from e
         span.set_attribute("debrief.talks_count", len(rows))
         return rows
 
@@ -175,7 +176,7 @@ def clip(clip_or_chunk_id: str, client: Client, response: Response) -> dict[str,
         except ValueError as e:
             raise HTTPException(status_code=404, detail="Unknown clip id") from e
         except SearchBackendError as e:
-            raise _backend_error(e) from e
+            raise _backend_error(e, client) from e
         if found is None:
             raise HTTPException(status_code=404, detail="Unknown clip id")
         span.set_attribute("debrief.chunks", found["clip_id"].count("~") + 1)

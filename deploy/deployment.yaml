@@ -7,7 +7,9 @@ metadata:
 spec:
   # Remove this line when you turn on the HPA (examples/hpa), or Argo CD and
   # the autoscaler will keep resetting each other.
-  replicas: 1
+  # Radar Checks (singleReplica): two pods, so a rollout or a pod failure never
+  # takes the site down. Fits the team budget (2 x 100m / 256Mi requests).
+  replicas: 2
   selector:
     matchLabels:
       app: app
@@ -16,6 +18,18 @@ spec:
       labels:
         app: app
     spec:
+      # Radar Checks (automountServiceAccountToken): the app never calls the
+      # Kubernetes API, so don't mount a service-account token into it.
+      automountServiceAccountToken: false
+      # Radar Checks (missingTopologySpread): prefer putting the two replicas on
+      # different nodes, so one node going away doesn't take both.
+      topologySpreadConstraints:
+        - maxSkew: 1
+          topologyKey: kubernetes.io/hostname
+          whenUnsatisfiable: ScheduleAnyway
+          labelSelector:
+            matchLabels:
+              app: app
       containers:
         - name: app
           image: app
@@ -99,10 +113,20 @@ spec:
               path: /healthz
               port: http
             periodSeconds: 10
+          # Radar Checks (readOnlyRootFs): the image is immutable at runtime; only /tmp
+          # (an emptyDir) is writable.
+          volumeMounts:
+            - name: tmp
+              mountPath: /tmp
           securityContext:
+            readOnlyRootFilesystem: true
             runAsNonRoot: true
             allowPrivilegeEscalation: false
             seccompProfile:
               type: RuntimeDefault
             capabilities:
               drop: ["ALL"]
+      volumes:
+        - name: tmp
+          emptyDir:
+            sizeLimit: 64Mi

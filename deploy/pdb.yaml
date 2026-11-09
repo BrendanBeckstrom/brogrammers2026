@@ -1,0 +1,13 @@
+# Radar Checks (missingPDB): keep at least one of the two app pods running
+# through voluntary disruptions such as node drains.
+apiVersion: policy/v1
+kind: PodDisruptionBudget
+metadata:
+  name: app
+  labels:
+    app: app
+spec:
+  minAvailable: 1
+  selector:
+    matchLabels:
+      app: app
