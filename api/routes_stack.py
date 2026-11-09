@@ -16,7 +16,7 @@ from fastapi import APIRouter, HTTPException, Response
 from opentelemetry import trace
 from pydantic import BaseModel, Field
 
-from api import demo_cache
+from api import demo_cache, telemetry
 from api.stack import (
     PackageIndex,
     StackParseError,
@@ -94,6 +94,16 @@ def post_stack(request: StackRequest, response: Response) -> StackResponse:
             span.set_attribute("debrief.stack.matched_tool_count", len(match.tool_ids))
             span.set_attribute("debrief.stack.unknown_count", len(match.unknown))
             span.set_attribute("debrief.stack.tool_ids", match.tool_ids)
+            # Counts and catalog ids only: unknown package names stay out of logs.
+            telemetry.log_event(
+                "stack.parsed",
+                file_type=match.file_type.value,
+                package_count=match.package_count,
+                matched_tools=len(match.tool_ids),
+                unknown_count=len(match.unknown),
+                tools=match.tool_ids,
+                picked=len(request.tools),
+            )
         for tool_id in match.tool_ids:
             tools.setdefault(tool_id, StackTool(id=tool_id, name=names[tool_id], source=source))
         unknown = match.unknown
