@@ -29,6 +29,8 @@ LINE_MAX_CHARS = 400
 _FENCE = re.compile(r"^```(?:json)?\s*|\s*```$", re.IGNORECASE)
 _SPACE = re.compile(r"\s+")
 _BRACKETED = re.compile(r"\s*\[[^\]]*\](?!\()")  # "[clip_id]" left in the text by the model
+_MD_LINK = re.compile(r"!?\[([^\]]*)\]\([^)]*\)")
+_URL = re.compile(r"https?://\S+|<[^>]*>")
 
 
 class MemoError(RuntimeError):
@@ -113,8 +115,10 @@ def parse(text: str) -> dict[str, Any]:
 def clean_text(text: Any) -> str:
     if not isinstance(text, str):
         return ""
-    line = _SPACE.sub(" ", _BRACKETED.sub("", text)).strip()
-    return line[:LINE_MAX_CHARS]
+    line = _MD_LINK.sub(r"\1", text)
+    line = _URL.sub("", _BRACKETED.sub("", line))
+    line = _SPACE.sub(" ", line).strip()
+    return _link_text(line[:LINE_MAX_CHARS])
 
 
 def cited_line(item: Any, requested: set[str], ids_key: str = "clip_ids") -> Line | None:

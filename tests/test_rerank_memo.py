@@ -420,6 +420,15 @@ def memo_reply(ids: list[str], **override: Any) -> str:
     return "```json\n" + json.dumps(body) + "\n```"
 
 
+def test_memo_text_removes_links_html_urls_and_escapes_brackets() -> None:
+    text = (
+        "See [the docs](https://evil.example/docs), "
+        "![diagram](https://evil.example/image.png), <b>bold</b> and "
+        "https://evil.example/raw [clip_id] [unfinished"
+    )
+    assert memo.clean_text(text) == "See the docs, diagram, bold and \\[unfinished"
+
+
 def test_memo_drops_lines_citing_unknown_ids_and_links_every_takeaway(use_model) -> None:
     api = use_model(None)
     ids = clip_ids_for(api)
