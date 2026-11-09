@@ -103,7 +103,7 @@ def save_playlist(
         span.set_attribute("debrief.playlist_source", source)
         log.info("playlist save", extra={"debrief.playlist_source": source})
         try:
-            chosen = playlists.pick_clips(answer, body.clip_ids)
+            chosen = playlists.shareable(playlists.pick_clips(answer, body.clip_ids))
         except playlists.UnknownClips as e:
             span.set_attribute("debrief.unknown_clips", len(e.ids))
             raise HTTPException(
@@ -111,8 +111,9 @@ def save_playlist(
                 detail=f"{len(e.ids)} of the clip ids are not in this playlist; "
                 "run the playlist again and save that one.",
             ) from e
+        stored_request = {k: v for k, v in request.items() if k != "pain"}
         try:
-            playlist_id = playlists.save(saved, request, body.clip_ids, chosen)
+            playlist_id = playlists.save(saved, stored_request, body.clip_ids, chosen)
         except SearchBackendError as e:
             raise _store_error(e, saved) from e
         span.set_attributes(

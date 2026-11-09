@@ -303,14 +303,22 @@ def test_insights_backend_error_is_502(api: TestClient, saved: FakeStore) -> Non
 # --- Saved playlists --------------------------------------------------------------------
 
 
-def test_save_and_load_a_playlist(api: TestClient, spans: InMemorySpanExporter) -> None:
-    shown = api.post("/api/playlist", json=GITOPS).json()
+def test_save_and_load_a_playlist(
+    api: TestClient, saved: FakeStore, spans: InMemorySpanExporter
+) -> None:
+    request = {**GITOPS, "rerank": True}
+    shown = api.post("/api/playlist", json=request).json()
+    assert PAIN in json.dumps(shown["debug"]["query"])
     keep = [c["clip_id"] for c in shown["clips"]][:4][::-1]
-    response = api.post("/api/playlists", json={"request": GITOPS, "clip_ids": keep})
+    response = api.post("/api/playlists", json={"request": request, "clip_ids": keep})
     assert response.status_code == 201, response.text
     saved_id = response.json()["id"]
     assert response.json() == {"id": saved_id, "url": f"/?p={saved_id}"}
     assert playlists.valid_id(saved_id) and len(saved_id) == 8
+    doc = saved.docs["playlists"][saved_id]
+    assert "pain" not in doc["request"]
+    assert "query" not in doc["response"]["debug"]
+    assert PAIN not in json.dumps(doc)
 
     loaded = api.get(f"/api/playlists/{saved_id}")
     assert loaded.status_code == 200
