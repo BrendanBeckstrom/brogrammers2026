@@ -1,11 +1,15 @@
 """Golden stacks: the structural checks from docs/BRIEF.md "Acceptance".
 
-    python -m tests.golden [--base-url http://localhost:8000] [--rerank]   (or `make golden`)
+    python -m tests.golden [--base-url http://localhost:8000] [--rerank] [--cache]
+    (or `make golden`)
 
 Sends every stack in tests/golden_stacks.yaml to POST /api/playlist (rerank off unless
 `--rerank`, or GOLDEN_RERANK=1 under `make golden`) and prints pass/fail per check per
 stack. Exits 1 if any check fails. `check_playlist` is also used by the unit tests
 against a fake-backed API, so CI runs the same checks.
+
+`--cache` (or GOLDEN_CACHE=1) is the task 13 check: the API runs with DEBRIEF_CACHE=on and
+no network, and every playlist must come from the demo cache (`debug.cache == "hit"`).
 """
 
 from __future__ import annotations
@@ -166,11 +170,18 @@ def http_fetch(base_url: str) -> Fetch:
     return fetch
 
 
+def cache_check(response: dict[str, Any]) -> Check:
+    """The answer came from the demo cache (api/demo_cache.py), not the live path."""
+    status = (response.get("debug") or {}).get("cache")
+    return Check("served from the demo cache", status == "hit", str(status or "live"))
+
+
 def run(
     stacks: Sequence[dict[str, Any]],
     fetch: Fetch,
     out: Callable[[str], None] = print,
     rerank: bool = False,
+    cache: bool = False,
 ) -> int:
     """Run every stack; print per-check results. Returns the number of failed checks."""
     failed = 0
@@ -191,7 +202,10 @@ def run(
         status = (response.get("debug") or {}).get("rerank")
         extra = f", rerank {status}" if rerank and status else ""
         out(f"{name}: {count} clips, {response.get('total_seconds')}s, {elapsed:.2f}s{extra}")
-        for check in check_playlist(stack, response):
+        checks = check_playlist(stack, response)
+        if cache:
+            checks.append(cache_check(response))
+        for check in checks:
             failed += not check.ok
             out(f"  {'PASS' if check.ok else 'FAIL'} {check.name} ({check.detail})")
     out("all checks passed" if not failed else f"{failed} checks failed")
@@ -212,8 +226,20 @@ def main(argv: Sequence[str] | None = None) -> int:
         default=os.environ.get("GOLDEN_RERANK", "").lower() in {"1", "true", "on"},
         help="send rerank: true (Elastic rerank + model why lines); env GOLDEN_RERANK=1",
     )
+    parser.add_argument(
+        "--cache",
+        action="store_true",
+        default=os.environ.get("GOLDEN_CACHE", "").lower() in {"1", "true", "on"},
+        help="also require every answer to come from the demo cache (API run with "
+        "DEBRIEF_CACHE=on); env GOLDEN_CACHE=1",
+    )
     args = parser.parse_args(argv)
-    failed = run(load_stacks(args.stacks), http_fetch(args.base_url), rerank=args.rerank)
+    failed = run(
+        load_stacks(args.stacks),
+        http_fetch(args.base_url),
+        rerank=args.rerank,
+        cache=args.cache,
+    )
     return 1 if failed else 0
 
 

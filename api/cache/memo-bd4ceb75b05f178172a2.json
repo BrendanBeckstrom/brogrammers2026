@@ -1,0 +1,35 @@
+{
+ "route": "memo",
+ "request": {
+  "tools": [
+   "argo-cd"
+  ],
+  "clip_ids": [
+   "6G2Rr2rQ2RI-0~66~132",
+   "Wrek7kjrcs0-0",
+   "Wrek7kjrcs0-1139",
+   "Wrek7kjrcs0-739",
+   "fcajag5di68-392~460",
+   "fcajag5di68-712",
+   "iC15zeOLZQA-0",
+   "iC15zeOLZQA-474~537",
+   "kIj2U13VZJY-533~602",
+   "q2b9niAdFII-683",
+   "q2b9niAdFII-875~945",
+   "x5nVyVZSd0A-1004",
+   "x5nVyVZSd0A-865"
+  ]
+ },
+ "response": {
+  "markdown": "# Debrief: Argo CD\n\nThese clips cover Argo CD adoption, pull request diff previews, MCP-based automation, GitOps maturity data, and a path-encoding gotcha when changing ingress, all relevant to a team running Argo CD. ([From FTP To Argo CD & Argo Rollouts: An Adoption History Inside a Corp · 12:17](https://www.youtube.com/watch?v=Wrek7kjrcs0&t=737s); [Argo CD: Previewing Pull Request Changes in SECONDS! · 6:30](https://www.youtube.com/watch?v=fcajag5di68&t=390s); [The 10x DevOps Engineer’s Toolkit: Argo CD + AI-Driven MCP Automation · 7:52](https://www.youtube.com/watch?v=iC15zeOLZQA&t=472s); [Sponsored Keynote: Argo CD vs the World · 0:00](https://www.youtube.com/watch?v=6G2Rr2rQ2RI&t=0s); [From ingress-nginx to Envoy Gateway at Zapier: The Benefits, Challenges, and Migration Lessons That Matter · 8:51](https://www.youtube.com/watch?v=kIj2U13VZJY&t=531s))\n\n## Top 3 takeaways\n\n1. Argo CD diff preview lets you see rendered changes on pull requests; Tango caught a typo (enable vs enabled) before review, running 2,000s of applications across 30 clusters with about 30 engineers. ([Argo CD: Previewing Pull Request Changes in SECONDS! · 11:50](https://www.youtube.com/watch?v=fcajag5di68&t=710s))\n2. Argo CD's GitOps model replaces imperative steps with declared desired state; it compares repo state to live state and pulls drift back, and Argo Rollouts adds rollback and staged analysis. ([From FTP To Argo CD & Argo Rollouts: An Adoption History Inside a Corp · 12:17](https://www.youtube.com/watch?v=Wrek7kjrcs0&t=737s); [From FTP To Argo CD & Argo Rollouts: An Adoption History Inside a Corp · 18:57](https://www.youtube.com/watch?v=Wrek7kjrcs0&t=1137s))\n3. Zapier found that Envoy Gateway unescapes encoded slashes like %2F by default, causing 404s for Argo CD and Vault paths; they fixed it by explicitly keeping paths unchanged, despite security tradeoffs. ([From ingress-nginx to Envoy Gateway at Zapier: The Benefits, Challenges, and Migration Lessons That Matter · 8:51](https://www.youtube.com/watch?v=kIj2U13VZJY&t=531s))\n\n## Action items\n\n- [ ] Evaluate Argo CD diff preview on pull requests, starting with the copy-paste setup, and measure processing time for your typical one-to-ten application change. ([Argo CD: Previewing Pull Request Changes in SECONDS! · 6:30](https://www.youtube.com/watch?v=fcajag5di68&t=390s); [Argo CD: Previewing Pull Request Changes in SECONDS! · 11:50](https://www.youtube.com/watch?v=fcajag5di68&t=710s))\n- [ ] If you plan to change ingress or gateway, test Argo CD paths containing encoded slashes beforehand and check path normalization settings to avoid 404s. ([From ingress-nginx to Envoy Gateway at Zapier: The Benefits, Challenges, and Migration Lessons That Matter · 8:51](https://www.youtube.com/watch?v=kIj2U13VZJY&t=531s))\n- [ ] Try the MCP for Argo CD project to let AI sync applications and inspect logs and live manifests, noting its happy path is used in production at Intuit. ([The 10x DevOps Engineer’s Toolkit: Argo CD + AI-Driven MCP Automation · 7:52](https://www.youtube.com/watch?v=iC15zeOLZQA&t=472s))\n\n## Watch together (11 min)\n\n1. [Argo CD: Previewing Pull Request Changes in SECONDS! · 11:50](https://www.youtube.com/watch?v=fcajag5di68&t=710s) (1:21), Dag Bjerre Andersen, Sergey Shevchenko: Concrete production value of PR diff previews at scale.\n2. [From ingress-nginx to Envoy Gateway at Zapier: The Benefits, Challenges, and Migration Lessons That Matter · 8:51](https://www.youtube.com/watch?v=kIj2U13VZJY&t=531s) (2:27), Kalen Wessel: Warns of Argo CD path 404s when changing gateways.\n3. [From FTP To Argo CD & Argo Rollouts: An Adoption History Inside a Corp · 12:17](https://www.youtube.com/watch?v=Wrek7kjrcs0&t=737s) (1:19), Alfonso Ming, Meritxell Rodríguez: Clear explanation of GitOps drift correction with Argo CD.\n4. [The 10x DevOps Engineer’s Toolkit: Argo CD + AI-Driven MCP Automation · 7:52](https://www.youtube.com/watch?v=iC15zeOLZQA&t=472s) (2:21), Alexander Matyushentsev, Leonardo Luz Almeida: Shows what Argo CD MCP tools can do today.\n5. [Sponsored Keynote: Argo CD vs the World · 0:00](https://www.youtube.com/watch?v=6G2Rr2rQ2RI&t=0s) (3:30), Steve Fenton: Data on GitOps score for Argo users versus others.\n",
+  "cited_clip_ids": [
+   "Wrek7kjrcs0-739",
+   "fcajag5di68-392~460",
+   "iC15zeOLZQA-474~537",
+   "6G2Rr2rQ2RI-0~66~132",
+   "kIj2U13VZJY-533~602",
+   "fcajag5di68-712",
+   "Wrek7kjrcs0-1139"
+  ]
+ }
+}

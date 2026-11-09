@@ -1,0 +1,443 @@
+{
+ "route": "playlist",
+ "request": {
+  "tools": [
+   "argo-cd"
+  ],
+  "pain": null,
+  "attended_talk_ids": [
+   "VfVQj4Oa3z0"
+  ],
+  "filter": "missed",
+  "budget_minutes": 25,
+  "rerank": false
+ },
+ "response": {
+  "total_seconds": 1455,
+  "clips": [
+   {
+    "clip_id": "iC15zeOLZQA-990",
+    "talk_id": "iC15zeOLZQA",
+    "title": "The 10x DevOps Engineer’s Toolkit: Argo CD + AI-Driven MCP Automation",
+    "speakers": [
+     "Alexander Matyushentsev",
+     "Leonardo Luz Almeida"
+    ],
+    "start_sec": 988,
+    "end_sec": 1071,
+    "watch_url": "https://www.youtube.com/watch?v=iC15zeOLZQA&t=988s",
+    "quote": "So this is also not using the Argo CD MCP. So we were using the Argo CD API directly. And we came up with this result from the the premises that we have before, right?",
+    "why": "Mentions Argo CD 5 times in this clip",
+    "matched_tools": [
+     "argo-cd"
+    ],
+    "matched_by": "both",
+    "talk_label": null,
+    "score": 0.031754
+   },
+   {
+    "clip_id": "iC15zeOLZQA-0",
+    "talk_id": "iC15zeOLZQA",
+    "title": "The 10x DevOps Engineer’s Toolkit: Argo CD + AI-Driven MCP Automation",
+    "speakers": [
+     "Alexander Matyushentsev",
+     "Leonardo Luz Almeida"
+    ],
+    "start_sec": 0,
+    "end_sec": 83,
+    "watch_url": "https://www.youtube.com/watch?v=iC15zeOLZQA&t=0s",
+    "quote": "I will talk about why MCP is useful, why did we even choose to build MCP project for Argo CD, then I will cover the project itself, and share with you ideas we had and the use cases we were hoping to solve using MCP for Argo CD, and then I will get it will get it give it back to Leo where he can…",
+    "why": "Mentions Argo CD 4 times in this clip",
+    "matched_tools": [
+     "argo-cd"
+    ],
+    "matched_by": "both",
+    "talk_label": null,
+    "score": 0.03031
+   },
+   {
+    "clip_id": "iC15zeOLZQA-474",
+    "talk_id": "iC15zeOLZQA",
+    "title": "The 10x DevOps Engineer’s Toolkit: Argo CD + AI-Driven MCP Automation",
+    "speakers": [
+     "Alexander Matyushentsev",
+     "Leonardo Luz Almeida"
+    ],
+    "start_sec": 472,
+    "end_sec": 551,
+    "watch_url": "https://www.youtube.com/watch?v=iC15zeOLZQA&t=472s",
+    "quote": "Um Next, I kind of want to show what we've done so far when I'm applying the same model and then want to show which primitives we implemented at Argo CD MCP server. So so far we chose to rely on just tools and do not implement any resources.",
+    "why": "Mentions Argo CD 3 times in this clip",
+    "matched_tools": [
+     "argo-cd"
+    ],
+    "matched_by": "both",
+    "talk_label": null,
+    "score": 0.029199
+   },
+   {
+    "clip_id": "6G2Rr2rQ2RI-66~132~195",
+    "talk_id": "6G2Rr2rQ2RI",
+    "title": "Sponsored Keynote: Argo CD vs the World",
+    "speakers": [
+     "Steve Fenton"
+    ],
+    "start_sec": 64,
+    "end_sec": 275,
+    "watch_url": "https://www.youtube.com/watch?v=6G2Rr2rQ2RI&t=64s",
+    "quote": "So uh basically when it comes to GitOps score Argo CD absolutely wins. Well done Argo. We can give Argo a little cheer.",
+    "why": "Mentions Argo CD 7 times in this clip",
+    "matched_tools": [
+     "argo-cd"
+    ],
+    "matched_by": "both",
+    "talk_label": null,
+    "score": 0.028595
+   },
+   {
+    "clip_id": "fcajag5di68-779",
+    "talk_id": "fcajag5di68",
+    "title": "Argo CD: Previewing Pull Request Changes in SECONDS!",
+    "speakers": [
+     "Dag Bjerre Andersen",
+     "Sergey Shevchenko"
+    ],
+    "start_sec": 777,
+    "end_sec": 857,
+    "watch_url": "https://www.youtube.com/watch?v=fcajag5di68&t=777s",
+    "quote": "No need to merge it, wait to merge to master, approve and so on. We have um multiple cloud providers as I said and we have one Argo CD cluster with Argo CD instances that manage with Kubernetes cluster across different providers.",
+    "why": "Mentions Argo CD 4 times in this clip",
+    "matched_tools": [
+     "argo-cd"
+    ],
+    "matched_by": "both",
+    "talk_label": null,
+    "score": 0.028373
+   },
+   {
+    "clip_id": "q2b9niAdFII-813~875~945",
+    "talk_id": "q2b9niAdFII",
+    "title": "Backend-First IDP: A Production Roadmap With Argo CD, Crossplane, and OPA",
+    "speakers": [
+     "Abhinav Sharma",
+     "Aditya Soni"
+    ],
+    "start_sec": 811,
+    "end_sec": 1022,
+    "watch_url": "https://www.youtube.com/watch?v=q2b9niAdFII&t=811s",
+    "quote": "So we have here all the manifest file that we have used to deploy Argo CD backstage um crossplane opai and all those things right. So whatever ch this repo is connected to argo CD.",
+    "why": "Mentions Argo CD 6 times in this clip",
+    "matched_tools": [
+     "argo-cd"
+    ],
+    "matched_by": "both",
+    "talk_label": null,
+    "score": 0.028006
+   },
+   {
+    "clip_id": "Wrek7kjrcs0-739",
+    "talk_id": "Wrek7kjrcs0",
+    "title": "From FTP To Argo CD & Argo Rollouts: An Adoption History Inside a Corp",
+    "speakers": [
+     "Alfonso Ming",
+     "Meritxell Rodríguez"
+    ],
+    "start_sec": 737,
+    "end_sec": 816,
+    "watch_url": "https://www.youtube.com/watch?v=Wrek7kjrcs0&t=737s",
+    "quote": "from imperative way of working to uh declarative One we were imperative we have to define every single step as you saw before but with GitHub's model we are declarative we only have to define the final stage step state and the system make it happen and another thing that GitHubs model brings to us…",
+    "why": "Mentions Argo CD twice in this clip",
+    "matched_tools": [
+     "argo-cd"
+    ],
+    "matched_by": "both",
+    "talk_label": null,
+    "score": 0.027757
+   },
+   {
+    "clip_id": "fcajag5di68-978",
+    "talk_id": "fcajag5di68",
+    "title": "Argo CD: Previewing Pull Request Changes in SECONDS!",
+    "speakers": [
+     "Dag Bjerre Andersen",
+     "Sergey Shevchenko"
+    ],
+    "start_sec": 976,
+    "end_sec": 1055,
+    "watch_url": "https://www.youtube.com/watch?v=fcajag5di68&t=976s",
+    "quote": "Also, Argo CD diff preview supports plugins or any possible customization stuff that you want in Argo CD. In our case, we have some custom Helm binary inside of our repo server that do some post-processing after the Helm. So, we have some tools named walls, integration for vault and secrets.",
+    "why": "Mentions Argo CD 4 times in this clip",
+    "matched_tools": [
+     "argo-cd"
+    ],
+    "matched_by": "both",
+    "talk_label": null,
+    "score": 0.02753
+   },
+   {
+    "clip_id": "Wrek7kjrcs0-1139",
+    "talk_id": "Wrek7kjrcs0",
+    "title": "From FTP To Argo CD & Argo Rollouts: An Adoption History Inside a Corp",
+    "speakers": [
+     "Alfonso Ming",
+     "Meritxell Rodríguez"
+    ],
+    "start_sec": 1137,
+    "end_sec": 1216,
+    "watch_url": "https://www.youtube.com/watch?v=Wrek7kjrcs0&t=1137s",
+    "quote": "view for all our people our teams uh putting in a sense Argo CD changed our life because we uh our product is grow up uh a lot if we compare with the beginning of the time eight years ago. So now we have a a small demo recorded demo with how we do the rollouts in in Argo.",
+    "why": "Mentions Argo CD once in this clip",
+    "matched_tools": [
+     "argo-cd"
+    ],
+    "matched_by": "both",
+    "talk_label": null,
+    "score": 0.027109
+   },
+   {
+    "clip_id": "fcajag5di68-651",
+    "talk_id": "fcajag5di68",
+    "title": "Argo CD: Previewing Pull Request Changes in SECONDS!",
+    "speakers": [
+     "Dag Bjerre Andersen",
+     "Sergey Shevchenko"
+    ],
+    "start_sec": 649,
+    "end_sec": 728,
+    "watch_url": "https://www.youtube.com/watch?v=fcajag5di68&t=649s",
+    "quote": "It essentially means that at Egmont where we have where I work, we have a very slimmed down version of Argo CD installed in our real production cluster. And then we also have runners installed as I showed before and then we just connect everything as I showed and there we have it.",
+    "why": "Mentions Argo CD 3 times in this clip",
+    "matched_tools": [
+     "argo-cd"
+    ],
+    "matched_by": "both",
+    "talk_label": null,
+    "score": 0.02669
+   },
+   {
+    "clip_id": "Wrek7kjrcs0-65",
+    "talk_id": "Wrek7kjrcs0",
+    "title": "From FTP To Argo CD & Argo Rollouts: An Adoption History Inside a Corp",
+    "speakers": [
+     "Alfonso Ming",
+     "Meritxell Rodríguez"
+    ],
+    "start_sec": 63,
+    "end_sec": 148,
+    "watch_url": "https://www.youtube.com/watch?v=Wrek7kjrcs0&t=63s",
+    "quote": "We are here to show you how we move from a constant anxiety to the peace of mind that Argo CD brings to us. Ready? So let me introduce at first.",
+    "why": "Mentions Argo CD once in this clip",
+    "matched_tools": [
+     "argo-cd"
+    ],
+    "matched_by": "both",
+    "talk_label": null,
+    "score": 0.024979
+   },
+   {
+    "clip_id": "x5nVyVZSd0A-865",
+    "talk_id": "x5nVyVZSd0A",
+    "title": "GitOps Your Costs: Automated FinOps Through Argo Workflows",
+    "speakers": [
+     "Kunal Das",
+     "Hrittik Roy"
+    ],
+    "start_sec": 863,
+    "end_sec": 944,
+    "watch_url": "https://www.youtube.com/watch?v=x5nVyVZSd0A&t=863s",
+    "quote": "Next is Argo CD sits in between as a delivery mechanism. This is where GitOps comes as a key differentiator because now you can implement a lot of things together with help of self-healing as a flag as true.",
+    "why": "Mentions Argo CD once in this clip",
+    "matched_tools": [
+     "argo-cd"
+    ],
+    "matched_by": "both",
+    "talk_label": null,
+    "score": 0.022696
+   },
+   {
+    "clip_id": "x5nVyVZSd0A-1004",
+    "talk_id": "x5nVyVZSd0A",
+    "title": "GitOps Your Costs: Automated FinOps Through Argo Workflows",
+    "speakers": [
+     "Kunal Das",
+     "Hrittik Roy"
+    ],
+    "start_sec": 1002,
+    "end_sec": 1081,
+    "watch_url": "https://www.youtube.com/watch?v=x5nVyVZSd0A&t=1002s",
+    "quote": "And then Argo CD watches for Git approved changes. And Argo rollout which aggressively focuses on automatic changes and progressive overload. This closes the entire loop because now you have a system which focuses on the utilization data rather than anything else.",
+    "why": "Mentions Argo CD once in this clip",
+    "matched_tools": [
+     "argo-cd"
+    ],
+    "matched_by": "both",
+    "talk_label": null,
+    "score": 0.022658
+   },
+   {
+    "clip_id": "kIj2U13VZJY-533~602",
+    "talk_id": "kIj2U13VZJY",
+    "title": "From ingress-nginx to Envoy Gateway at Zapier: The Benefits, Challenges, and Migration Lessons That Matter",
+    "speakers": [
+     "Kalen Wessel"
+    ],
+    "start_sec": 531,
+    "end_sec": 678,
+    "watch_url": "https://www.youtube.com/watch?v=kIj2U13VZJY&t=531s",
+    "quote": "So things like percent 2F turn into a normal forward slash before the request is passed onto the application. In our case, Argo CD and Vault rely on those encoded uh values for some of their paths.",
+    "why": "Mentions Argo CD once in this clip",
+    "matched_tools": [
+     "argo-cd"
+    ],
+    "matched_by": "keyword",
+    "talk_label": null,
+    "score": 0.01087
+   }
+  ],
+  "trace_id": "3583f1606bd989fa3ee90f9e8e4f7a4d",
+  "message": null,
+  "debug": {
+   "query": {
+    "size": 100,
+    "_source": [
+     "chunk_id",
+     "talk_id",
+     "youtube_id",
+     "title",
+     "speakers",
+     "start_sec",
+     "end_sec",
+     "text",
+     "tools",
+     "talk_label"
+    ],
+    "retriever": {
+     "rrf": {
+      "rank_window_size": 100,
+      "retrievers": [
+       {
+        "standard": {
+         "query": {
+          "bool": {
+           "should": [
+            {
+             "terms": {
+              "tools": [
+               "argo-cd"
+              ],
+              "boost": 2
+             }
+            },
+            {
+             "match_phrase": {
+              "text": "argo cd"
+             }
+            },
+            {
+             "match_phrase": {
+              "text": "argocd"
+             }
+            },
+            {
+             "match_phrase": {
+              "text": "argo city"
+             }
+            }
+           ],
+           "minimum_should_match": 1
+          }
+         },
+         "filter": {
+          "bool": {
+           "must_not": [
+            {
+             "terms": {
+              "talk_id": [
+               "VfVQj4Oa3z0"
+              ]
+             }
+            }
+           ]
+          }
+         }
+        }
+       },
+       {
+        "standard": {
+         "query": {
+          "semantic": {
+           "field": "text_semantic",
+           "query": "Argo CD"
+          }
+         },
+         "filter": {
+          "bool": {
+           "must_not": [
+            {
+             "terms": {
+              "talk_id": [
+               "VfVQj4Oa3z0"
+              ]
+             }
+            }
+           ]
+          }
+         }
+        }
+       }
+      ]
+     }
+    },
+    "highlight": {
+     "fields": {
+      "text": {
+       "type": "unified",
+       "boundary_scanner": "sentence",
+       "fragment_size": 200,
+       "number_of_fragments": 1,
+       "no_match_size": 0,
+       "highlight_query": {
+        "bool": {
+         "should": [
+          {
+           "match_phrase": {
+            "text": "argo cd"
+           }
+          },
+          {
+           "match_phrase": {
+            "text": "argocd"
+           }
+          },
+          {
+           "match_phrase": {
+            "text": "argo city"
+           }
+          }
+         ],
+         "minimum_should_match": 1
+        }
+       }
+      }
+     }
+    }
+   },
+   "timings_ms": {
+    "hybrid_search": 338.3,
+    "keyword_search": 99.7,
+    "semantic_search": 124.0,
+    "search_wall": 347.2,
+    "grouping": 0.7,
+    "clip_building": 0.2,
+    "budget": 1.9,
+    "total": 350.4
+   },
+   "hits": 100,
+   "talks": 22,
+   "rerank": {
+    "elastic": "off",
+    "model": "off"
+   }
+  }
+ }
+}

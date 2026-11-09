@@ -1,0 +1,36 @@
+{
+ "route": "memo",
+ "request": {
+  "tools": [
+   "argo-cd",
+   "prometheus"
+  ],
+  "clip_ids": [
+   "6G2Rr2rQ2RI-0~66",
+   "6G2Rr2rQ2RI-260",
+   "VfVQj4Oa3z0-0",
+   "VfVQj4Oa3z0-1530",
+   "VfVQj4Oa3z0-341",
+   "fcajag5di68-1041~1105",
+   "fcajag5di68-328",
+   "iC15zeOLZQA-1126",
+   "iC15zeOLZQA-273",
+   "iC15zeOLZQA-926",
+   "kIj2U13VZJY-533",
+   "q2b9niAdFII-1007",
+   "q2b9niAdFII-1136",
+   "q2b9niAdFII-875",
+   "x5nVyVZSd0A-865~936~1004"
+  ]
+ },
+ "response": {
+  "markdown": "# Debrief: Argo CD, Prometheus\n\nThese clips mostly cover Argo CD practices: previewing pull request changes with a real instance, keeping Helm values in Git, and GitOps-driven change flows, plus an Argo CD API that pulls together logs and state. Prometheus appears only in passing. ([Argo CD: Previewing Pull Request Changes in SECONDS! · 5:26](https://www.youtube.com/watch?v=fcajag5di68&t=326s); [Declarative...ish? Fixing Hidden Argo CD Pitfalls in Your GitOps Setup · 5:39](https://www.youtube.com/watch?v=VfVQj4Oa3z0&t=339s); [The 10x DevOps Engineer’s Toolkit: Argo CD + AI-Driven MCP Automation · 15:24](https://www.youtube.com/watch?v=iC15zeOLZQA&t=924s))\n\n## Top 3 takeaways\n\n1. Rendering pull request changes with a real Argo CD instance matches production configuration and shows exactly what changed. Speed was the main downside, and pre-configured clusters cut one pipeline from 3 minutes to 30 seconds. ([Argo CD: Previewing Pull Request Changes in SECONDS! · 5:26](https://www.youtube.com/watch?v=fcajag5di68&t=326s); [Argo CD: Previewing Pull Request Changes in SECONDS! · 17:19](https://www.youtube.com/watch?v=fcajag5di68&t=1039s))\n2. Keep Helm settings in Helm value files in Git and have the Argo CD application reference them. This separates business settings from deployment targets and keeps local runs simple for developers. ([Declarative...ish? Fixing Hidden Argo CD Pitfalls in Your GitOps Setup · 5:39](https://www.youtube.com/watch?v=VfVQj4Oa3z0&t=339s))\n3. Argo CD's API exposes application logs, Kubernetes events, and live versus desired state, which helps troubleshooting. Prometheus metrics were named as one of several scattered data sources, so this API only partly addresses silos. ([The 10x DevOps Engineer’s Toolkit: Argo CD + AI-Driven MCP Automation · 15:24](https://www.youtube.com/watch?v=iC15zeOLZQA&t=924s))\n\n## Action items\n\n- [ ] Try rendering pull request manifest diffs using a real Argo CD instance, and consider a pre-configured cluster if pipeline time is too slow. ([Argo CD: Previewing Pull Request Changes in SECONDS! · 5:26](https://www.youtube.com/watch?v=fcajag5di68&t=326s); [Argo CD: Previewing Pull Request Changes in SECONDS! · 17:19](https://www.youtube.com/watch?v=fcajag5di68&t=1039s))\n- [ ] Audit Argo CD applications for Helm settings that live outside Git, and move them into value files referenced via the application's Helm value files source. ([Declarative...ish? Fixing Hidden Argo CD Pitfalls in Your GitOps Setup · 5:39](https://www.youtube.com/watch?v=VfVQj4Oa3z0&t=339s))\n- [ ] If you run Argo CD behind a gateway migration, check how encoded paths are handled, since Argo CD relies on encoded values in some paths. ([From ingress-nginx to Envoy Gateway at Zapier: The Benefits, Challenges, and Migration Lessons That Matter · 8:51](https://www.youtube.com/watch?v=kIj2U13VZJY&t=531s))\n\n## Watch together (8 min)\n\n1. [Argo CD: Previewing Pull Request Changes in SECONDS! · 5:26](https://www.youtube.com/watch?v=fcajag5di68&t=326s) (1:18), Dag Bjerre Andersen, Sergey Shevchenko: Explains previewing pull request diffs with a real Argo CD instance.\n2. [Argo CD: Previewing Pull Request Changes in SECONDS! · 17:19](https://www.youtube.com/watch?v=fcajag5di68&t=1039s) (2:26), Dag Bjerre Andersen, Sergey Shevchenko: Shows measured speedups: 30 seconds, and 48 apps rendered in 8 seconds.\n3. [Declarative...ish? Fixing Hidden Argo CD Pitfalls in Your GitOps Setup · 5:39](https://www.youtube.com/watch?v=VfVQj4Oa3z0&t=339s) (1:20), Regina Voloshin: Clear best practice for Helm values and Argo CD manifests.\n4. [The 10x DevOps Engineer’s Toolkit: Argo CD + AI-Driven MCP Automation · 15:24](https://www.youtube.com/watch?v=iC15zeOLZQA&t=924s) (1:19), Alexander Matyushentsev, Leonardo Luz Almeida: Describes Argo CD API data and the silo problem including Prometheus.\n5. [From ingress-nginx to Envoy Gateway at Zapier: The Benefits, Challenges, and Migration Lessons That Matter · 8:51](https://www.youtube.com/watch?v=kIj2U13VZJY&t=531s) (1:23), Kalen Wessel: Warns about encoded-path defaults affecting Argo CD behind Envoy Gateway.\n",
+  "cited_clip_ids": [
+   "fcajag5di68-328",
+   "VfVQj4Oa3z0-341",
+   "iC15zeOLZQA-926",
+   "fcajag5di68-1041~1105",
+   "kIj2U13VZJY-533"
+  ]
+ }
+}

@@ -32,7 +32,10 @@ Run locally:
 ```bash
 make api                  # API on http://localhost:8000
 make web                  # web on http://localhost:5173 (proxies /api); add ?mock=1 to use sample data without the API
+DEBRIEF_CACHE=on make api # answer the golden stacks, their memos and the demo go.mod from api/cache/, no network
 ```
+
+**Demo safety:** with `DEBRIEF_CACHE=on`, cached requests never touch Elastic or the model (they carry `X-Debrief-Cache: hit`), and anything else falls through to the live path, or answers 503 when offline. `make cache` rebuilds the cache from a running API (`DEBRIEF_API`, default `http://localhost:8000`). `make golden ARGS=--cache` checks that every golden stack is served from it.
 
 Build the index (needs `ELASTIC_URL` and `ELASTIC_API_KEY`):
 

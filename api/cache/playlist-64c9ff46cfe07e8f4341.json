@@ -1,0 +1,417 @@
+{
+ "route": "playlist",
+ "request": {
+  "tools": [
+   "argo-cd",
+   "prometheus"
+  ],
+  "pain": "our Argo CD syncs are slow",
+  "attended_talk_ids": [],
+  "filter": "all",
+  "budget_minutes": 25,
+  "rerank": false
+ },
+ "response": {
+  "total_seconds": 1441,
+  "clips": [
+   {
+    "clip_id": "VfVQj4Oa3z0-528",
+    "talk_id": "VfVQj4Oa3z0",
+    "title": "Declarative...ish? Fixing Hidden Argo CD Pitfalls in Your GitOps Setup",
+    "speakers": [
+     "Regina Voloshin"
+    ],
+    "start_sec": 526,
+    "end_sec": 605,
+    "watch_url": "https://www.youtube.com/watch?v=VfVQj4Oa3z0&t=526s",
+    "quote": "And you can fall into this trap if the official way of creating Argo CD application in your organization is something like this. When you have your own CLI, and then it generates an Argo CD",
+    "why": "Mentions Argo CD 6 times in this clip",
+    "matched_tools": [
+     "argo-cd"
+    ],
+    "matched_by": "both",
+    "talk_label": null,
+    "score": 0.027237
+   },
+   {
+    "clip_id": "iC15zeOLZQA-926~990",
+    "talk_id": "iC15zeOLZQA",
+    "title": "The 10x DevOps Engineer’s Toolkit: Argo CD + AI-Driven MCP Automation",
+    "speakers": [
+     "Alexander Matyushentsev",
+     "Leonardo Luz Almeida"
+    ],
+    "start_sec": 924,
+    "end_sec": 1071,
+    "watch_url": "https://www.youtube.com/watch?v=iC15zeOLZQA&t=924s",
+    "quote": "So we all understood in the team that Argo CD is a very powerful API. So from API we also we can almost address the the silos issue. So from Argo CD API we can extract application logs, we can extract Kubernetes events, we can extract the live state and the desired state.",
+    "why": "Mentions Argo CD 8 times in this clip (also Prometheus)",
+    "matched_tools": [
+     "argo-cd",
+     "prometheus"
+    ],
+    "matched_by": "both",
+    "talk_label": null,
+    "score": 0.026546
+   },
+   {
+    "clip_id": "VfVQj4Oa3z0-0",
+    "talk_id": "VfVQj4Oa3z0",
+    "title": "Declarative...ish? Fixing Hidden Argo CD Pitfalls in Your GitOps Setup",
+    "speakers": [
+     "Regina Voloshin"
+    ],
+    "start_sec": 0,
+    "end_sec": 81,
+    "watch_url": "https://www.youtube.com/watch?v=VfVQj4Oa3z0&t=0s",
+    "quote": "Hi everyone, welcome to my talk in which we'll fix the hidden Argo CD pitfalls in your GitOps setup. My name is Reggie. I'm an Argo CD maintainer.",
+    "why": "Mentions Argo CD 7 times in this clip",
+    "matched_tools": [
+     "argo-cd"
+    ],
+    "matched_by": "both",
+    "talk_label": null,
+    "score": 0.025694
+   },
+   {
+    "clip_id": "fcajag5di68-651",
+    "talk_id": "fcajag5di68",
+    "title": "Argo CD: Previewing Pull Request Changes in SECONDS!",
+    "speakers": [
+     "Dag Bjerre Andersen",
+     "Sergey Shevchenko"
+    ],
+    "start_sec": 649,
+    "end_sec": 728,
+    "watch_url": "https://www.youtube.com/watch?v=fcajag5di68&t=649s",
+    "quote": "It essentially means that at Egmont where we have where I work, we have a very slimmed down version of Argo CD installed in our real production cluster. And then we also have runners installed as I showed before and then we just connect everything as I showed and there we have it.",
+    "why": "Mentions Argo CD 3 times in this clip",
+    "matched_tools": [
+     "argo-cd"
+    ],
+    "matched_by": "both",
+    "talk_label": null,
+    "score": 0.025063
+   },
+   {
+    "clip_id": "6G2Rr2rQ2RI-132~195~260",
+    "talk_id": "6G2Rr2rQ2RI",
+    "title": "Sponsored Keynote: Argo CD vs the World",
+    "speakers": [
+     "Steve Fenton"
+    ],
+    "start_sec": 130,
+    "end_sec": 353,
+    "watch_url": "https://www.youtube.com/watch?v=6G2Rr2rQ2RI&t=130s",
+    "quote": "So how does Argo CD do for deployment frequency? And the answer is although it's only a a median score of 50 you know, we'd like that to be maybe a bit higher. That's still better than the rest of the world.",
+    "why": "Mentions Argo CD 5 times in this clip",
+    "matched_tools": [
+     "argo-cd"
+    ],
+    "matched_by": "both",
+    "talk_label": null,
+    "score": 0.024594
+   },
+   {
+    "clip_id": "x5nVyVZSd0A-865~936~1004",
+    "talk_id": "x5nVyVZSd0A",
+    "title": "GitOps Your Costs: Automated FinOps Through Argo Workflows",
+    "speakers": [
+     "Kunal Das",
+     "Hrittik Roy"
+    ],
+    "start_sec": 863,
+    "end_sec": 1081,
+    "watch_url": "https://www.youtube.com/watch?v=x5nVyVZSd0A&t=863s",
+    "quote": "And then Argo CD watches for Git approved changes. And Argo rollout which aggressively focuses on automatic changes and progressive overload. This closes the entire loop because now you have a system which focuses on the utilization data rather than anything else.",
+    "why": "Mentions Argo CD twice in this clip (also Prometheus)",
+    "matched_tools": [
+     "argo-cd",
+     "prometheus"
+    ],
+    "matched_by": "both",
+    "talk_label": null,
+    "score": 0.024394
+   },
+   {
+    "clip_id": "VfVQj4Oa3z0-1530",
+    "talk_id": "VfVQj4Oa3z0",
+    "title": "Declarative...ish? Fixing Hidden Argo CD Pitfalls in Your GitOps Setup",
+    "speakers": [
+     "Regina Voloshin"
+    ],
+    "start_sec": 1528,
+    "end_sec": 1604,
+    "watch_url": "https://www.youtube.com/watch?v=VfVQj4Oa3z0&t=1528s",
+    "quote": "Uh the lightning talk in this room that'll be starting at 5:00 is the $10,000 Argo CD mistake, eliminating phantom syncs and scaling the repo server.",
+    "why": "Mentions Argo CD twice in this clip",
+    "matched_tools": [
+     "argo-cd"
+    ],
+    "matched_by": "both",
+    "talk_label": null,
+    "score": 0.024394
+   },
+   {
+    "clip_id": "fcajag5di68-978",
+    "talk_id": "fcajag5di68",
+    "title": "Argo CD: Previewing Pull Request Changes in SECONDS!",
+    "speakers": [
+     "Dag Bjerre Andersen",
+     "Sergey Shevchenko"
+    ],
+    "start_sec": 976,
+    "end_sec": 1055,
+    "watch_url": "https://www.youtube.com/watch?v=fcajag5di68&t=976s",
+    "quote": "Also, Argo CD diff preview supports plugins or any possible customization stuff that you want in Argo CD. In our case, we have some custom Helm binary inside of our repo server that do some post-processing after the Helm. So, we have some tools named walls, integration for vault and secrets.",
+    "why": "Mentions Argo CD 4 times in this clip",
+    "matched_tools": [
+     "argo-cd"
+    ],
+    "matched_by": "both",
+    "talk_label": null,
+    "score": 0.024203
+   },
+   {
+    "clip_id": "iC15zeOLZQA-273",
+    "talk_id": "iC15zeOLZQA",
+    "title": "The 10x DevOps Engineer’s Toolkit: Argo CD + AI-Driven MCP Automation",
+    "speakers": [
+     "Alexander Matyushentsev",
+     "Leonardo Luz Almeida"
+    ],
+    "start_sec": 271,
+    "end_sec": 350,
+    "watch_url": "https://www.youtube.com/watch?v=iC15zeOLZQA&t=271s",
+    "quote": "Um and the next question is how does client even supposed to know that it can sync applications or do other Argo CD um actions? And so this is covered by three kind of MCP principles, entities, um tools, resources, and prompts.",
+    "why": "Mentions Argo CD twice in this clip",
+    "matched_tools": [
+     "argo-cd"
+    ],
+    "matched_by": "both",
+    "talk_label": null,
+    "score": 0.02411
+   },
+   {
+    "clip_id": "fcajag5di68-328",
+    "talk_id": "fcajag5di68",
+    "title": "Argo CD: Previewing Pull Request Changes in SECONDS!",
+    "speakers": [
+     "Dag Bjerre Andersen",
+     "Sergey Shevchenko"
+    ],
+    "start_sec": 326,
+    "end_sec": 404,
+    "watch_url": "https://www.youtube.com/watch?v=fcajag5di68&t=326s",
+    "quote": "So, here you can see we're using the real Argo CD instance to do the actual rendering and not some kind of custom script.",
+    "why": "Mentions Argo CD twice in this clip",
+    "matched_tools": [
+     "argo-cd"
+    ],
+    "matched_by": "both",
+    "talk_label": null,
+    "score": 0.0241
+   },
+   {
+    "clip_id": "Wrek7kjrcs0-739",
+    "talk_id": "Wrek7kjrcs0",
+    "title": "From FTP To Argo CD & Argo Rollouts: An Adoption History Inside a Corp",
+    "speakers": [
+     "Alfonso Ming",
+     "Meritxell Rodríguez"
+    ],
+    "start_sec": 737,
+    "end_sec": 816,
+    "watch_url": "https://www.youtube.com/watch?v=Wrek7kjrcs0&t=737s",
+    "quote": "from imperative way of working to uh declarative One we were imperative we have to define every single step as you saw before but with GitHub's model we are declarative we only have to define the final stage step state and the system make it happen and another thing that GitHubs model brings to us…",
+    "why": "Mentions Argo CD twice in this clip",
+    "matched_tools": [
+     "argo-cd"
+    ],
+    "matched_by": "both",
+    "talk_label": null,
+    "score": 0.023746
+   },
+   {
+    "clip_id": "q2b9niAdFII-1136",
+    "talk_id": "q2b9niAdFII",
+    "title": "Backend-First IDP: A Production Roadmap With Argo CD, Crossplane, and OPA",
+    "speakers": [
+     "Abhinav Sharma",
+     "Aditya Soni"
+    ],
+    "start_sec": 1134,
+    "end_sec": 1214,
+    "watch_url": "https://www.youtube.com/watch?v=q2b9niAdFII&t=1134s",
+    "quote": "So here you can see the size is changed to small. So this is how like uh we can you know use argo CD as a single uh git as a single source of truth for committing anything into the codebase and uh that is taking effect by the crossplane.",
+    "why": "Mentions Argo CD once in this clip",
+    "matched_tools": [
+     "argo-cd"
+    ],
+    "matched_by": "both",
+    "talk_label": null,
+    "score": 0.023392
+   },
+   {
+    "clip_id": "q2b9niAdFII-945~1007",
+    "talk_id": "q2b9niAdFII",
+    "title": "Backend-First IDP: A Production Roadmap With Argo CD, Crossplane, and OPA",
+    "speakers": [
+     "Abhinav Sharma",
+     "Aditya Soni"
+    ],
+    "start_sec": 943,
+    "end_sec": 1086,
+    "watch_url": "https://www.youtube.com/watch?v=q2b9niAdFII&t=943s",
+    "quote": "Right now whatever changes I do the the crossplane will uh the Argo CD will deploy it to crossplane. So let's do some change as a developer. So let's set the public uh the the the visibility of the bucket to the public.",
+    "why": "Mentions Argo CD 3 times in this clip",
+    "matched_tools": [
+     "argo-cd"
+    ],
+    "matched_by": "both",
+    "talk_label": null,
+    "score": 0.023259
+   }
+  ],
+  "trace_id": "c88613ffc9481f47354e398ec3335820",
+  "message": null,
+  "debug": {
+   "query": {
+    "size": 100,
+    "_source": [
+     "chunk_id",
+     "talk_id",
+     "youtube_id",
+     "title",
+     "speakers",
+     "start_sec",
+     "end_sec",
+     "text",
+     "tools",
+     "talk_label"
+    ],
+    "retriever": {
+     "rrf": {
+      "rank_window_size": 100,
+      "retrievers": [
+       {
+        "standard": {
+         "query": {
+          "bool": {
+           "should": [
+            {
+             "terms": {
+              "tools": [
+               "argo-cd",
+               "prometheus"
+              ],
+              "boost": 2
+             }
+            },
+            {
+             "match_phrase": {
+              "text": "argo cd"
+             }
+            },
+            {
+             "match_phrase": {
+              "text": "argocd"
+             }
+            },
+            {
+             "match_phrase": {
+              "text": "argo city"
+             }
+            },
+            {
+             "match_phrase": {
+              "text": "prometheus"
+             }
+            },
+            {
+             "match_phrase": {
+              "text": "promql"
+             }
+            }
+           ],
+           "minimum_should_match": 1
+          }
+         }
+        }
+       },
+       {
+        "standard": {
+         "query": {
+          "semantic": {
+           "field": "text_semantic",
+           "query": "our Argo CD syncs are slow"
+          }
+         }
+        }
+       }
+      ]
+     }
+    },
+    "highlight": {
+     "fields": {
+      "text": {
+       "type": "unified",
+       "boundary_scanner": "sentence",
+       "fragment_size": 200,
+       "number_of_fragments": 1,
+       "no_match_size": 0,
+       "highlight_query": {
+        "bool": {
+         "should": [
+          {
+           "match_phrase": {
+            "text": "argo cd"
+           }
+          },
+          {
+           "match_phrase": {
+            "text": "argocd"
+           }
+          },
+          {
+           "match_phrase": {
+            "text": "argo city"
+           }
+          },
+          {
+           "match_phrase": {
+            "text": "prometheus"
+           }
+          },
+          {
+           "match_phrase": {
+            "text": "promql"
+           }
+          }
+         ],
+         "minimum_should_match": 1
+        }
+       }
+      }
+     }
+    }
+   },
+   "timings_ms": {
+    "hybrid_search": 314.6,
+    "keyword_search": 199.4,
+    "semantic_search": 249.1,
+    "search_wall": 314.9,
+    "grouping": 0.9,
+    "clip_building": 0.2,
+    "budget": 3.3,
+    "total": 319.6
+   },
+   "hits": 100,
+   "talks": 17,
+   "rerank": {
+    "elastic": "off",
+    "model": "off"
+   }
+  }
+ }
+}

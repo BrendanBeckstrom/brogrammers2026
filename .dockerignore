@@ -17,3 +17,4 @@ web/dist
 # Downloaded and generated data (gitignored).
 data/raw
 data/chunks.jsonl
+api/cache/clips-*.json

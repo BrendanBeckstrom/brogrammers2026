@@ -12,6 +12,8 @@ secrets/
 # --- Downloaded / generated data ---
 data/raw/
 data/chunks.jsonl
+# Demo cache: a clip's full transcript text stays local (task 13)
+api/cache/clips-*.json
 
 # --- OS / editor ---
 .DS_Store

@@ -2,7 +2,7 @@
 SHELL := /bin/bash
 ENV := set -a; [ -f .env ] && . ./.env; set +a;
 
-.PHONY: setup ingest index api web test golden
+.PHONY: setup ingest index api web test golden cache
 
 setup: ## Install Python and web dependencies
 	uv sync --locked
@@ -28,5 +28,8 @@ test: ## Lint and unit tests for Python and web
 	uv run pytest -q
 	cd web && npm run lint && npm test
 
-golden: ## Run every golden stack against the running API (task 6+)
-	$(ENV) uv run python -m tests.golden
+golden: ## Run every golden stack against the running API (task 6+); ARGS="--rerank --cache"
+	$(ENV) uv run python -m tests.golden $(ARGS)
+
+cache: ## Build the offline demo cache in api/cache/ from a running API (DEBRIEF_API, task 13)
+	$(ENV) uv run python -m tests.build_cache

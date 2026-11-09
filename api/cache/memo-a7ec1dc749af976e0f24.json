@@ -1,0 +1,34 @@
+{
+ "route": "memo",
+ "request": {
+  "tools": [
+   "opentelemetry",
+   "prometheus"
+  ],
+  "clip_ids": [
+   "0zwLl8QGOdM-135",
+   "0zwLl8QGOdM-471~537",
+   "6vE9b6StC0g-1838",
+   "6vE9b6StC0g-194~260",
+   "OVffupWFEtw-755",
+   "S6z2gd666qg-258",
+   "Z0oum6Eh1is-790~853~915",
+   "gH_JzIXFshI-784~861~930",
+   "mvSGusgcVuw-0",
+   "mvSGusgcVuw-1183",
+   "w1pj0Lz1mW4-132",
+   "w1pj0Lz1mW4-1532",
+   "w1pj0Lz1mW4-394"
+  ]
+ },
+ "response": {
+  "markdown": "# Debrief: OpenTelemetry, Prometheus\n\nThese clips cover how OpenTelemetry and Prometheus fit together, including Collector receivers and processors, Prometheus OTLP ingestion, native histograms, and gateway patterns for routing telemetry. ([OpenTelemetry Collector SIG: Project Updates · 7:49](https://www.youtube.com/watch?v=0zwLl8QGOdM&t=469s); [Prometheus V3 One Year In: OpenMetrics 2.0 and More! · 3:12](https://www.youtube.com/watch?v=6vE9b6StC0g&t=192s); [Jaeger V2: The Maintainers' Guide To OpenTelemetry-Native Tracing · 13:02](https://www.youtube.com/watch?v=gH_JzIXFshI&t=782s); [OpenTelemetry Gateways: Enforce, Transform, Route · 4:16](https://www.youtube.com/watch?v=S6z2gd666qg&t=256s))\n\n## Top 3 takeaways\n\n1. The Collector's Prometheus receiver is nearing stabilization. It no longer sets metric series start time, so you must add the metric start time processor. A Prometheus remote write receiver now complements the existing exporter. ([OpenTelemetry Collector SIG: Project Updates · 7:49](https://www.youtube.com/watch?v=0zwLl8QGOdM&t=469s))\n2. Prometheus native histograms are stable. Since 3.9 you must enable them per scrape config. The OTLP receive endpoint gained features, including early delta ingestion, though exporters and Kubernetes still need to expose native histograms. ([Prometheus V3 One Year In: OpenMetrics 2.0 and More! · 3:12](https://www.youtube.com/watch?v=6vE9b6StC0g&t=192s))\n3. One team replaced a Prometheus scrape-and-pull setup with Collector pipelines, reusing existing Prometheus config through the Prometheus receiver with Kubernetes service discovery, instead of kube-prometheus CRDs. Telemetry now goes straight to their backend. ([We Deleted Our Observability Stack and Rebuilt It With OTEL: 12 Engineers to 4 at 20K+ Clusters · 13:08](https://www.youtube.com/watch?v=Z0oum6Eh1is&t=788s))\n\n## Action items\n\n- [ ] If you use the Collector's Prometheus receiver, check your pipeline and add the metric start time processor, since the receiver will not set series start time itself. ([OpenTelemetry Collector SIG: Project Updates · 7:49](https://www.youtube.com/watch?v=0zwLl8QGOdM&t=469s))\n- [ ] Evaluate native histograms: enable ingestion on a scrape config in a test environment, and check which of your exporters can expose them. ([Prometheus V3 One Year In: OpenMetrics 2.0 and More! · 3:12](https://www.youtube.com/watch?v=6vE9b6StC0g&t=192s))\n- [ ] Prototype moving a Prometheus scrape job into a Collector using the Prometheus receiver with Kubernetes service discovery, reusing your existing scrape definitions. ([We Deleted Our Observability Stack and Rebuilt It With OTEL: 12 Engineers to 4 at 20K+ Clusters · 13:08](https://www.youtube.com/watch?v=Z0oum6Eh1is&t=788s))\n\n## Watch together (13 min)\n\n1. [OpenTelemetry Collector SIG: Project Updates · 7:49](https://www.youtube.com/watch?v=0zwLl8QGOdM&t=469s) (2:25), Jade G, Dmitrii A, Alex B, Evan B, Antoine T: Concrete Prometheus receiver changes affecting Collector configs, including the start time processor.\n2. [Prometheus V3 One Year In: OpenMetrics 2.0 and More! · 3:12](https://www.youtube.com/watch?v=6vE9b6StC0g&t=192s) (2:27), Jan Fajerski, Bartłomiej Płotka: Native histograms and OTLP ingestion changes in Prometheus.\n3. [We Deleted Our Observability Stack and Rebuilt It With OTEL: 12 Engineers to 4 at 20K+ Clusters · 13:08](https://www.youtube.com/watch?v=Z0oum6Eh1is&t=788s) (3:27), Yash Sharma, Kunju Perath: Real migration from Prometheus scraping to Collector-based pipelines.\n4. [OpenTelemetry Gateways: Enforce, Transform, Route · 4:16](https://www.youtube.com/watch?v=S6z2gd666qg&t=256s) (1:19), Juraci Paixão Kröhling, Natalie Ujuk: Gateway pattern for enforcing policy and routing telemetry centrally.\n5. [Jaeger V2: The Maintainers' Guide To OpenTelemetry-Native Tracing · 13:02](https://www.youtube.com/watch?v=gH_JzIXFshI&t=782s) (3:44), Pavol Loffay: Shows spans becoming metrics sent to Prometheus via several paths.\n",
+  "cited_clip_ids": [
+   "0zwLl8QGOdM-471~537",
+   "6vE9b6StC0g-194~260",
+   "gH_JzIXFshI-784~861~930",
+   "S6z2gd666qg-258",
+   "Z0oum6Eh1is-790~853~915"
+  ]
+ }
+}

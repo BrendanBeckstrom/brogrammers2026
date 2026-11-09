@@ -1,0 +1,715 @@
+{
+ "route": "playlist",
+ "request": {
+  "tools": [
+   "argo-cd",
+   "cert-manager",
+   "envoy",
+   "istio",
+   "kubernetes",
+   "opentelemetry",
+   "prometheus"
+  ],
+  "pain": null,
+  "attended_talk_ids": [],
+  "filter": "all",
+  "budget_minutes": 25,
+  "rerank": true
+ },
+ "response": {
+  "total_seconds": 1438,
+  "clips": [
+   {
+    "clip_id": "iC15zeOLZQA-863~926",
+    "talk_id": "iC15zeOLZQA",
+    "title": "The 10x DevOps Engineer’s Toolkit: Argo CD + AI-Driven MCP Automation",
+    "speakers": [
+     "Alexander Matyushentsev",
+     "Leonardo Luz Almeida"
+    ],
+    "start_sec": 861,
+    "end_sec": 1003,
+    "watch_url": "https://www.youtube.com/watch?v=iC15zeOLZQA&t=861s",
+    "quote": "Kubernetes sorry Argo CD API provides that capability. It also allows it has a very simple API to extract narrow log logs, right? So you can provide information like your pod name, your container name and it gives the log for that specific resource.",
+    "why": "Mentions Argo CD 4 times in this clip (also Prometheus)",
+    "matched_tools": [
+     "argo-cd",
+     "prometheus"
+    ],
+    "matched_by": "both",
+    "talk_label": null,
+    "score": 1.230502
+   },
+   {
+    "clip_id": "VfVQj4Oa3z0-1007",
+    "talk_id": "VfVQj4Oa3z0",
+    "title": "Declarative...ish? Fixing Hidden Argo CD Pitfalls in Your GitOps Setup",
+    "speakers": [
+     "Regina Voloshin"
+    ],
+    "start_sec": 1005,
+    "end_sec": 1087,
+    "watch_url": "https://www.youtube.com/watch?v=VfVQj4Oa3z0&t=1005s",
+    "quote": "So, let's imagine that you have five infrastructure applications, cert-manager, Prometheus, Grafana, external secrets, and Istio, and also let's imagine that all those apps need to be created in the 10 Kubernetes clusters that you maintain. So, in total, we are talking about 50 applications.",
+    "why": "Mentions cert-manager once in this clip (also Prometheus, Istio)",
+    "matched_tools": [
+     "cert-manager",
+     "prometheus",
+     "istio"
+    ],
+    "matched_by": "both",
+    "talk_label": null,
+    "score": 1.182951
+   },
+   {
+    "clip_id": "vzBGkY_HIyM-1~63",
+    "talk_id": "vzBGkY_HIyM",
+    "title": "Cert-manager – Project Update: Beyond 2026",
+    "speakers": [
+     "Tim Ramlot",
+     "Maël Valais"
+    ],
+    "start_sec": 0,
+    "end_sec": 142,
+    "watch_url": "https://www.youtube.com/watch?v=vzBGkY_HIyM&t=0s",
+    "quote": "So, in your Kubernetes cluster, you can ask cert-manager to issue a certificate for you so that in your workloads you can actually use that certificate. So your workload can be a bots, an ingress, a gateway, a service mesh.",
+    "why": "Mentions cert-manager 7 times in this clip",
+    "matched_tools": [
+     "cert-manager"
+    ],
+    "matched_by": "both",
+    "talk_label": null,
+    "score": 1.177167
+   },
+   {
+    "clip_id": "iC15zeOLZQA-474",
+    "talk_id": "iC15zeOLZQA",
+    "title": "The 10x DevOps Engineer’s Toolkit: Argo CD + AI-Driven MCP Automation",
+    "speakers": [
+     "Alexander Matyushentsev",
+     "Leonardo Luz Almeida"
+    ],
+    "start_sec": 472,
+    "end_sec": 551,
+    "watch_url": "https://www.youtube.com/watch?v=iC15zeOLZQA&t=472s",
+    "quote": "You can ask AI to inspect resources. It has access to logs, live Kubernetes manifests, and I think it's fair to say it's more or less feature complete.",
+    "why": "Mentions Argo CD 3 times in this clip",
+    "matched_tools": [
+     "argo-cd"
+    ],
+    "matched_by": "both",
+    "talk_label": null,
+    "score": 1.143468
+   },
+   {
+    "clip_id": "x5nVyVZSd0A-865",
+    "talk_id": "x5nVyVZSd0A",
+    "title": "GitOps Your Costs: Automated FinOps Through Argo Workflows",
+    "speakers": [
+     "Kunal Das",
+     "Hrittik Roy"
+    ],
+    "start_sec": 863,
+    "end_sec": 944,
+    "watch_url": "https://www.youtube.com/watch?v=x5nVyVZSd0A&t=863s",
+    "quote": "Next is Argo CD sits in between as a delivery mechanism. This is where GitOps comes as a key differentiator because now you can implement a lot of things together with help of self-healing as a flag as true.",
+    "why": "Mentions Argo CD once in this clip",
+    "matched_tools": [
+     "argo-cd"
+    ],
+    "matched_by": "semantic",
+    "talk_label": null,
+    "score": 1.120119
+   },
+   {
+    "clip_id": "ToKv7JntLvY-1321",
+    "talk_id": "ToKv7JntLvY",
+    "title": "The Good, The Ugly, and The Bad: Leaving Sidecars Behind with Istio Ambient Mesh",
+    "speakers": [
+     "Alfonso Ming",
+     "Jorge Turrado"
+    ],
+    "start_sec": 1319,
+    "end_sec": 1400,
+    "watch_url": "https://www.youtube.com/watch?v=ToKv7JntLvY&t=1319s",
+    "quote": "That's the point. Isto has native support, but is without CRD this aka Gateway API needs to use the gateway API plug-in for Argo rollout as well as for other tooling because gateway API is a the new in my opinion the new standard for for ingress but it's not native in all the systems.",
+    "why": "Mentions cert-manager once in this clip (also Istio)",
+    "matched_tools": [
+     "cert-manager",
+     "istio"
+    ],
+    "matched_by": "both",
+    "talk_label": null,
+    "score": 1.113764
+   },
+   {
+    "clip_id": "x5nVyVZSd0A-1004",
+    "talk_id": "x5nVyVZSd0A",
+    "title": "GitOps Your Costs: Automated FinOps Through Argo Workflows",
+    "speakers": [
+     "Kunal Das",
+     "Hrittik Roy"
+    ],
+    "start_sec": 1002,
+    "end_sec": 1081,
+    "watch_url": "https://www.youtube.com/watch?v=x5nVyVZSd0A&t=1002s",
+    "quote": "And then Argo CD watches for Git approved changes. And Argo rollout which aggressively focuses on automatic changes and progressive overload. This closes the entire loop because now you have a system which focuses on the utilization data rather than anything else.",
+    "why": "Mentions Argo CD once in this clip (also Prometheus)",
+    "matched_tools": [
+     "argo-cd",
+     "prometheus"
+    ],
+    "matched_by": "both",
+    "talk_label": null,
+    "score": 1.074259
+   },
+   {
+    "clip_id": "4K6s5y8HoBc-1051",
+    "talk_id": "4K6s5y8HoBc",
+    "title": "Evolution or Revolution: Istio as the Network Platform for Cloud Native",
+    "speakers": [
+     "Mitch Connors",
+     "Daniel Grimm"
+    ],
+    "start_sec": 1049,
+    "end_sec": 1127,
+    "watch_url": "https://www.youtube.com/watch?v=4K6s5y8HoBc&t=1049s",
+    "quote": "And lastly, we generate observability for your traffic in the form of audit logs, uh or access logs rather, uh metrics usually consumed in Prometheus, but any open telemetry compatible provider, as well as automated distributed trace spans for your entire application end to end.",
+    "why": "Mentions Istio twice in this clip (also Prometheus, OpenTelemetry)",
+    "matched_tools": [
+     "prometheus",
+     "opentelemetry",
+     "istio"
+    ],
+    "matched_by": "both",
+    "talk_label": null,
+    "score": 1.072089
+   },
+   {
+    "clip_id": "vzBGkY_HIyM-722",
+    "talk_id": "vzBGkY_HIyM",
+    "title": "Cert-manager – Project Update: Beyond 2026",
+    "speakers": [
+     "Tim Ramlot",
+     "Maël Valais"
+    ],
+    "start_sec": 720,
+    "end_sec": 798,
+    "watch_url": "https://www.youtube.com/watch?v=vzBGkY_HIyM&t=720s",
+    "quote": "Um so cert-manager is all about X.509 certificates and certificates um It's not just certificates, but also secrets, the private keys linked to the certificates. And that means that it needs to be secure the solution.",
+    "why": "Mentions cert-manager twice in this clip",
+    "matched_tools": [
+     "cert-manager"
+    ],
+    "matched_by": "keyword",
+    "talk_label": null,
+    "score": 1.059029
+   },
+   {
+    "clip_id": "VfVQj4Oa3z0-0~71",
+    "talk_id": "VfVQj4Oa3z0",
+    "title": "Declarative...ish? Fixing Hidden Argo CD Pitfalls in Your GitOps Setup",
+    "speakers": [
+     "Regina Voloshin"
+    ],
+    "start_sec": 0,
+    "end_sec": 153,
+    "watch_url": "https://www.youtube.com/watch?v=VfVQj4Oa3z0&t=0s",
+    "quote": "Hi everyone, welcome to my talk in which we'll fix the hidden Argo CD pitfalls in your GitOps setup. My name is Reggie. I'm an Argo CD maintainer.",
+    "why": "Mentions Argo CD 11 times in this clip",
+    "matched_tools": [
+     "argo-cd"
+    ],
+    "matched_by": "both",
+    "talk_label": null,
+    "score": 1.045617
+   },
+   {
+    "clip_id": "4K6s5y8HoBc-266",
+    "talk_id": "4K6s5y8HoBc",
+    "title": "Evolution or Revolution: Istio as the Network Platform for Cloud Native",
+    "speakers": [
+     "Mitch Connors",
+     "Daniel Grimm"
+    ],
+    "start_sec": 264,
+    "end_sec": 349,
+    "watch_url": "https://www.youtube.com/watch?v=4K6s5y8HoBc&t=264s",
+    "quote": "We'd spent 5 years running just Envoy uh as a sidecar. Basically, every pod gets its own Envoy. It was a brute force way of capturing traffic and directing things.",
+    "why": "Mentions Envoy twice in this clip (also Istio)",
+    "matched_tools": [
+     "envoy",
+     "istio"
+    ],
+    "matched_by": "both",
+    "talk_label": null,
+    "score": 1.034312
+   },
+   {
+    "clip_id": "fcajag5di68-523~586",
+    "talk_id": "fcajag5di68",
+    "title": "Argo CD: Previewing Pull Request Changes in SECONDS!",
+    "speakers": [
+     "Dag Bjerre Andersen",
+     "Sergey Shevchenko"
+    ],
+    "start_sec": 521,
+    "end_sec": 662,
+    "watch_url": "https://www.youtube.com/watch?v=fcajag5di68&t=521s",
+    "quote": "I have done that a few times. So, what I suggest is always use a dedicated Argo CD instance for this kind of preview process.",
+    "why": "Mentions Argo CD 5 times in this clip",
+    "matched_tools": [
+     "argo-cd"
+    ],
+    "matched_by": "both",
+    "talk_label": null,
+    "score": 1.015866
+   },
+   {
+    "clip_id": "Wrek7kjrcs0-739",
+    "talk_id": "Wrek7kjrcs0",
+    "title": "From FTP To Argo CD & Argo Rollouts: An Adoption History Inside a Corp",
+    "speakers": [
+     "Alfonso Ming",
+     "Meritxell Rodríguez"
+    ],
+    "start_sec": 737,
+    "end_sec": 816,
+    "watch_url": "https://www.youtube.com/watch?v=Wrek7kjrcs0&t=737s",
+    "quote": "from imperative way of working to uh declarative One we were imperative we have to define every single step as you saw before but with GitHub's model we are declarative we only have to define the final stage step state and the system make it happen and another thing that GitHubs model brings to us…",
+    "why": "Mentions Argo CD twice in this clip",
+    "matched_tools": [
+     "argo-cd"
+    ],
+    "matched_by": "both",
+    "talk_label": null,
+    "score": 1.01307
+   },
+   {
+    "clip_id": "2fXwQylR2lw-1280~1344",
+    "talk_id": "2fXwQylR2lw",
+    "title": "Istio in Production: Expected Value, Results, and Effort at GitHub Scale",
+    "speakers": [
+     "Mitch Connors",
+     "Golnaz Rouhi"
+    ],
+    "start_sec": 1278,
+    "end_sec": 1416,
+    "watch_url": "https://www.youtube.com/watch?v=2fXwQylR2lw&t=1278s",
+    "quote": "and with ISTTO vendors such as the partnership that we have with GitHub. We do have a few things to talk about uh that are coming up in ISTO. We already mentioned ambient multicluster and you can visit the blog post to learn more about how that works.",
+    "why": "Mentions Istio 5 times in this clip",
+    "matched_tools": [
+     "istio"
+    ],
+    "matched_by": "both",
+    "talk_label": null,
+    "score": 1.008557
+   }
+  ],
+  "trace_id": "a452a056721a798f4e45ada10d22ddde",
+  "message": "No talk mentions Kubernetes; showing the rest of your stack.",
+  "debug": {
+   "query": {
+    "size": 50,
+    "_source": [
+     "chunk_id",
+     "talk_id",
+     "youtube_id",
+     "title",
+     "speakers",
+     "start_sec",
+     "end_sec",
+     "text",
+     "tools",
+     "talk_label"
+    ],
+    "retriever": {
+     "text_similarity_reranker": {
+      "retriever": {
+       "rrf": {
+        "rank_window_size": 100,
+        "retrievers": [
+         {
+          "standard": {
+           "query": {
+            "bool": {
+             "should": [
+              {
+               "terms": {
+                "tools": [
+                 "argo-cd",
+                 "cert-manager",
+                 "envoy",
+                 "prometheus",
+                 "opentelemetry",
+                 "istio",
+                 "kubernetes"
+                ],
+                "boost": 2
+               }
+              },
+              {
+               "match_phrase": {
+                "text": "argo cd"
+               }
+              },
+              {
+               "match_phrase": {
+                "text": "argocd"
+               }
+              },
+              {
+               "match_phrase": {
+                "text": "argo city"
+               }
+              },
+              {
+               "match_phrase": {
+                "text": "cert-manager"
+               }
+              },
+              {
+               "match_phrase": {
+                "text": "cert manager"
+               }
+              },
+              {
+               "match_phrase": {
+                "text": "certmanager"
+               }
+              },
+              {
+               "match_phrase": {
+                "text": "search manager"
+               }
+              },
+              {
+               "match_phrase": {
+                "text": "envoy"
+               }
+              },
+              {
+               "match_phrase": {
+                "text": "envoy proxy"
+               }
+              },
+              {
+               "match_phrase": {
+                "text": "envoyproxy"
+               }
+              },
+              {
+               "match_phrase": {
+                "text": "prometheus"
+               }
+              },
+              {
+               "match_phrase": {
+                "text": "promql"
+               }
+              },
+              {
+               "match_phrase": {
+                "text": "opentelemetry"
+               }
+              },
+              {
+               "match_phrase": {
+                "text": "open telemetry"
+               }
+              },
+              {
+               "match_phrase": {
+                "text": "otel"
+               }
+              },
+              {
+               "match_phrase": {
+                "text": "otlp"
+               }
+              },
+              {
+               "match_phrase": {
+                "text": "hotel collector"
+               }
+              },
+              {
+               "match_phrase": {
+                "text": "hotel collectors"
+               }
+              },
+              {
+               "match_phrase": {
+                "text": "hotel sdk"
+               }
+              },
+              {
+               "match_phrase": {
+                "text": "hotel sdks"
+               }
+              },
+              {
+               "match_phrase": {
+                "text": "hotel demo"
+               }
+              },
+              {
+               "match_phrase": {
+                "text": "hotel instrumentation"
+               }
+              },
+              {
+               "match_phrase": {
+                "text": "hotel profiles"
+               }
+              },
+              {
+               "match_phrase": {
+                "text": "hotel spans"
+               }
+              },
+              {
+               "match_phrase": {
+                "text": "istio"
+               }
+              },
+              {
+               "match_phrase": {
+                "text": "isto"
+               }
+              },
+              {
+               "match_phrase": {
+                "text": "istto"
+               }
+              },
+              {
+               "match_phrase": {
+                "text": "kubernetes"
+               }
+              },
+              {
+               "match_phrase": {
+                "text": "k8s"
+               }
+              },
+              {
+               "match_phrase": {
+                "text": "kates"
+               }
+              }
+             ],
+             "minimum_should_match": 1
+            }
+           }
+          }
+         },
+         {
+          "standard": {
+           "query": {
+            "semantic": {
+             "field": "text_semantic",
+             "query": "Argo CD, cert-manager, Envoy, Prometheus, OpenTelemetry, Istio, Kubernetes"
+            }
+           }
+          }
+         }
+        ]
+       }
+      },
+      "field": "text",
+      "inference_id": ".jina-reranker-v3",
+      "inference_text": "Argo CD, cert-manager, Envoy, Prometheus, OpenTelemetry, Istio, Kubernetes",
+      "rank_window_size": 50
+     }
+    },
+    "highlight": {
+     "fields": {
+      "text": {
+       "type": "unified",
+       "boundary_scanner": "sentence",
+       "fragment_size": 200,
+       "number_of_fragments": 1,
+       "no_match_size": 0,
+       "highlight_query": {
+        "bool": {
+         "should": [
+          {
+           "match_phrase": {
+            "text": "argo cd"
+           }
+          },
+          {
+           "match_phrase": {
+            "text": "argocd"
+           }
+          },
+          {
+           "match_phrase": {
+            "text": "argo city"
+           }
+          },
+          {
+           "match_phrase": {
+            "text": "cert-manager"
+           }
+          },
+          {
+           "match_phrase": {
+            "text": "cert manager"
+           }
+          },
+          {
+           "match_phrase": {
+            "text": "certmanager"
+           }
+          },
+          {
+           "match_phrase": {
+            "text": "search manager"
+           }
+          },
+          {
+           "match_phrase": {
+            "text": "envoy"
+           }
+          },
+          {
+           "match_phrase": {
+            "text": "envoy proxy"
+           }
+          },
+          {
+           "match_phrase": {
+            "text": "envoyproxy"
+           }
+          },
+          {
+           "match_phrase": {
+            "text": "prometheus"
+           }
+          },
+          {
+           "match_phrase": {
+            "text": "promql"
+           }
+          },
+          {
+           "match_phrase": {
+            "text": "opentelemetry"
+           }
+          },
+          {
+           "match_phrase": {
+            "text": "open telemetry"
+           }
+          },
+          {
+           "match_phrase": {
+            "text": "otel"
+           }
+          },
+          {
+           "match_phrase": {
+            "text": "otlp"
+           }
+          },
+          {
+           "match_phrase": {
+            "text": "hotel collector"
+           }
+          },
+          {
+           "match_phrase": {
+            "text": "hotel collectors"
+           }
+          },
+          {
+           "match_phrase": {
+            "text": "hotel sdk"
+           }
+          },
+          {
+           "match_phrase": {
+            "text": "hotel sdks"
+           }
+          },
+          {
+           "match_phrase": {
+            "text": "hotel demo"
+           }
+          },
+          {
+           "match_phrase": {
+            "text": "hotel instrumentation"
+           }
+          },
+          {
+           "match_phrase": {
+            "text": "hotel profiles"
+           }
+          },
+          {
+           "match_phrase": {
+            "text": "hotel spans"
+           }
+          },
+          {
+           "match_phrase": {
+            "text": "istio"
+           }
+          },
+          {
+           "match_phrase": {
+            "text": "isto"
+           }
+          },
+          {
+           "match_phrase": {
+            "text": "istto"
+           }
+          },
+          {
+           "match_phrase": {
+            "text": "kubernetes"
+           }
+          },
+          {
+           "match_phrase": {
+            "text": "k8s"
+           }
+          },
+          {
+           "match_phrase": {
+            "text": "kates"
+           }
+          }
+         ],
+         "minimum_should_match": 1
+        }
+       }
+      }
+     }
+    }
+   },
+   "timings_ms": {
+    "hybrid_search": 316.2,
+    "keyword_search": 68.7,
+    "semantic_search": 128.4,
+    "elastic_rerank": 1039.4,
+    "search_wall": 1039.7,
+    "grouping": 0.9,
+    "clip_building": 0.3,
+    "rerank": 8527.0,
+    "budget": 2.5,
+    "total": 9581.0
+   },
+   "hits": 100,
+   "talks": 28,
+   "rerank": {
+    "elastic": "ok",
+    "model": "fallback: LLMError"
+   }
+  }
+ }
+}

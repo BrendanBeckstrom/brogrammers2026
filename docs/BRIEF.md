@@ -327,6 +327,8 @@ A `clip_id` is the ids of the chunks the clip was built from: the first `chunk_i
 
 One more route feeds the attended-talk picker: `GET /api/talks` returns `[{"talk_id", "title", "speakers"}]` from the `talks` index.
 
+Demo cache details (task 13): with `DEBRIEF_CACHE=on`, `/api/playlist`, `/api/memo`, `/api/stack`, `/api/tools`, `/api/talks` and `/api/clips/{id}` first look for `api/cache/<route>-<key>.json`, where the key is a SHA-256 of the normalised request body (sorted keys; `tools`, `attended_talk_ids` and `clip_ids` sorted and de-duplicated; a blank `pain` counts as none). A hit touches neither Elastic nor the model, carries the header `X-Debrief-Cache: hit` and, when the answer has a `debug` object, `debug.cache: "hit"` (a playlist hit gets the current `trace_id`). A miss carries `X-Debrief-Cache: miss` and takes the live path; if that is unreachable the answer is a 503 saying so. With the flag off nothing changes. `make cache` (`python -m tests.build_cache`) builds the files from a running API; clip files hold full transcript text and stay out of git.
+
 ## Tasks
 
 **Fourteen tasks in order; each is one pull request, and each is done only when its check passes.** "Needs" names the decision that must be settled first.

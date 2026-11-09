@@ -1,0 +1,530 @@
+{
+ "route": "playlist",
+ "request": {
+  "tools": [
+   "opentelemetry",
+   "prometheus"
+  ],
+  "pain": null,
+  "attended_talk_ids": [],
+  "filter": "all",
+  "budget_minutes": 25,
+  "rerank": true
+ },
+ "response": {
+  "total_seconds": 1447,
+  "clips": [
+   {
+    "clip_id": "6vE9b6StC0g-1838",
+    "talk_id": "6vE9b6StC0g",
+    "title": "Prometheus V3 One Year In: OpenMetrics 2.0 and More!",
+    "speakers": [
+     "Jan Fajerski",
+     "Bartłomiej Płotka"
+    ],
+    "start_sec": 1836,
+    "end_sec": 1917,
+    "watch_url": "https://www.youtube.com/watch?v=6vE9b6StC0g&t=1836s",
+    "quote": "Certainly. So, um Prometheus has a somewhat formalized proposal process nowadays.",
+    "why": "Mentions Prometheus 5 times in this clip (also OpenTelemetry)",
+    "matched_tools": [
+     "opentelemetry",
+     "prometheus"
+    ],
+    "matched_by": "both",
+    "talk_label": null,
+    "score": 1.384053
+   },
+   {
+    "clip_id": "w1pj0Lz1mW4-394",
+    "talk_id": "w1pj0Lz1mW4",
+    "title": "Fluent Bit V5: Pushing the Limits of Observability at Scale",
+    "speakers": [
+     "Eduardo Silva"
+    ],
+    "start_sec": 392,
+    "end_sec": 470,
+    "watch_url": "https://www.youtube.com/watch?v=w1pj0Lz1mW4&t=392s",
+    "quote": "So the way that fluent bit approach the integration with open telemetry is that we support the schemas of hotel same as we support the schema of prometheus right and we also speak OTLP which is a open telemetry protocol.",
+    "why": "Mentions OpenTelemetry 6 times in this clip (also Prometheus)",
+    "matched_tools": [
+     "opentelemetry",
+     "prometheus"
+    ],
+    "matched_by": "both",
+    "talk_label": null,
+    "score": 1.334521
+   },
+   {
+    "clip_id": "Z0oum6Eh1is-790~853~915",
+    "talk_id": "Z0oum6Eh1is",
+    "title": "We Deleted Our Observability Stack and Rebuilt It With OTEL: 12 Engineers to 4 at 20K+ Clusters",
+    "speakers": [
+     "Yash Sharma",
+     "Kunju Perath"
+    ],
+    "start_sec": 788,
+    "end_sec": 995,
+    "watch_url": "https://www.youtube.com/watch?v=Z0oum6Eh1is&t=788s",
+    "quote": "were only really paying attention to once we had some OOM kills going on um and then of course OTLP exporter because uh the the format the telemetry data is stored in a different format it's not Prometheus exposition format it's it's called the OTLP uh format by open telemetry um and so we needed…",
+    "why": "Mentions Prometheus 12 times in this clip (also OpenTelemetry)",
+    "matched_tools": [
+     "opentelemetry",
+     "prometheus"
+    ],
+    "matched_by": "both",
+    "talk_label": null,
+    "score": 1.277687
+   },
+   {
+    "clip_id": "gH_JzIXFshI-784~861~930",
+    "talk_id": "gH_JzIXFshI",
+    "title": "Jaeger V2: The Maintainers' Guide To OpenTelemetry-Native Tracing",
+    "speakers": [
+     "Pavol Loffay"
+    ],
+    "start_sec": 782,
+    "end_sec": 1006,
+    "watch_url": "https://www.youtube.com/watch?v=gH_JzIXFshI&t=782s",
+    "quote": "Um it receives spans uh it creates metrics and then it sends them to Prometheus. You can send them via remote write or Prometheus scraping or via OTLP. Prometheus uh supports OTLP HTTP as well.",
+    "why": "Mentions OpenTelemetry 9 times in this clip (also Prometheus)",
+    "matched_tools": [
+     "opentelemetry",
+     "prometheus"
+    ],
+    "matched_by": "both",
+    "talk_label": null,
+    "score": 1.265503
+   },
+   {
+    "clip_id": "0zwLl8QGOdM-135",
+    "talk_id": "0zwLl8QGOdM",
+    "title": "OpenTelemetry Collector SIG: Project Updates",
+    "speakers": [
+     "Jade G",
+     "Dmitrii A",
+     "Alex B",
+     "Evan B",
+     "Antoine T"
+    ],
+    "start_sec": 133,
+    "end_sec": 213,
+    "watch_url": "https://www.youtube.com/watch?v=0zwLl8QGOdM&t=133s",
+    "quote": "All right one of the things that always comes up when we ask our end users what do you want to see on the open telemetry roadmap? What do you care about in the open telemetry collector?",
+    "why": "Mentions OpenTelemetry 3 times in this clip (also Prometheus)",
+    "matched_tools": [
+     "opentelemetry",
+     "prometheus"
+    ],
+    "matched_by": "both",
+    "talk_label": null,
+    "score": 1.239622
+   },
+   {
+    "clip_id": "0zwLl8QGOdM-471~537",
+    "talk_id": "0zwLl8QGOdM",
+    "title": "OpenTelemetry Collector SIG: Project Updates",
+    "speakers": [
+     "Jade G",
+     "Dmitrii A",
+     "Alex B",
+     "Evan B",
+     "Antoine T"
+    ],
+    "start_sec": 469,
+    "end_sec": 614,
+    "watch_url": "https://www.youtube.com/watch?v=0zwLl8QGOdM&t=469s",
+    "quote": "Um, the Prometheus team is working on something that will allow you to wrap existing Prometheus exporters and make them into collector receivers. So if you're looking to consolidate your telemetry collection on the collector, uh this might be for you.",
+    "why": "Mentions Prometheus 11 times in this clip",
+    "matched_tools": [
+     "prometheus"
+    ],
+    "matched_by": "both",
+    "talk_label": null,
+    "score": 1.185149
+   },
+   {
+    "clip_id": "6vE9b6StC0g-194~260",
+    "talk_id": "6vE9b6StC0g",
+    "title": "Prometheus V3 One Year In: OpenMetrics 2.0 and More!",
+    "speakers": [
+     "Jan Fajerski",
+     "Bartłomiej Płotka"
+    ],
+    "start_sec": 192,
+    "end_sec": 339,
+    "watch_url": "https://www.youtube.com/watch?v=6vE9b6StC0g&t=192s",
+    "quote": "Um OTLP. Um we added a whole bunch of stuff to the uh OTLP receive endpoint. So, um there is the first signs of delta ingestion.",
+    "why": "Mentions Prometheus 4 times in this clip (also OpenTelemetry)",
+    "matched_tools": [
+     "opentelemetry",
+     "prometheus"
+    ],
+    "matched_by": "both",
+    "talk_label": null,
+    "score": 1.168509
+   },
+   {
+    "clip_id": "mvSGusgcVuw-1183",
+    "talk_id": "mvSGusgcVuw",
+    "title": "OpenTelemetry Project Update and 'Ask the Experts'",
+    "speakers": [
+     "Pablo B",
+     "Juraci P",
+     "Marylia G",
+     "Severin N"
+    ],
+    "start_sec": 1181,
+    "end_sec": 1261,
+    "watch_url": "https://www.youtube.com/watch?v=mvSGusgcVuw&t=1181s",
+    "quote": "Now it's stable. Hotel demo maintainers here.",
+    "why": "Mentions OpenTelemetry 3 times in this clip",
+    "matched_tools": [
+     "opentelemetry"
+    ],
+    "matched_by": "keyword",
+    "talk_label": null,
+    "score": 1.079074
+   },
+   {
+    "clip_id": "w1pj0Lz1mW4-1532",
+    "talk_id": "w1pj0Lz1mW4",
+    "title": "Fluent Bit V5: Pushing the Limits of Observability at Scale",
+    "speakers": [
+     "Eduardo Silva"
+    ],
+    "start_sec": 1530,
+    "end_sec": 1613,
+    "watch_url": "https://www.youtube.com/watch?v=w1pj0Lz1mW4&t=1530s",
+    "quote": "So, we don't look to displace open telemetry. Actually, we integrate with open telemetry. Yeah.",
+    "why": "Mentions OpenTelemetry 4 times in this clip",
+    "matched_tools": [
+     "opentelemetry"
+    ],
+    "matched_by": "both",
+    "talk_label": null,
+    "score": 1.068152
+   },
+   {
+    "clip_id": "w1pj0Lz1mW4-132",
+    "talk_id": "w1pj0Lz1mW4",
+    "title": "Fluent Bit V5: Pushing the Limits of Observability at Scale",
+    "speakers": [
+     "Eduardo Silva"
+    ],
+    "start_sec": 130,
+    "end_sec": 209,
+    "watch_url": "https://www.youtube.com/watch?v=w1pj0Lz1mW4&t=130s",
+    "quote": "So it's not just to receive over the network but also from the local system even systemd if you want to process systemd lock logs from your Linux box you can use this type and for processor which allow you to modify the data or enrich it we have Lua scripting so you can have your Lua scripts in…",
+    "why": "Mentions OpenTelemetry 3 times in this clip",
+    "matched_tools": [
+     "opentelemetry"
+    ],
+    "matched_by": "both",
+    "talk_label": null,
+    "score": 1.055607
+   },
+   {
+    "clip_id": "OVffupWFEtw-755",
+    "talk_id": "OVffupWFEtw",
+    "title": "Enriching Telemetry Signals Through Lookups in the OTel Collector",
+    "speakers": [
+     "João Duarte"
+    ],
+    "start_sec": 753,
+    "end_sec": 841,
+    "watch_url": "https://www.youtube.com/watch?v=OVffupWFEtw&t=753s",
+    "quote": "This name, it is the service name that I already have, but now I also know that it's the hotel demo, the hotel collector, mini cube, etc. So, the value adds up. And now we go to type three.",
+    "why": "Mentions OpenTelemetry twice in this clip",
+    "matched_tools": [
+     "opentelemetry"
+    ],
+    "matched_by": "keyword",
+    "talk_label": null,
+    "score": 1.051985
+   },
+   {
+    "clip_id": "S6z2gd666qg-258",
+    "talk_id": "S6z2gd666qg",
+    "title": "OpenTelemetry Gateways: Enforce, Transform, Route",
+    "speakers": [
+     "Juraci Paixão Kröhling",
+     "Natalie Ujuk"
+    ],
+    "start_sec": 256,
+    "end_sec": 335,
+    "watch_url": "https://www.youtube.com/watch?v=S6z2gd666qg&t=256s",
+    "quote": "The pattern we landed on is a centralized open telemetry collector gateway. Applications send telemetry to edge collectors where the configuration stays simple and lightweight. Those collectors forward telemetry into the gateway layers.",
+    "why": "Mentions OpenTelemetry twice in this clip",
+    "matched_tools": [
+     "opentelemetry"
+    ],
+    "matched_by": "both",
+    "talk_label": null,
+    "score": 1.039712
+   },
+   {
+    "clip_id": "mvSGusgcVuw-0",
+    "talk_id": "mvSGusgcVuw",
+    "title": "OpenTelemetry Project Update and 'Ask the Experts'",
+    "speakers": [
+     "Pablo B",
+     "Juraci P",
+     "Marylia G",
+     "Severin N"
+    ],
+    "start_sec": 0,
+    "end_sec": 76,
+    "watch_url": "https://www.youtube.com/watch?v=mvSGusgcVuw&t=0s",
+    "quote": "Uh, welcome to the open telemetry product updates. My name is Judas. I am Morelia.",
+    "why": "Mentions OpenTelemetry 3 times in this clip",
+    "matched_tools": [
+     "opentelemetry"
+    ],
+    "matched_by": "both",
+    "talk_label": null,
+    "score": 1.039421
+   }
+  ],
+  "trace_id": "34e92fd6b529703daf1bd4f2385d72f3",
+  "message": null,
+  "debug": {
+   "query": {
+    "size": 50,
+    "_source": [
+     "chunk_id",
+     "talk_id",
+     "youtube_id",
+     "title",
+     "speakers",
+     "start_sec",
+     "end_sec",
+     "text",
+     "tools",
+     "talk_label"
+    ],
+    "retriever": {
+     "text_similarity_reranker": {
+      "retriever": {
+       "rrf": {
+        "rank_window_size": 100,
+        "retrievers": [
+         {
+          "standard": {
+           "query": {
+            "bool": {
+             "should": [
+              {
+               "terms": {
+                "tools": [
+                 "opentelemetry",
+                 "prometheus"
+                ],
+                "boost": 2
+               }
+              },
+              {
+               "match_phrase": {
+                "text": "opentelemetry"
+               }
+              },
+              {
+               "match_phrase": {
+                "text": "open telemetry"
+               }
+              },
+              {
+               "match_phrase": {
+                "text": "otel"
+               }
+              },
+              {
+               "match_phrase": {
+                "text": "otlp"
+               }
+              },
+              {
+               "match_phrase": {
+                "text": "hotel collector"
+               }
+              },
+              {
+               "match_phrase": {
+                "text": "hotel collectors"
+               }
+              },
+              {
+               "match_phrase": {
+                "text": "hotel sdk"
+               }
+              },
+              {
+               "match_phrase": {
+                "text": "hotel sdks"
+               }
+              },
+              {
+               "match_phrase": {
+                "text": "hotel demo"
+               }
+              },
+              {
+               "match_phrase": {
+                "text": "hotel instrumentation"
+               }
+              },
+              {
+               "match_phrase": {
+                "text": "hotel profiles"
+               }
+              },
+              {
+               "match_phrase": {
+                "text": "hotel spans"
+               }
+              },
+              {
+               "match_phrase": {
+                "text": "prometheus"
+               }
+              },
+              {
+               "match_phrase": {
+                "text": "promql"
+               }
+              }
+             ],
+             "minimum_should_match": 1
+            }
+           }
+          }
+         },
+         {
+          "standard": {
+           "query": {
+            "semantic": {
+             "field": "text_semantic",
+             "query": "OpenTelemetry, Prometheus"
+            }
+           }
+          }
+         }
+        ]
+       }
+      },
+      "field": "text",
+      "inference_id": ".jina-reranker-v3",
+      "inference_text": "OpenTelemetry, Prometheus",
+      "rank_window_size": 50
+     }
+    },
+    "highlight": {
+     "fields": {
+      "text": {
+       "type": "unified",
+       "boundary_scanner": "sentence",
+       "fragment_size": 200,
+       "number_of_fragments": 1,
+       "no_match_size": 0,
+       "highlight_query": {
+        "bool": {
+         "should": [
+          {
+           "match_phrase": {
+            "text": "opentelemetry"
+           }
+          },
+          {
+           "match_phrase": {
+            "text": "open telemetry"
+           }
+          },
+          {
+           "match_phrase": {
+            "text": "otel"
+           }
+          },
+          {
+           "match_phrase": {
+            "text": "otlp"
+           }
+          },
+          {
+           "match_phrase": {
+            "text": "hotel collector"
+           }
+          },
+          {
+           "match_phrase": {
+            "text": "hotel collectors"
+           }
+          },
+          {
+           "match_phrase": {
+            "text": "hotel sdk"
+           }
+          },
+          {
+           "match_phrase": {
+            "text": "hotel sdks"
+           }
+          },
+          {
+           "match_phrase": {
+            "text": "hotel demo"
+           }
+          },
+          {
+           "match_phrase": {
+            "text": "hotel instrumentation"
+           }
+          },
+          {
+           "match_phrase": {
+            "text": "hotel profiles"
+           }
+          },
+          {
+           "match_phrase": {
+            "text": "hotel spans"
+           }
+          },
+          {
+           "match_phrase": {
+            "text": "prometheus"
+           }
+          },
+          {
+           "match_phrase": {
+            "text": "promql"
+           }
+          }
+         ],
+         "minimum_should_match": 1
+        }
+       }
+      }
+     }
+    }
+   },
+   "timings_ms": {
+    "hybrid_search": 429.2,
+    "keyword_search": 66.7,
+    "semantic_search": 114.0,
+    "elastic_rerank": 1178.2,
+    "search_wall": 1179.9,
+    "grouping": 0.5,
+    "clip_building": 0.2,
+    "rerank": 8072.0,
+    "budget": 4.1,
+    "total": 9257.8
+   },
+   "hits": 100,
+   "talks": 23,
+   "rerank": {
+    "elastic": "ok",
+    "model": "fallback: LLMError"
+   }
+  }
+ }
+}
