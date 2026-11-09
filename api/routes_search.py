@@ -2,7 +2,8 @@
 
 Each route runs inside its own OpenTelemetry span (ids, counts and timings only) and
 gets its Elastic client through `search_client` and its model through `model_client`;
-tests override both with fakes.
+tests override both with fakes. With DEBRIEF_CACHE=on each route first asks the demo cache
+(api/demo_cache.py, task 13).
 """
 
 from __future__ import annotations
@@ -11,11 +12,11 @@ import logging
 import time
 from typing import Annotated, Any, Literal
 
-from fastapi import APIRouter, Depends, HTTPException
+from fastapi import APIRouter, Depends, HTTPException, Response
 from opentelemetry import trace
 from pydantic import BaseModel, Field
 
-from api import llm, search, telemetry
+from api import demo_cache, llm, search, telemetry
 from api.llm import LLMClient
 from api.search import SearchBackendError, SearchClient
 
@@ -38,6 +39,9 @@ def search_client() -> SearchClient:
     try:
         return search.get_client()
     except SearchBackendError as e:
+        if demo_cache.enabled():
+            # Offline demo: cached requests never touch Elastic; a miss fails on first use.
+            return demo_cache.OfflineSearchClient()
         raise HTTPException(status_code=503, detail="Search is not configured") from e
 
 
@@ -63,11 +67,15 @@ Model = Annotated[LLMClient, Depends(model_client)]
 
 
 def _backend_error(e: SearchBackendError) -> HTTPException:
+    if demo_cache.enabled():
+        return demo_cache.miss_error(str(e))
     return HTTPException(status_code=502, detail=str(e))
 
 
 @router.post("/playlist")
-def playlist(body: PlaylistBody, client: Client, model: Model) -> dict[str, Any]:
+def playlist(
+    body: PlaylistBody, client: Client, model: Model, response: Response
+) -> dict[str, Any]:
     with tracer.start_as_current_span("api.playlist") as span:
         span.set_attributes(
             {
@@ -79,6 +87,10 @@ def playlist(body: PlaylistBody, client: Client, model: Model) -> dict[str, Any]
                 "debrief.pain_present": bool((body.pain or "").strip()),
             }
         )
+        cached = demo_cache.serve("playlist", body.model_dump(mode="json"), span, response)
+        if cached is not None:
+            span.set_attribute("debrief.clips", len(cached.get("clips") or []))
+            return {**cached, "trace_id": current_trace_id()}
         request = search.PlaylistRequest(
             tools=body.tools,
             pain=body.pain,
@@ -122,8 +134,12 @@ def playlist(body: PlaylistBody, client: Client, model: Model) -> dict[str, Any]
 
 
 @router.get("/tools")
-def tools(client: Client) -> list[dict[str, Any]]:
+def tools(client: Client, response: Response) -> list[dict[str, Any]]:
     with tracer.start_as_current_span("api.tools") as span:
+        cached = demo_cache.serve("tools", None, span, response)
+        if cached is not None:
+            span.set_attribute("debrief.tools_count", len(cached))
+            return cached
         try:
             rows = search.list_tools(client)
         except SearchBackendError as e:
@@ -133,8 +149,12 @@ def tools(client: Client) -> list[dict[str, Any]]:
 
 
 @router.get("/talks")
-def talks(client: Client) -> list[dict[str, Any]]:
+def talks(client: Client, response: Response) -> list[dict[str, Any]]:
     with tracer.start_as_current_span("api.talks") as span:
+        cached = demo_cache.serve("talks", None, span, response)
+        if cached is not None:
+            span.set_attribute("debrief.talks_count", len(cached))
+            return cached
         try:
             rows = search.list_talks(client)
         except SearchBackendError as e:
@@ -144,9 +164,12 @@ def talks(client: Client) -> list[dict[str, Any]]:
 
 
 @router.get("/clips/{clip_or_chunk_id}")
-def clip(clip_or_chunk_id: str, client: Client) -> dict[str, Any]:
+def clip(clip_or_chunk_id: str, client: Client, response: Response) -> dict[str, Any]:
     with tracer.start_as_current_span("api.clip") as span:
         span.set_attribute("debrief.clip_id", clip_or_chunk_id[:128])
+        cached = demo_cache.serve("clips", {"clip_id": clip_or_chunk_id}, span, response)
+        if cached is not None:
+            return cached
         try:
             found = search.clip_text(client, clip_or_chunk_id)
         except ValueError as e:

@@ -1,0 +1,62 @@
+{
+ "route": "stack",
+ "request": {
+  "tools": [],
+  "dependency_file": {
+   "name": "go.mod",
+   "content": "module github.com/acme-platform/release-gate\n\ngo 1.23.0\n\nrequire (\n\tgithub.com/argoproj/argo-cd/v2 v2.13.3\n\tgithub.com/cert-manager/cert-manager v1.16.2\n\tgithub.com/envoyproxy/go-control-plane v0.13.1\n\tgithub.com/prometheus/client_golang v1.20.5\n\tgithub.com/spf13/cobra v1.8.1\n\tgo.opentelemetry.io/otel v1.32.0\n\tgo.opentelemetry.io/otel/exporters/otlp/otlptrace/otlptracegrpc v1.32.0\n\tgo.opentelemetry.io/otel/sdk v1.32.0\n\tgo.opentelemetry.io/otel/trace v1.32.0\n\tgo.uber.org/zap v1.27.0\n\tgoogle.golang.org/grpc v1.68.0\n\tistio.io/client-go v1.24.1\n\tk8s.io/apimachinery v0.31.3\n\tk8s.io/client-go v0.31.3\n)\n\nrequire (\n\tgithub.com/beorn7/perks v1.0.1 // indirect\n\tgithub.com/cespare/xxhash/v2 v2.3.0 // indirect\n\tgithub.com/go-logr/logr v1.4.2 // indirect\n\tgithub.com/prometheus/client_model v0.6.1 // indirect\n\tgithub.com/prometheus/common v0.55.0 // indirect\n\tgithub.com/spf13/pflag v1.0.5 // indirect\n\tgo.opentelemetry.io/otel/metric v1.32.0 // indirect\n\tgo.uber.org/multierr v1.11.0 // indirect\n\tgoogle.golang.org/protobuf v1.35.1 // indirect\n)\n\n// Argo CD pins the Kubernetes modules it builds against; consumers match them here.\nreplace (\n\tk8s.io/api => k8s.io/api v0.31.3\n\tk8s.io/apimachinery => k8s.io/apimachinery v0.31.3\n\tk8s.io/client-go => k8s.io/client-go v0.31.3\n)\n"
+  }
+ },
+ "response": {
+  "tools": [
+   {
+    "id": "argo-cd",
+    "name": "Argo CD",
+    "source": "go.mod"
+   },
+   {
+    "id": "cert-manager",
+    "name": "cert-manager",
+    "source": "go.mod"
+   },
+   {
+    "id": "envoy",
+    "name": "Envoy",
+    "source": "go.mod"
+   },
+   {
+    "id": "prometheus",
+    "name": "Prometheus",
+    "source": "go.mod"
+   },
+   {
+    "id": "opentelemetry",
+    "name": "OpenTelemetry",
+    "source": "go.mod"
+   },
+   {
+    "id": "istio",
+    "name": "Istio",
+    "source": "go.mod"
+   },
+   {
+    "id": "kubernetes",
+    "name": "Kubernetes",
+    "source": "go.mod"
+   }
+  ],
+  "unknown_packages": [
+   "github.com/spf13/cobra",
+   "go.uber.org/zap",
+   "google.golang.org/grpc",
+   "github.com/beorn7/perks",
+   "github.com/cespare/xxhash/v2",
+   "github.com/go-logr/logr",
+   "github.com/prometheus/client_model",
+   "github.com/prometheus/common",
+   "github.com/spf13/pflag",
+   "go.uber.org/multierr",
+   "google.golang.org/protobuf"
+  ]
+ }
+}

@@ -1,0 +1,94 @@
+{
+ "route": "playlist",
+ "request": {
+  "tools": [
+   "a-tool-with-no-chunks"
+  ],
+  "pain": null,
+  "attended_talk_ids": [],
+  "filter": "all",
+  "budget_minutes": 25,
+  "rerank": true
+ },
+ "response": {
+  "total_seconds": 0,
+  "clips": [],
+  "trace_id": "14431f956ace52bacefa3fec59b8dccf",
+  "message": "No talk mentions a-tool-with-no-chunks.",
+  "debug": {
+   "query": {
+    "size": 50,
+    "_source": [
+     "chunk_id",
+     "talk_id",
+     "youtube_id",
+     "title",
+     "speakers",
+     "start_sec",
+     "end_sec",
+     "text",
+     "tools",
+     "talk_label"
+    ],
+    "retriever": {
+     "text_similarity_reranker": {
+      "retriever": {
+       "rrf": {
+        "rank_window_size": 100,
+        "retrievers": [
+         {
+          "standard": {
+           "query": {
+            "bool": {
+             "should": [
+              {
+               "terms": {
+                "tools": [
+                 "a-tool-with-no-chunks"
+                ],
+                "boost": 2
+               }
+              }
+             ],
+             "minimum_should_match": 1
+            }
+           }
+          }
+         },
+         {
+          "standard": {
+           "query": {
+            "semantic": {
+             "field": "text_semantic",
+             "query": "a-tool-with-no-chunks"
+            }
+           }
+          }
+         }
+        ]
+       }
+      },
+      "field": "text",
+      "inference_id": ".jina-reranker-v3",
+      "inference_text": "a-tool-with-no-chunks",
+      "rank_window_size": 50
+     }
+    }
+   },
+   "timings_ms": {
+    "hybrid_search": 355.1,
+    "keyword_search": 63.6,
+    "semantic_search": 156.7,
+    "elastic_rerank": 1109.6,
+    "search_wall": 1110.0,
+    "total": 1110.0
+   },
+   "hits": 0,
+   "talks": 0,
+   "rerank": {
+    "elastic": "ok",
+    "model": "off"
+   }
+  }
+ }
+}

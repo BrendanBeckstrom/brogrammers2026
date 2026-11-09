@@ -1,0 +1,426 @@
+{
+ "route": "talks",
+ "request": {},
+ "response": [
+  {
+   "talk_id": "EN_77SkK5jg",
+   "title": "10 Years of Cilium: Connecting, Securing, and Simplifying the Cloud Native Stack",
+   "speakers": [
+    "Bill M",
+    "Paul A",
+    "Marcelo M",
+    "Neha A"
+   ]
+  },
+  {
+   "talk_id": "PySEmqtrvL8",
+   "title": "Accelerating Thanos at Scale: Faster and Cheaper Queries With Parquet",
+   "speakers": [
+    "Giedrius Statkevičius"
+   ]
+  },
+  {
+   "talk_id": "7YuMvcW5wRA",
+   "title": "Advanced Kyverno Patterns : Automating Platform Security and Operations",
+   "speakers": [
+    "Frank Jogeleit",
+    "Johannes Sonner"
+   ]
+  },
+  {
+   "talk_id": "fcajag5di68",
+   "title": "Argo CD: Previewing Pull Request Changes in SECONDS!",
+   "speakers": [
+    "Dag Bjerre Andersen",
+    "Sergey Shevchenko"
+   ]
+  },
+  {
+   "talk_id": "q2b9niAdFII",
+   "title": "Backend-First IDP: A Production Roadmap With Argo CD, Crossplane, and OPA",
+   "speakers": [
+    "Abhinav Sharma",
+    "Aditya Soni"
+   ]
+  },
+  {
+   "talk_id": "vzBGkY_HIyM",
+   "title": "Cert-manager – Project Update: Beyond 2026",
+   "speakers": [
+    "Tim Ramlot",
+    "Maël Valais"
+   ]
+  },
+  {
+   "talk_id": "ENgE6V1M3zg",
+   "title": "Connecting the World: Your Hands-on Guide To Cilium ClusterMesh and MCS-API",
+   "speakers": [
+    "Arthur Outhenin-Chalandre",
+    "Quentin Swiech"
+   ]
+  },
+  {
+   "talk_id": "zu6V34BFksk",
+   "title": "Crossplane - The Cloud Native Framework for Platform Engineering",
+   "speakers": [
+    "Jared Watts",
+    "Adam Wolfe Gordon"
+   ]
+  },
+  {
+   "talk_id": "9gejXxl5JzE",
+   "title": "Dapr in the AI Era: Orchestrating Complex Multi-agent Workflows With Automatic Recovery",
+   "speakers": [
+    "Yaron Schneider"
+   ]
+  },
+  {
+   "talk_id": "VfVQj4Oa3z0",
+   "title": "Declarative...ish? Fixing Hidden Argo CD Pitfalls in Your GitOps Setup",
+   "speakers": [
+    "Regina Voloshin"
+   ]
+  },
+  {
+   "talk_id": "6xZdcPQL3xs",
+   "title": "Decoupling Canary Deployments From DBs With Argo Rollouts",
+   "speakers": [
+    "Anastasiia Gubska"
+   ]
+  },
+  {
+   "talk_id": "YMqSK6uBhxU",
+   "title": "DNS Tracing & Metrics Via eBPF in OpenTelemetry",
+   "speakers": [
+    "Endre Sara",
+    "Nikola Grcevski"
+   ]
+  },
+  {
+   "talk_id": "tGaHB5uF7XA",
+   "title": "Empowering Autonomy: BYD's Journey Taming Million-Task Scale With Argo Workflows",
+   "speakers": [
+    "Shuangkun Tian",
+    "Zhang Bao"
+   ]
+  },
+  {
+   "talk_id": "OVffupWFEtw",
+   "title": "Enriching Telemetry Signals Through Lookups in the OTel Collector",
+   "speakers": [
+    "João Duarte"
+   ]
+  },
+  {
+   "talk_id": "HvX4nGkhfZw",
+   "title": "Envoy in the Era of Agentic Workloads",
+   "speakers": [
+    "Yan Avlasov",
+    "Erica Hughberg"
+   ]
+  },
+  {
+   "talk_id": "4K6s5y8HoBc",
+   "title": "Evolution or Revolution: Istio as the Network Platform for Cloud Native",
+   "speakers": [
+    "Mitch Connors",
+    "Daniel Grimm"
+   ]
+  },
+  {
+   "talk_id": "zcdrXu1Fpy0",
+   "title": "Evolving KServe: The Unified Model Inference Platform for Both Predictive and Generative AI",
+   "speakers": [
+    "F. Spolti",
+    "J. Lee"
+   ]
+  },
+  {
+   "talk_id": "FKcG5M_rRT4",
+   "title": "Federated llm-d: Elevating Distributed Inference Beyond Cluster Boundaries",
+   "speakers": [
+    "Madhuri Yechuri",
+    "Abhishek Malvankar"
+   ]
+  },
+  {
+   "talk_id": "w1pj0Lz1mW4",
+   "title": "Fluent Bit V5: Pushing the Limits of Observability at Scale",
+   "speakers": [
+    "Eduardo Silva"
+   ]
+  },
+  {
+   "talk_id": "Wrek7kjrcs0",
+   "title": "From FTP To Argo CD & Argo Rollouts: An Adoption History Inside a Corp",
+   "speakers": [
+    "Alfonso Ming",
+    "Meritxell Rodríguez"
+   ]
+  },
+  {
+   "talk_id": "kIj2U13VZJY",
+   "title": "From ingress-nginx to Envoy Gateway at Zapier: The Benefits, Challenges, and Migration Lessons That Matter",
+   "speakers": [
+    "Kalen Wessel"
+   ]
+  },
+  {
+   "talk_id": "m0LBKjlxrog",
+   "title": "From VMs to Kubernetes in a Large Global Bank: A DBA's Journey",
+   "speakers": [
+    "Gabriele Bartolini",
+    "Laurent Parodi"
+   ]
+  },
+  {
+   "talk_id": "Q4E9GDAslIk",
+   "title": "GenAI Observability: Keeping GenAI Honest Without Oversharing",
+   "speakers": [
+    "Liudmila Molkova"
+   ]
+  },
+  {
+   "talk_id": "x5nVyVZSd0A",
+   "title": "GitOps Your Costs: Automated FinOps Through Argo Workflows",
+   "speakers": [
+    "Kunal Das",
+    "Hrittik Roy"
+   ]
+  },
+  {
+   "talk_id": "cmHFJikhmyY",
+   "title": "Helm 4 Is Here. So, Now What?",
+   "speakers": [
+    "Andrew Block",
+    "Scott Rigby",
+    "Robert Sirchia"
+   ]
+  },
+  {
+   "talk_id": "Ztt3Wvd-pbI",
+   "title": "In Falco's Nest: The Evolution of Cloud Native Runtime Security",
+   "speakers": [
+    "Iacopo Rozzo",
+    "Aldo Lacuku"
+   ]
+  },
+  {
+   "talk_id": "CAn22mnA6kE",
+   "title": "Inside Spotify’s Envoy Architecture: What We Learned the Hard Way",
+   "speakers": [
+    "Leonardo da Mata"
+   ]
+  },
+  {
+   "talk_id": "2fXwQylR2lw",
+   "title": "Istio in Production: Expected Value, Results, and Effort at GitHub Scale",
+   "speakers": [
+    "Mitch Connors",
+    "Golnaz Rouhi"
+   ]
+  },
+  {
+   "talk_id": "gH_JzIXFshI",
+   "title": "Jaeger V2: The Maintainers' Guide To OpenTelemetry-Native Tracing",
+   "speakers": [
+    "Pavol Loffay"
+   ]
+  },
+  {
+   "talk_id": "jPWsMZFpihA",
+   "title": "Linkerd: Reliable Production in an AI/MCP World",
+   "speakers": [
+    "William Morgan"
+   ]
+  },
+  {
+   "talk_id": "9VqzQgin6vk",
+   "title": "Not Yet Another Envoy Implementation - Exploring Kgateway To Write Your Own GatewayAPI Backend",
+   "speakers": [
+    "Ricardo Katz"
+   ]
+  },
+  {
+   "talk_id": "TENlj4r6IXk",
+   "title": "Open Policy Agent. (OPA) Intro & Deep Dive",
+   "speakers": [
+    "Charlie Egan",
+    "Anders Eknert"
+   ]
+  },
+  {
+   "talk_id": "0zwLl8QGOdM",
+   "title": "OpenTelemetry Collector SIG: Project Updates",
+   "speakers": [
+    "Jade G",
+    "Dmitrii A",
+    "Alex B",
+    "Evan B",
+    "Antoine T"
+   ]
+  },
+  {
+   "talk_id": "S6z2gd666qg",
+   "title": "OpenTelemetry Gateways: Enforce, Transform, Route",
+   "speakers": [
+    "Juraci Paixão Kröhling",
+    "Natalie Ujuk"
+   ]
+  },
+  {
+   "talk_id": "mvSGusgcVuw",
+   "title": "OpenTelemetry Project Update and 'Ask the Experts'",
+   "speakers": [
+    "Pablo B",
+    "Juraci P",
+    "Marylia G",
+    "Severin N"
+   ]
+  },
+  {
+   "talk_id": "bgL7QC75tFE",
+   "title": "Policy & GitOps Unite! Kyverno and Flux Save Cluster City",
+   "speakers": [
+    "Cortney Nickerson",
+    "Leigh Capili"
+   ]
+  },
+  {
+   "talk_id": "6vE9b6StC0g",
+   "title": "Prometheus V3 One Year In: OpenMetrics 2.0 and More!",
+   "speakers": [
+    "Jan Fajerski",
+    "Bartłomiej Płotka"
+   ]
+  },
+  {
+   "talk_id": "uGhHeYZ4zGg",
+   "title": "Pull Request Wars: The Flux Awakens - Ephemeral Kubernetes Environments Strike Back",
+   "speakers": [
+    "Matteo Bianchi",
+    "Stefan Prodan"
+   ]
+  },
+  {
+   "talk_id": "ehKzt_kGEeM",
+   "title": "Retroactive Sampling with OpenTelemetry: Cut 90% Distributed Tracing Bandwidth Usage",
+   "speakers": [
+    "Roman Khavronenko",
+    "Zhu Jiekun"
+   ]
+  },
+  {
+   "talk_id": "qFVJmnvmAQ4",
+   "title": "Scaling LLMs at Bloomberg Using Envoy AI Gateway: A Hybrid Cloud Approach",
+   "speakers": [
+    "Xiaolin Lin",
+    "Aaron Choo"
+   ]
+  },
+  {
+   "talk_id": "iN5vQjDuiWc",
+   "title": "Smoothed and Anchored Rate Calculation in PromQL",
+   "speakers": [
+    "Björn Rabenstein"
+   ]
+  },
+  {
+   "talk_id": "2zudwGs3bMM",
+   "title": "Sponsored Keynote: Agentic GitOps: Evolving Enterprise Delivery",
+   "speakers": [
+    "Andy Martin"
+   ]
+  },
+  {
+   "talk_id": "6G2Rr2rQ2RI",
+   "title": "Sponsored Keynote: Argo CD vs the World",
+   "speakers": [
+    "Steve Fenton"
+   ]
+  },
+  {
+   "talk_id": "Sdoc3aQN-f4",
+   "title": "Sponsored Keynote: Building an IDP in 5 Minutes Not 5 Months",
+   "speakers": [
+    "Matar Peles"
+   ]
+  },
+  {
+   "talk_id": "XQuLlpI2FI4",
+   "title": "Sponsored Keynote: Built in the Open: Why Cisco Is Betting on eBPF, Cilium, and Tetragon",
+   "speakers": [
+    "Bill Mulligan"
+   ]
+  },
+  {
+   "talk_id": "y_63qmgAklI",
+   "title": "Sponsored Keynote: Your Backstage, Our Grunt Work: Migrating to Spotify Portal Without Pausing Your Roadmap",
+   "speakers": [
+    "Joe Combopiano"
+   ]
+  },
+  {
+   "talk_id": "iC15zeOLZQA",
+   "title": "The 10x DevOps Engineer’s Toolkit: Argo CD + AI-Driven MCP Automation",
+   "speakers": [
+    "Alexander Matyushentsev",
+    "Leonardo Luz Almeida"
+   ]
+  },
+  {
+   "talk_id": "TKp2snmgvtQ",
+   "title": "The Fourth Pillar Arrives: OpenTelemetry Profiling Alpha in Action",
+   "speakers": [
+    "Felix Geisendörfer",
+    "Florian Lehner"
+   ]
+  },
+  {
+   "talk_id": "ToKv7JntLvY",
+   "title": "The Good, The Ugly, and The Bad: Leaving Sidecars Behind with Istio Ambient Mesh",
+   "speakers": [
+    "Alfonso Ming",
+    "Jorge Turrado"
+   ]
+  },
+  {
+   "talk_id": "tFsp5bpKwdk",
+   "title": "The State of Backstage in 2026",
+   "speakers": [
+    "Ben Lambert",
+    "Patrik Oldsberg"
+   ]
+  },
+  {
+   "talk_id": "VCNxcBjVOIk",
+   "title": "Unleashing Event Driven Capabilities With KEDA",
+   "speakers": [
+    "Jorge Turrado",
+    "Zbynek Roubalik"
+   ]
+  },
+  {
+   "talk_id": "pSfmhblzE-Y",
+   "title": "Visualizing GitOps: A Tour of Flux UIs in the Open Source Ecosystem",
+   "speakers": [
+    "Stefan Prodan"
+   ]
+  },
+  {
+   "talk_id": "Z0oum6Eh1is",
+   "title": "We Deleted Our Observability Stack and Rebuilt It With OTEL: 12 Engineers to 4 at 20K+ Clusters",
+   "speakers": [
+    "Yash Sharma",
+    "Kunju Perath"
+   ]
+  },
+  {
+   "talk_id": "wix_PfQ61jY",
+   "title": "Zero-Downtime Migration from ingress-nginx to Istio in a Multi-Cluster Kubernetes Platform at Bloomberg",
+   "speakers": [
+    "Joe Abellard"
+   ]
+  }
+ ]
+}

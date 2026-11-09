@@ -1,0 +1,35 @@
+{
+ "route": "memo",
+ "request": {
+  "tools": [
+   "opentelemetry",
+   "prometheus"
+  ],
+  "clip_ids": [
+   "0zwLl8QGOdM-1130",
+   "0zwLl8QGOdM-135",
+   "0zwLl8QGOdM-537",
+   "6vE9b6StC0g-194~260",
+   "OVffupWFEtw-272",
+   "S6z2gd666qg-0",
+   "S6z2gd666qg-258",
+   "YMqSK6uBhxU-1049~1122",
+   "Z0oum6Eh1is-790~853~915",
+   "ehKzt_kGEeM-455",
+   "gH_JzIXFshI-784~861~930",
+   "w1pj0Lz1mW4-1532",
+   "w1pj0Lz1mW4-394"
+  ]
+ },
+ "response": {
+  "markdown": "# Debrief: OpenTelemetry, Prometheus\n\nThese clips cover how OpenTelemetry Collector and Prometheus fit together: receivers and remote write, native histograms and OTLP ingestion, tail sampling costs, gateway patterns, and span-derived metrics. ([OpenTelemetry Collector SIG: Project Updates · 8:55](https://www.youtube.com/watch?v=0zwLl8QGOdM&t=535s); [Prometheus V3 One Year In: OpenMetrics 2.0 and More! · 3:12](https://www.youtube.com/watch?v=6vE9b6StC0g&t=192s); [We Deleted Our Observability Stack and Rebuilt It With OTEL: 12 Engineers to 4 at 20K+ Clusters · 13:08](https://www.youtube.com/watch?v=Z0oum6Eh1is&t=788s); [Retroactive Sampling with OpenTelemetry: Cut 90% Distributed Tracing Bandwidth Usage · 7:33](https://www.youtube.com/watch?v=ehKzt_kGEeM&t=453s); [OpenTelemetry Gateways: Enforce, Transform, Route · 4:16](https://www.youtube.com/watch?v=S6z2gd666qg&t=256s); [Jaeger V2: The Maintainers' Guide To OpenTelemetry-Native Tracing · 13:02](https://www.youtube.com/watch?v=gH_JzIXFshI&t=782s))\n\n## Top 3 takeaways\n\n1. The Collector's Prometheus receiver does not set start time, so a start time processor must be included. A Prometheus remote write receiver now exists alongside the exporter, and the transform processor and OTTL reached beta. ([OpenTelemetry Collector SIG: Project Updates · 8:55](https://www.youtube.com/watch?v=0zwLl8QGOdM&t=535s))\n2. Prometheus native histograms are stable. Since 3.9 you must enable them per scrape config. Exporters and Kubernetes still need to expose them, and the OTLP receive endpoint is gaining early delta ingestion. ([Prometheus V3 One Year In: OpenMetrics 2.0 and More! · 3:12](https://www.youtube.com/watch?v=6vE9b6StC0g&t=192s))\n3. One team moved from kube-prometheus and CRDs to OTel, using the Prometheus receiver to reuse existing Kubernetes service discovery config. Telemetry is now pushed to their backend instead of being scraped from a Prometheus instance. ([We Deleted Our Observability Stack and Rebuilt It With OTEL: 12 Engineers to 4 at 20K+ Clusters · 13:08](https://www.youtube.com/watch?v=Z0oum6Eh1is&t=788s))\n\n## Action items\n\n- [ ] If you scrape with the Collector's Prometheus receiver, check that a start time processor is in the pipeline, and evaluate the new remote write receiver. ([OpenTelemetry Collector SIG: Project Updates · 8:55](https://www.youtube.com/watch?v=0zwLl8QGOdM&t=535s))\n- [ ] Try enabling native histograms on one scrape job, noting the per-scrape configuration required since Prometheus 3.9, and check whether your exporters expose them. ([Prometheus V3 One Year In: OpenMetrics 2.0 and More! · 3:12](https://www.youtube.com/watch?v=6vE9b6StC0g&t=192s))\n- [ ] Prototype porting an existing Prometheus scrape config, including Kubernetes service discovery, into the Collector's Prometheus receiver to see how much carries over. ([We Deleted Our Observability Stack and Rebuilt It With OTEL: 12 Engineers to 4 at 20K+ Clusters · 13:08](https://www.youtube.com/watch?v=Z0oum6Eh1is&t=788s))\n\n## Watch together (12 min)\n\n1. [OpenTelemetry Collector SIG: Project Updates · 8:55](https://www.youtube.com/watch?v=0zwLl8QGOdM&t=535s) (1:19), Jade G, Dmitrii A, Alex B, Evan B, Antoine T: Collector Prometheus receiver caveats, remote write receiver, and OTTL status.\n2. [Prometheus V3 One Year In: OpenMetrics 2.0 and More! · 3:12](https://www.youtube.com/watch?v=6vE9b6StC0g&t=192s) (2:27), Jan Fajerski, Bartłomiej Płotka: Native histograms and OTLP ingestion changes in recent Prometheus versions.\n3. [We Deleted Our Observability Stack and Rebuilt It With OTEL: 12 Engineers to 4 at 20K+ Clusters · 13:08](https://www.youtube.com/watch?v=Z0oum6Eh1is&t=788s) (3:27), Yash Sharma, Kunju Perath: Real migration from kube-prometheus to OTel using the Prometheus receiver.\n4. [Retroactive Sampling with OpenTelemetry: Cut 90% Distributed Tracing Bandwidth Usage · 7:33](https://www.youtube.com/watch?v=ehKzt_kGEeM&t=453s) (1:21), Roman Khavronenko, Zhu Jiekun: Shows memory and load-balancing costs of tail sampling in the Collector.\n5. [Jaeger V2: The Maintainers' Guide To OpenTelemetry-Native Tracing · 13:02](https://www.youtube.com/watch?v=gH_JzIXFshI&t=782s) (3:44), Pavol Loffay: Span-derived metrics sent to Prometheus, queryable from Jaeger's monitor tab.\n",
+  "cited_clip_ids": [
+   "0zwLl8QGOdM-537",
+   "6vE9b6StC0g-194~260",
+   "Z0oum6Eh1is-790~853~915",
+   "ehKzt_kGEeM-455",
+   "S6z2gd666qg-258",
+   "gH_JzIXFshI-784~861~930"
+  ]
+ }
+}

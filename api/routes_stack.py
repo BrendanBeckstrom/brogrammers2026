@@ -3,17 +3,20 @@
 Contract (docs/BRIEF.md, API): request `{"tools": [ids], "dependency_file": {"name",
 "content"}}`, either field optional; response `{"tools": [{"id", "name", "source"}],
 "unknown_packages": [strings]}`. `source` is "picked" or the dependency file's name.
-Unknown tool ids and unsupported or malformed files are rejected with 422.
+Unknown tool ids and unsupported or malformed files are rejected with 422. With
+DEBRIEF_CACHE=on a cached answer (api/demo_cache.py, task 13) is returned first; the
+`cache.hit` attribute goes on the request's server span.
 """
 
 import os
 from functools import lru_cache
 from pathlib import Path
 
-from fastapi import APIRouter, HTTPException
+from fastapi import APIRouter, HTTPException, Response
 from opentelemetry import trace
 from pydantic import BaseModel, Field
 
+from api import demo_cache
 from api.stack import (
     PackageIndex,
     StackParseError,
@@ -61,7 +64,12 @@ def tool_registry() -> tuple[dict[str, str], PackageIndex]:
 
 
 @router.post("/stack")
-def post_stack(request: StackRequest) -> StackResponse:
+def post_stack(request: StackRequest, response: Response) -> StackResponse:
+    span = trace.get_current_span()
+    cached = demo_cache.serve("stack", request.model_dump(mode="json"), span, response)
+    if cached is not None:
+        return StackResponse.model_validate(cached)
+
     names, index = tool_registry()
     missing = unknown_tool_ids(request.tools, index)
     if missing:

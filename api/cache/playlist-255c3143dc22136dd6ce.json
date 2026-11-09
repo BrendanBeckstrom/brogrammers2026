@@ -1,0 +1,371 @@
+{
+ "route": "playlist",
+ "request": {
+  "tools": [
+   "argo-cd",
+   "prometheus"
+  ],
+  "pain": "our Argo CD syncs are slow",
+  "attended_talk_ids": [],
+  "filter": "all",
+  "budget_minutes": 25,
+  "rerank": true
+ },
+ "response": {
+  "total_seconds": 934,
+  "clips": [
+   {
+    "clip_id": "VfVQj4Oa3z0-1530",
+    "talk_id": "VfVQj4Oa3z0",
+    "title": "Declarative...ish? Fixing Hidden Argo CD Pitfalls in Your GitOps Setup",
+    "speakers": [
+     "Regina Voloshin"
+    ],
+    "start_sec": 1528,
+    "end_sec": 1604,
+    "watch_url": "https://www.youtube.com/watch?v=VfVQj4Oa3z0&t=1528s",
+    "quote": "Uh the lightning talk in this room that'll be starting at 5:00 is the $10,000 Argo CD mistake, eliminating phantom syncs and scaling the repo server.",
+    "why": "Argo CD lightning talk on phantom syncs and scaling the repo server, directly matching slow syncs.",
+    "matched_tools": [
+     "argo-cd"
+    ],
+    "matched_by": "both",
+    "talk_label": "deep_dive",
+    "score": 0.95
+   },
+   {
+    "clip_id": "fcajag5di68-1041",
+    "talk_id": "fcajag5di68",
+    "title": "Argo CD: Previewing Pull Request Changes in SECONDS!",
+    "speakers": [
+     "Dag Bjerre Andersen",
+     "Sergey Shevchenko"
+    ],
+    "start_sec": 1039,
+    "end_sec": 1118,
+    "watch_url": "https://www.youtube.com/watch?v=fcajag5di68&t=1039s",
+    "quote": "We're using a self-hosted GitLab runners for all of our pipelines and it's located in same cluster as our Argo CD instance. Basically, when we just switched from uh ephemeral cluster mode to pre-configured cluster mode, we continued to speed up our installation.",
+    "why": "Argo CD speed-up after switching runner setup; relevant to slow syncs, though runners are CI-focused.",
+    "matched_tools": [
+     "argo-cd"
+    ],
+    "matched_by": "both",
+    "talk_label": "deep_dive",
+    "score": 0.8
+   },
+   {
+    "clip_id": "VfVQj4Oa3z0-0",
+    "talk_id": "VfVQj4Oa3z0",
+    "title": "Declarative...ish? Fixing Hidden Argo CD Pitfalls in Your GitOps Setup",
+    "speakers": [
+     "Regina Voloshin"
+    ],
+    "start_sec": 0,
+    "end_sec": 81,
+    "watch_url": "https://www.youtube.com/watch?v=VfVQj4Oa3z0&t=0s",
+    "quote": "Hi everyone, welcome to my talk in which we'll fix the hidden Argo CD pitfalls in your GitOps setup. My name is Reggie. I'm an Argo CD maintainer.",
+    "why": "Talk explicitly about fixing hidden Argo CD pitfalls in GitOps setups, likely relevant to slow syncs.",
+    "matched_tools": [
+     "argo-cd"
+    ],
+    "matched_by": "both",
+    "talk_label": "deep_dive",
+    "score": 0.8
+   },
+   {
+    "clip_id": "iC15zeOLZQA-926",
+    "talk_id": "iC15zeOLZQA",
+    "title": "The 10x DevOps Engineer’s Toolkit: Argo CD + AI-Driven MCP Automation",
+    "speakers": [
+     "Alexander Matyushentsev",
+     "Leonardo Luz Almeida"
+    ],
+    "start_sec": 924,
+    "end_sec": 1003,
+    "watch_url": "https://www.youtube.com/watch?v=iC15zeOLZQA&t=924s",
+    "quote": "So we all understood in the team that Argo CD is a very powerful API. So from API we also we can almost address the the silos issue. So from Argo CD API we can extract application logs, we can extract Kubernetes events, we can extract the live state and the desired state.",
+    "why": "Argo CD API can extract events, live and desired state, and logs to tackle silos; useful for diagnosing sync delays.",
+    "matched_tools": [
+     "argo-cd",
+     "prometheus"
+    ],
+    "matched_by": "both",
+    "talk_label": "deep_dive",
+    "score": 0.7
+   },
+   {
+    "clip_id": "x5nVyVZSd0A-865~936~1004",
+    "talk_id": "x5nVyVZSd0A",
+    "title": "GitOps Your Costs: Automated FinOps Through Argo Workflows",
+    "speakers": [
+     "Kunal Das",
+     "Hrittik Roy"
+    ],
+    "start_sec": 863,
+    "end_sec": 1081,
+    "watch_url": "https://www.youtube.com/watch?v=x5nVyVZSd0A&t=863s",
+    "quote": "And then Argo CD watches for Git approved changes. And Argo rollout which aggressively focuses on automatic changes and progressive overload. This closes the entire loop because now you have a system which focuses on the utilization data rather than anything else.",
+    "why": "Prometheus utilization data drives Argo Rollouts progressive changes, closing the loop with Argo CD Git-approved syncs.",
+    "matched_tools": [
+     "argo-cd",
+     "prometheus"
+    ],
+    "matched_by": "both",
+    "talk_label": "intro",
+    "score": 0.6
+   },
+   {
+    "clip_id": "q2b9niAdFII-875",
+    "talk_id": "q2b9niAdFII",
+    "title": "Backend-First IDP: A Production Roadmap With Argo CD, Crossplane, and OPA",
+    "speakers": [
+     "Abhinav Sharma",
+     "Aditya Soni"
+    ],
+    "start_sec": 873,
+    "end_sec": 959,
+    "watch_url": "https://www.youtube.com/watch?v=q2b9niAdFII&t=873s",
+    "quote": "So we have here all the manifest file that we have used to deploy Argo CD backstage um crossplane opai and all those things right. So whatever ch this repo is connected to argo CD.",
+    "why": "Shows Argo CD deploying platform manifests; setup context, not sync speed.",
+    "matched_tools": [
+     "argo-cd"
+    ],
+    "matched_by": "both",
+    "talk_label": "intro",
+    "score": 0.4
+   },
+   {
+    "clip_id": "fcajag5di68-328",
+    "talk_id": "fcajag5di68",
+    "title": "Argo CD: Previewing Pull Request Changes in SECONDS!",
+    "speakers": [
+     "Dag Bjerre Andersen",
+     "Sergey Shevchenko"
+    ],
+    "start_sec": 326,
+    "end_sec": 404,
+    "watch_url": "https://www.youtube.com/watch?v=fcajag5di68&t=326s",
+    "quote": "So, here you can see we're using the real Argo CD instance to do the actual rendering and not some kind of custom script.",
+    "why": "Shows a real Argo CD instance rendering manifests instead of a custom script; limited relevance to slow syncs.",
+    "matched_tools": [
+     "argo-cd"
+    ],
+    "matched_by": "both",
+    "talk_label": "deep_dive",
+    "score": 0.3
+   },
+   {
+    "clip_id": "VfVQj4Oa3z0-341",
+    "talk_id": "VfVQj4Oa3z0",
+    "title": "Declarative...ish? Fixing Hidden Argo CD Pitfalls in Your GitOps Setup",
+    "speakers": [
+     "Regina Voloshin"
+    ],
+    "start_sec": 339,
+    "end_sec": 419,
+    "watch_url": "https://www.youtube.com/watch?v=VfVQj4Oa3z0&t=339s",
+    "quote": "It would also require them to run Argo CD locally, to create this particular application manifest in Argo CD, and finally to copy the generated manifests. And so, this is way too complex for developers and it will slow them down.",
+    "why": "Argo CD application manifest creation workflow is described as too complex, touching developer friction.",
+    "matched_tools": [
+     "argo-cd"
+    ],
+    "matched_by": "both",
+    "talk_label": "deep_dive",
+    "score": 0.3
+   },
+   {
+    "clip_id": "iC15zeOLZQA-1126",
+    "talk_id": "iC15zeOLZQA",
+    "title": "The 10x DevOps Engineer’s Toolkit: Argo CD + AI-Driven MCP Automation",
+    "speakers": [
+     "Alexander Matyushentsev",
+     "Leonardo Luz Almeida"
+    ],
+    "start_sec": 1124,
+    "end_sec": 1203,
+    "watch_url": "https://www.youtube.com/watch?v=iC15zeOLZQA&t=1124s",
+    "quote": "The users that are going to Argo CD are most likely the users that are already familiar with Kubernetes. So they're not really willing to go to a button and waiting a few minutes to to get the the results from from an AI. They go directly to the logs they already know, right?",
+    "why": "Argo CD users' log habits and AI results; not about sync speed.",
+    "matched_tools": [
+     "argo-cd"
+    ],
+    "matched_by": "both",
+    "talk_label": "deep_dive",
+    "score": 0.2
+   },
+   {
+    "clip_id": "iC15zeOLZQA-537",
+    "talk_id": "iC15zeOLZQA",
+    "title": "The 10x DevOps Engineer’s Toolkit: Argo CD + AI-Driven MCP Automation",
+    "speakers": [
+     "Alexander Matyushentsev",
+     "Leonardo Luz Almeida"
+    ],
+    "start_sec": 535,
+    "end_sec": 613,
+    "watch_url": "https://www.youtube.com/watch?v=iC15zeOLZQA&t=535s",
+    "quote": "Um and then final slide related to kind of shows you details of um how Argo CD MCP works. So this is an example of a life cycle of a typical request. So if your client if you as a user ask you through your client to sync application.",
+    "why": "Argo CD MCP request lifecycle for syncing applications; sync flow, not speed tuning.",
+    "matched_tools": [
+     "argo-cd"
+    ],
+    "matched_by": "both",
+    "talk_label": "deep_dive",
+    "score": 0.2
+   }
+  ],
+  "trace_id": "10f3aab630639e0936ecc03b6300f52c",
+  "message": null,
+  "debug": {
+   "query": {
+    "size": 50,
+    "_source": [
+     "chunk_id",
+     "talk_id",
+     "youtube_id",
+     "title",
+     "speakers",
+     "start_sec",
+     "end_sec",
+     "text",
+     "tools",
+     "talk_label"
+    ],
+    "retriever": {
+     "text_similarity_reranker": {
+      "retriever": {
+       "rrf": {
+        "rank_window_size": 100,
+        "retrievers": [
+         {
+          "standard": {
+           "query": {
+            "bool": {
+             "should": [
+              {
+               "terms": {
+                "tools": [
+                 "argo-cd",
+                 "prometheus"
+                ],
+                "boost": 2
+               }
+              },
+              {
+               "match_phrase": {
+                "text": "argo cd"
+               }
+              },
+              {
+               "match_phrase": {
+                "text": "argocd"
+               }
+              },
+              {
+               "match_phrase": {
+                "text": "argo city"
+               }
+              },
+              {
+               "match_phrase": {
+                "text": "prometheus"
+               }
+              },
+              {
+               "match_phrase": {
+                "text": "promql"
+               }
+              }
+             ],
+             "minimum_should_match": 1
+            }
+           }
+          }
+         },
+         {
+          "standard": {
+           "query": {
+            "semantic": {
+             "field": "text_semantic",
+             "query": "our Argo CD syncs are slow"
+            }
+           }
+          }
+         }
+        ]
+       }
+      },
+      "field": "text",
+      "inference_id": ".jina-reranker-v3",
+      "inference_text": "Argo CD, Prometheus. our Argo CD syncs are slow",
+      "rank_window_size": 50
+     }
+    },
+    "highlight": {
+     "fields": {
+      "text": {
+       "type": "unified",
+       "boundary_scanner": "sentence",
+       "fragment_size": 200,
+       "number_of_fragments": 1,
+       "no_match_size": 0,
+       "highlight_query": {
+        "bool": {
+         "should": [
+          {
+           "match_phrase": {
+            "text": "argo cd"
+           }
+          },
+          {
+           "match_phrase": {
+            "text": "argocd"
+           }
+          },
+          {
+           "match_phrase": {
+            "text": "argo city"
+           }
+          },
+          {
+           "match_phrase": {
+            "text": "prometheus"
+           }
+          },
+          {
+           "match_phrase": {
+            "text": "promql"
+           }
+          }
+         ],
+         "minimum_should_match": 1
+        }
+       }
+      }
+     }
+    }
+   },
+   "timings_ms": {
+    "hybrid_search": 315.0,
+    "keyword_search": 67.2,
+    "semantic_search": 113.9,
+    "elastic_rerank": 1027.7,
+    "search_wall": 1028.0,
+    "grouping": 0.5,
+    "clip_building": 0.1,
+    "rerank_batch_0": 1894.7,
+    "rerank_batch_1": 2111.7,
+    "rerank_batch_2": 1699.8,
+    "rerank": 2115.4,
+    "budget": 1.2,
+    "total": 3145.7
+   },
+   "hits": 100,
+   "talks": 17,
+   "rerank": {
+    "elastic": "ok",
+    "model": "ok"
+   }
+  }
+ }
+}

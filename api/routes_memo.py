@@ -2,19 +2,20 @@
 
 The request carries only clip ids. Their text is loaded from the index by id (never
 taken from the browser), unknown ids are a 422, and a model failure is a 502: there is
-no fake memo. The span carries counts and token totals only.
+no fake memo. The span carries counts and token totals only. With DEBRIEF_CACHE=on a cached
+memo (api/demo_cache.py, task 13) is returned without touching Elastic or the model.
 """
 
 from __future__ import annotations
 
 from typing import Annotated, Any
 
-from fastapi import APIRouter, HTTPException
+from fastapi import APIRouter, HTTPException, Response
 from opentelemetry import trace
 from pydantic import BaseModel, Field
 
+from api import demo_cache, search
 from api import memo as memomod
-from api import search
 from api.llm import LLMError
 from api.routes_search import Client, Model
 from api.search import SearchBackendError
@@ -31,14 +32,19 @@ class MemoBody(BaseModel):
 
 
 @router.post("/memo")
-def memo(body: MemoBody, client: Client, model: Model) -> dict[str, Any]:
+def memo(body: MemoBody, client: Client, model: Model, response: Response) -> dict[str, Any]:
     with tracer.start_as_current_span("api.memo") as span:
         clip_ids = list(dict.fromkeys(body.clip_ids))
         tool_ids = list(dict.fromkeys(t.strip() for t in body.tools if t.strip()))
         span.set_attributes({"debrief.tools": tool_ids, "debrief.clips_requested": len(clip_ids)})
+        cached = demo_cache.serve("memo", body.model_dump(mode="json"), span, response)
+        if cached is not None:
+            return cached
         try:
             found, unknown = search.resolve_clips(client, clip_ids)
         except SearchBackendError as e:
+            if demo_cache.enabled():
+                raise demo_cache.miss_error(str(e)) from e
             raise HTTPException(status_code=502, detail=str(e)) from e
         if unknown:
             span.set_attribute("debrief.unknown_clip_ids", len(unknown))
@@ -49,6 +55,8 @@ def memo(body: MemoBody, client: Client, model: Model) -> dict[str, Any]:
             result, stats = memomod.write_memo(model, tool_names, [found[i] for i in clip_ids])
         except (LLMError, memomod.MemoError) as e:
             span.set_attribute("error.type", type(e).__name__)
+            if isinstance(e, LLMError) and demo_cache.enabled():
+                raise demo_cache.miss_error("the memo model did not answer") from e
             detail = (
                 str(e)
                 if isinstance(e, memomod.MemoError)
