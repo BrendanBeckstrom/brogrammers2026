@@ -40,13 +40,23 @@ class Untouchable:
 
 
 class Offline:
-    """Elastic with the network off."""
+    """Elastic configured, but the network is off (connection refused)."""
 
     def search(self, index: str, body: dict[str, Any]) -> dict[str, Any]:
-        raise search.SearchBackendError("Elastic search failed (ConnectionError)")
+        raise search.SearchBackendError("Elastic search failed (ConnectionError)", unreachable=True)
 
     def mget(self, index: str, ids: Sequence[str]) -> list[dict[str, Any]]:
-        raise search.SearchBackendError("Elastic mget failed (ConnectionError)")
+        raise search.SearchBackendError("Elastic mget failed (ConnectionError)", unreachable=True)
+
+
+class ElasticErrors:
+    """Elastic reachable, but the request fails (a bad query, an inference error)."""
+
+    def search(self, index: str, body: dict[str, Any]) -> dict[str, Any]:
+        raise search.SearchBackendError("Elastic search failed (BadRequestError)")
+
+    def mget(self, index: str, ids: Sequence[str]) -> list[dict[str, Any]]:
+        raise search.SearchBackendError("Elastic mget failed (BadRequestError)")
 
 
 @pytest.fixture
@@ -180,7 +190,7 @@ def test_miss_with_the_network_off_is_a_clear_503(cache_dir: Path, client: TestC
 
 
 def test_elastic_errors_are_not_offline_cache_misses(cache_dir: Path, client: TestClient) -> None:
-    use(Offline())
+    use(ElasticErrors())
     for method, path, body in (
         ("post", "/api/playlist", GITOPS),
         ("post", "/api/memo", {"tools": ["argo-cd"], "clip_ids": ["talka0000-0"]}),
@@ -370,3 +380,50 @@ def test_secret_scan_flags_keys_not_ordinary_words() -> None:
     assert build_cache.find_secrets("key sk-ant-api03-abcdefghijklmnop")
     assert build_cache.find_secrets("ApiKey bm90LWEtcmVhbC1rZXk=")
     assert not build_cache.find_secrets("a task-runner for risk-based Argo CD syncs")
+
+
+def test_configured_but_unreachable_elastic_is_an_offline_cache_miss(
+    cache_dir: Path, client: TestClient
+) -> None:
+    """The demo setup Gitar flagged: env configured, laptop offline -> 503 miss, not 502."""
+    use(Offline())
+    for method, path, body in (
+        ("post", "/api/playlist", GITOPS),
+        ("get", "/api/tools", None),
+        ("get", "/api/clips/talka0000-0", None),
+    ):
+        response = getattr(client, method)(path, **({"json": body} if body else {}))
+        assert response.status_code == 503, (path, response.text)
+        assert "offline demo cache" in response.json()["detail"]
+        assert response.headers[demo_cache.HEADER] == "miss"
+
+
+def test_connection_failures_are_marked_unreachable() -> None:
+    from elastic_transport import ApiResponseMeta, ConnectionError, ConnectionTimeout
+    from elasticsearch import BadRequestError
+
+    class RaisingES:
+        def __init__(self, error: Exception) -> None:
+            self.error = error
+
+        def search(self, **kwargs: Any) -> Any:
+            raise self.error
+
+        def mget(self, **kwargs: Any) -> Any:
+            raise self.error
+
+    meta = ApiResponseMeta(400, "1.1", {}, 0.0, None)  # type: ignore[arg-type]
+    cases = [
+        (ConnectionError("refused"), True),
+        (ConnectionTimeout("slow"), True),
+        (BadRequestError("bad", meta, {}), False),
+    ]
+    for error, unreachable in cases:
+        es_client = object.__new__(search.ElasticSearchClient)
+        es_client._es = RaisingES(error)  # type: ignore[attr-defined]
+        with pytest.raises(search.SearchBackendError) as info:
+            es_client.search("clips", {})
+        assert info.value.unreachable is unreachable, (error, "search")
+        with pytest.raises(search.SearchBackendError) as info:
+            es_client.mget("clips", ["x"])
+        assert info.value.unreachable is unreachable, (error, "mget")

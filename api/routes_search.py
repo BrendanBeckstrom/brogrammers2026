@@ -67,7 +67,8 @@ Model = Annotated[LLMClient, Depends(model_client)]
 
 
 def _backend_error(e: SearchBackendError, client: SearchClient | None = None) -> HTTPException:
-    if demo_cache.enabled() and isinstance(client, demo_cache.OfflineSearchClient):
+    offline = isinstance(client, demo_cache.OfflineSearchClient) or e.unreachable
+    if demo_cache.enabled() and offline:
         return demo_cache.miss_error(str(e))
     return HTTPException(status_code=502, detail=str(e))
 
