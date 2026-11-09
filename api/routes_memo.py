@@ -17,7 +17,7 @@ from pydantic import BaseModel, Field
 from api import demo_cache, search
 from api import memo as memomod
 from api.llm import LLMError
-from api.routes_search import Client, Model
+from api.routes_search import Client, Model, _backend_error
 from api.search import SearchBackendError
 
 router = APIRouter(prefix="/api")
@@ -43,9 +43,7 @@ def memo(body: MemoBody, client: Client, model: Model, response: Response) -> di
         try:
             found, unknown = search.resolve_clips(client, clip_ids)
         except SearchBackendError as e:
-            if demo_cache.enabled():
-                raise demo_cache.miss_error(str(e)) from e
-            raise HTTPException(status_code=502, detail=str(e)) from e
+            raise _backend_error(e, client) from e
         if unknown:
             span.set_attribute("debrief.unknown_clip_ids", len(unknown))
             shown = ", ".join(unknown[:5]) + (" …" if len(unknown) > 5 else "")

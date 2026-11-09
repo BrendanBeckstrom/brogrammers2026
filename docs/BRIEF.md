@@ -309,6 +309,7 @@ As built (task 6, checked on Elastic 9.7 serverless): the text half is one `matc
 | `POST /api/playlist` | `{"tools", "pain", "attended_talk_ids", "filter": "all" or "attended" or "missed", "budget_minutes": 25, "rerank": true}` | `{"total_seconds", "clips": [clip], "trace_id", "message", "debug"}` |
 | `POST /api/memo` | `{"tools", "clip_ids"}` | `{"markdown", "cited_clip_ids"}` |
 | `GET /api/clips/{clip_or_chunk_id}` | none | `{"clip_id", "talk_id", "title", "speakers", "start_sec", "end_sec", "watch_url", "text"}` |
+| `GET /api/config` | none | `{"rum": {"endpoint", "token", "service_name": "debrief-web", "environment", "version"}}`, or `{"rum": null}` when `DASH0_WEB_TOKEN` is unset |
 | `GET /healthz` | none | `{"ok", "elastic"}` |
 
 A `clip` is `{"clip_id", "talk_id", "title", "speakers", "start_sec", "end_sec", "watch_url", "quote", "why", "matched_tools", "matched_by", "talk_label", "score"}`. `matched_by` says which half of the hybrid search found the clip: `"keyword"`, `"semantic"` or `"both"`. The memo route loads clip text from the index by id and never trusts text sent by the browser.
