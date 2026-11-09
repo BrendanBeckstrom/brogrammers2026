@@ -8,16 +8,18 @@ memo (api/demo_cache.py, task 13) is returned without touching Elastic or the mo
 
 from __future__ import annotations
 
+import logging
+import time
 from typing import Annotated, Any
 
 from fastapi import APIRouter, HTTPException, Response
 from opentelemetry import trace
 from pydantic import BaseModel, Field
 
-from api import demo_cache, search
+from api import demo_cache, search, telemetry
 from api import memo as memomod
 from api.llm import LLMError
-from api.routes_search import Client, Model, _backend_error
+from api.routes_search import Client, Model, _backend_error, metric_tools
 from api.search import SearchBackendError
 
 router = APIRouter(prefix="/api")
@@ -37,8 +39,18 @@ def memo(body: MemoBody, client: Client, model: Model, response: Response) -> di
         clip_ids = list(dict.fromkeys(body.clip_ids))
         tool_ids = list(dict.fromkeys(t.strip() for t in body.tools if t.strip()))
         span.set_attributes({"debrief.tools": tool_ids, "debrief.clips_requested": len(clip_ids)})
+        started = time.perf_counter()
         cached = demo_cache.serve("memo", body.model_dump(mode="json"), span, response)
         if cached is not None:
+            telemetry.log_event(
+                "memo.made",
+                tools=metric_tools(tool_ids),
+                clip_count=len(clip_ids),
+                cited_count=len(cached.get("cited_clip_ids") or []),
+                duration_ms=(time.perf_counter() - started) * 1000,
+                tokens=0,
+                cache="hit",
+            )
             return cached
         try:
             found, unknown = search.resolve_clips(client, clip_ids)
@@ -53,6 +65,15 @@ def memo(body: MemoBody, client: Client, model: Model, response: Response) -> di
             result, stats = memomod.write_memo(model, tool_names, [found[i] for i in clip_ids])
         except (LLMError, memomod.MemoError) as e:
             span.set_attribute("error.type", type(e).__name__)
+            elapsed = (time.perf_counter() - started) * 1000
+            telemetry.record_memo(elapsed, "error")
+            telemetry.log_event(
+                "memo.failed",
+                logging.WARNING,
+                clip_count=len(clip_ids),
+                error=type(e).__name__,
+                duration_ms=elapsed,
+            )
             if isinstance(e, LLMError) and demo_cache.enabled():
                 raise demo_cache.miss_error("the memo model did not answer") from e
             detail = (
@@ -62,4 +83,18 @@ def memo(body: MemoBody, client: Client, model: Model, response: Response) -> di
             )
             raise HTTPException(status_code=502, detail=detail) from e
         span.set_attributes({f"debrief.memo.{k}": v for k, v in stats.items()})
+        elapsed = (time.perf_counter() - started) * 1000
+        telemetry.record_memo(elapsed, "ok")
+        telemetry.log_event(
+            "memo.made",
+            tools=metric_tools(tool_ids),
+            clip_count=len(clip_ids),
+            cited_count=stats["cited"],
+            dropped_lines=stats["dropped_lines"],
+            duration_ms=elapsed,
+            tokens=stats["input_tokens"] + stats["output_tokens"],
+            input_tokens=stats["input_tokens"],
+            output_tokens=stats["output_tokens"],
+            cache="miss" if demo_cache.enabled() else "off",
+        )
         return result

@@ -38,6 +38,7 @@ from opentelemetry import trace
 from opentelemetry.trace import Status, StatusCode
 
 from api import clips as clipmod
+from api import telemetry
 from api.clips import Clip
 from api.llm import LLMClient, LLMError
 
@@ -326,14 +327,17 @@ def judge(
             future.cancel()  # a call already running ends on its own SDK timeout
             batch = Batch(k, [records[i]["clip_id"] for i in group], "timeout", _ms(started))
             batch.error = LLMError(f"rerank batch missed its {timeout:g} s deadline")
-        if batch.outcome != "ok":
-            log.warning(
-                "rerank batch fell back batch=%d size=%d outcome=%s duration_ms=%s",
-                batch.index,
-                len(batch.clip_ids),
-                batch.outcome,
-                batch.duration_ms,
-            )
+        # One line per batch, WARN when it fell back; the error type, never the model's text.
+        telemetry.record_rerank_batch(batch.outcome)
+        telemetry.log_event(
+            "rerank.batch",
+            logging.INFO if batch.outcome == "ok" else logging.WARNING,
+            index=batch.index,
+            size=len(batch.clip_ids),
+            outcome=telemetry.rerank_outcome(batch.outcome),
+            error=None if batch.outcome in ("ok", "timeout") else batch.outcome,
+            duration_ms=batch.duration_ms,
+        )
         batches.append(batch)
 
     judged: dict[str, Judgement] = {}

@@ -40,7 +40,26 @@ def test_every_panel_is_placed_once_on_a_24_wide_grid() -> None:
             placed.append(item["content"]["$ref"].removeprefix("#/spec/panels/"))
     assert sorted(placed) == sorted(spec["panels"])
     names = {p["spec"]["display"]["name"] for p in spec["panels"].values()}
-    assert "Coverage gaps (empty playlists by tool)" in names
+    assert {
+        "Coverage gaps (empty playlists by tool)",
+        "Most requested tools (top 10)",
+        "Clip label mix",
+        "Rerank batch outcomes",
+        "Memo latency p50 / p95",
+        "Playlists shared",
+        "HTTP requests by route and status (req/s)",
+        "Playlists served (event=playlist.served)",
+    } <= names
+
+
+def test_logs_panel_filters_on_the_playlist_served_event() -> None:
+    panels = yaml.safe_load(DASHBOARD.read_text())["spec"]["panels"]
+    plugin = panels["playlist_served_logs"]["spec"]["plugin"]
+    assert plugin["kind"] == "LogTable"
+    wanted = {"key": "event.name", "operator": "is", "value": "playlist.served"}
+    assert wanted in plugin["spec"]["filters"]
+    # The event the panel shows is the one the API logs.
+    assert '"playlist.served"' in (ROOT / "api" / "routes_search.py").read_text()
 
 
 def test_queries_name_metrics_the_api_exports() -> None:
@@ -55,7 +74,16 @@ def test_queries_name_metrics_the_api_exports() -> None:
         for m in METRIC_NAME.findall(q)
     }
     assert {m for m in used if m.startswith("debrief.")} <= exported
-    assert used - exported <= {"dash0.spans", "dash0.web.events"}  # Dash0's own span/web metrics
+    assert {
+        "debrief.playlist.tool_requests",
+        "debrief.playlist.clip_labels",
+        "debrief.rerank.batches",
+        "debrief.memo.duration",
+        "debrief.cache.lookups",
+        "debrief.playlists.shared",
+    } <= used
+    # Dash0's own span/web metrics, and the FastAPI instrumentation's request histogram.
+    assert used - exported <= {"dash0.spans", "dash0.web.events", "http.server.duration"}
 
 
 def test_slos() -> None:

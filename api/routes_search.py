@@ -108,6 +108,28 @@ def after_playlist(
     insights.log_query(log_store, query_doc)
 
 
+def log_served(
+    body: PlaylistBody, answer: dict[str, Any], tool_ids: list[str], duration_ms: float, cache: str
+) -> None:
+    """The `playlist.served` event and the per-tool and per-label counters. Ids and counts only."""
+    clips = answer.get("clips") or []
+    status = (answer.get("debug") or {}).get("rerank") or {}
+    telemetry.record_playlist_served(tool_ids, [c.get("talk_label") for c in clips])
+    telemetry.log_event(
+        "playlist.served",
+        tools=tool_ids,
+        clip_count=len(clips),
+        talk_count=len({c.get("talk_id") for c in clips}),
+        total_seconds=int(answer.get("total_seconds") or 0),
+        filter=body.filter,
+        rerank=body.rerank,
+        elastic_rerank=status.get("elastic", "off"),
+        model_rerank=status.get("model", "off"),
+        duration_ms=duration_ms,
+        cache=cache,
+    )
+
+
 def run_playlist(body: PlaylistBody, client: SearchClient, model: LLMClient) -> dict[str, Any]:
     """The live playlist for a request (no cache). Raises SearchBackendError."""
     request = search.PlaylistRequest(
@@ -149,15 +171,17 @@ def playlist(
             }
         )
         started = time.perf_counter()
+        tool_ids = metric_tools(body.tools)
         cached = demo_cache.serve("playlist", body.model_dump(mode="json"), span, response)
+        cache = "off" if not demo_cache.enabled() else "miss" if cached is None else "hit"
         if cached is not None:
             span.set_attribute("debrief.clips", len(cached.get("clips") or []))
             # An answer cached before significant terms existed is still a valid answer.
             answer = {"terms": [], **cached, "trace_id": current_trace_id()}
             elapsed = (time.perf_counter() - started) * 1000
+            log_served(body, answer, tool_ids, elapsed, cache)
             remember_and_log(body, answer, elapsed, background, log_store)
             return answer
-        tool_ids = metric_tools(body.tools)
         try:
             result = run_playlist(body, client, model)
         except SearchBackendError as e:
@@ -190,6 +214,7 @@ def playlist(
             "message": result["message"],
             "debug": result["debug"],
         }
+        log_served(body, answer, tool_ids, elapsed, cache)
         remember_and_log(body, answer, elapsed, background, log_store)
         return answer
 

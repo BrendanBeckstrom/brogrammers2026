@@ -32,6 +32,7 @@ from typing import Any
 from fastapi import HTTPException, Response
 from opentelemetry import trace
 
+from api import telemetry
 from api.search import SearchBackendError
 
 CACHE_DIR = Path(__file__).resolve().parent / "cache"
@@ -130,6 +131,7 @@ def serve(
         return None
     cached = lookup(route, body)
     hit = cached is not None
+    telemetry.record_cache_lookup(route, hit)
     span.set_attribute(SPAN_ATTRIBUTE, hit)
     response.headers[HEADER] = HIT if hit else MISS
     if hit and isinstance(cached, dict) and isinstance(cached.get("debug"), dict):
