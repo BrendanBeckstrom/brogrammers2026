@@ -408,6 +408,10 @@ def record_memo_lines_checked(count: int) -> None:
     """
     if count > 0:
         instruments.memo_lines.add(count)
+        # Add 0 for each drop reason so the series exists before the first drop. Without it,
+        # the SLO's "bad" query and the "Memo lines dropped" panel read "no data" instead of 0.
+        for reason in sorted(DROP_REASONS):
+            instruments.citations_dropped.add(0, {"reason": reason})
 
 
 def record_llm_tokens(purpose: str, provider: str, input_tokens: int, output_tokens: int) -> None:
