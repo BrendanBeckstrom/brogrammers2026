@@ -2,7 +2,7 @@
 
 **Don't watch 300 hours of KubeCon. Watch the 20 minutes that matter to your team.**
 
-Debrief turns a conference's recorded talks into a short, cited briefing for one engineering team. Tell it what your team runs (pick tools or paste a `package.json` / `go.mod` / `requirements.txt` / Helm `Chart.yaml`), and it searches the transcripts of 54 KubeCon + CloudNativeCon Europe 2026 talks (the latest KubeCon with recordings online), returns a playlist of clips with exact start and end times, and turns that playlist into a one-page memo for your manager.
+Debrief turns a conference's recorded talks into a short, cited briefing for one engineering team. Tell it what your team runs (pick tools or paste a `package.json` / `go.mod` / `requirements.txt` / Helm `Chart.yaml`), and it searches the transcripts of 54 KubeCon + CloudNativeCon Europe 2026 talks, returns a playlist of clips with exact start and end times, and turns that playlist into a one-page memo for your manager.
 
 Built by team **Brogrammers** at the [WeMakeDevs Cloud Native Hackathon](https://www.wemakedevs.org/hackathons/cnh), Salt Lake City, Nov 9, 2026.
 

@@ -1,0 +1,82 @@
+{
+ "route": "insights",
+ "request": {},
+ "response": {
+  "top_tools": [
+   {
+    "id": "argo-cd",
+    "name": "Argo CD",
+    "count": 59
+   },
+   {
+    "id": "prometheus",
+    "name": "Prometheus",
+    "count": 57
+   },
+   {
+    "id": "opentelemetry",
+    "name": "OpenTelemetry",
+    "count": 44
+   },
+   {
+    "id": "istio",
+    "name": "Istio",
+    "count": 38
+   },
+   {
+    "id": "envoy",
+    "name": "Envoy",
+    "count": 31
+   },
+   {
+    "id": "cert-manager",
+    "name": "cert-manager",
+    "count": 23
+   },
+   {
+    "id": "cilium",
+    "name": "Cilium",
+    "count": 17
+   },
+   {
+    "id": "gateway-api",
+    "name": "Gateway API",
+    "count": 13
+   },
+   {
+    "id": "helm",
+    "name": "Helm",
+    "count": 13
+   },
+   {
+    "id": "kserve",
+    "name": "KServe",
+    "count": 13
+   }
+  ],
+  "empty_tools": [
+   {
+    "id": "jaeger",
+    "name": "Jaeger",
+    "count": 3
+   },
+   {
+    "id": "keycloak",
+    "name": "Keycloak",
+    "count": 3
+   },
+   {
+    "id": "a-tool-with-no-chunks",
+    "name": "a-tool-with-no-chunks",
+    "count": 2
+   },
+   {
+    "id": "hubble",
+    "name": "hubble",
+    "count": 1
+   }
+  ],
+  "requests": 201,
+  "playlists_saved": 10
+ }
+}

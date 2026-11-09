@@ -20,6 +20,26 @@
   "total_seconds": 1460,
   "clips": [
    {
+    "clip_id": "vzBGkY_HIyM-466",
+    "talk_id": "vzBGkY_HIyM",
+    "title": "Cert-manager – Project Update: Beyond 2026",
+    "speakers": [
+     "Tim Ramlot",
+     "Maël Valais"
+    ],
+    "start_sec": 464,
+    "end_sec": 544,
+    "watch_url": "https://www.youtube.com/watch?v=vzBGkY_HIyM&t=464s",
+    "quote": "It means that many people are now looking at the Kubernetes blog post, \"Oh, they're telling me Gateway API is might be a good way forward while I'm migrating away from Ingress Nginx.\" And Cert-Manager has a role in this because obviously, or not obviously, many people are using the Cert-Manager…",
+    "why": "cert-manager plays a role for teams migrating from Ingress NGINX to Gateway API.",
+    "matched_tools": [
+     "cert-manager"
+    ],
+    "matched_by": "keyword",
+    "talk_label": "deep_dive",
+    "score": 0.8
+   },
+   {
     "clip_id": "VfVQj4Oa3z0-0",
     "talk_id": "VfVQj4Oa3z0",
     "title": "Declarative...ish? Fixing Hidden Argo CD Pitfalls in Your GitOps Setup",
@@ -30,34 +50,12 @@
     "end_sec": 81,
     "watch_url": "https://www.youtube.com/watch?v=VfVQj4Oa3z0&t=0s",
     "quote": "Hi everyone, welcome to my talk in which we'll fix the hidden Argo CD pitfalls in your GitOps setup. My name is Reggie. I'm an Argo CD maintainer.",
-    "why": "Argo CD maintainer covering hidden Argo CD pitfalls in GitOps setups, directly relevant to your stack.",
+    "why": "Covers hidden Argo CD pitfalls in GitOps setups from an Argo CD maintainer, directly relevant to your stack.",
     "matched_tools": [
      "argo-cd"
     ],
     "matched_by": "both",
     "talk_label": "deep_dive",
-    "score": 0.9
-   },
-   {
-    "clip_id": "4K6s5y8HoBc-1051",
-    "talk_id": "4K6s5y8HoBc",
-    "title": "Evolution or Revolution: Istio as the Network Platform for Cloud Native",
-    "speakers": [
-     "Mitch Connors",
-     "Daniel Grimm"
-    ],
-    "start_sec": 1049,
-    "end_sec": 1127,
-    "watch_url": "https://www.youtube.com/watch?v=4K6s5y8HoBc&t=1049s",
-    "quote": "And lastly, we generate observability for your traffic in the form of audit logs, uh or access logs rather, uh metrics usually consumed in Prometheus, but any open telemetry compatible provider, as well as automated distributed trace spans for your entire application end to end.",
-    "why": "Describes Istio traffic observability via access logs, Prometheus metrics, and distributed traces via OpenTelemetry.",
-    "matched_tools": [
-     "prometheus",
-     "opentelemetry",
-     "istio"
-    ],
-    "matched_by": "both",
-    "talk_label": "intro",
     "score": 0.8
    },
    {
@@ -72,7 +70,7 @@
     "end_sec": 1400,
     "watch_url": "https://www.youtube.com/watch?v=ToKv7JntLvY&t=1319s",
     "quote": "That's the point. Isto has native support, but is without CRD this aka Gateway API needs to use the gateway API plug-in for Argo rollout as well as for other tooling because gateway API is a the new in my opinion the new standard for for ingress but it's not native in all the systems.",
-    "why": "Istio: Gateway API is not native there and needs a plugin for Argo rollout, a relevant integration gap.",
+    "why": "Istio lacks native Gateway API support, which matters for Argo rollouts and tooling.",
     "matched_tools": [
      "cert-manager",
      "istio"
@@ -82,23 +80,25 @@
     "score": 0.7
    },
    {
-    "clip_id": "vzBGkY_HIyM-466",
-    "talk_id": "vzBGkY_HIyM",
-    "title": "Cert-manager – Project Update: Beyond 2026",
+    "clip_id": "4K6s5y8HoBc-1051",
+    "talk_id": "4K6s5y8HoBc",
+    "title": "Evolution or Revolution: Istio as the Network Platform for Cloud Native",
     "speakers": [
-     "Tim Ramlot",
-     "Maël Valais"
+     "Mitch Connors",
+     "Daniel Grimm"
     ],
-    "start_sec": 464,
-    "end_sec": 544,
-    "watch_url": "https://www.youtube.com/watch?v=vzBGkY_HIyM&t=464s",
-    "quote": "It means that many people are now looking at the Kubernetes blog post, \"Oh, they're telling me Gateway API is might be a good way forward while I'm migrating away from Ingress Nginx.\" And Cert-Manager has a role in this because obviously, or not obviously, many people are using the Cert-Manager…",
-    "why": "cert-manager: covers migrating away from Ingress Nginx to Gateway API, where cert-manager has a role.",
+    "start_sec": 1049,
+    "end_sec": 1127,
+    "watch_url": "https://www.youtube.com/watch?v=4K6s5y8HoBc&t=1049s",
+    "quote": "And lastly, we generate observability for your traffic in the form of audit logs, uh or access logs rather, uh metrics usually consumed in Prometheus, but any open telemetry compatible provider, as well as automated distributed trace spans for your entire application end to end.",
+    "why": "Describes Istio traffic observability via access logs, Prometheus metrics and OpenTelemetry distributed traces.",
     "matched_tools": [
-     "cert-manager"
+     "prometheus",
+     "opentelemetry",
+     "istio"
     ],
-    "matched_by": "keyword",
-    "talk_label": "deep_dive",
+    "matched_by": "both",
+    "talk_label": "intro",
     "score": 0.7
    },
    {
@@ -113,7 +113,7 @@
     "end_sec": 142,
     "watch_url": "https://www.youtube.com/watch?v=vzBGkY_HIyM&t=0s",
     "quote": "So, in your Kubernetes cluster, you can ask cert-manager to issue a certificate for you so that in your workloads you can actually use that certificate. So your workload can be a bots, an ingress, a gateway, a service mesh.",
-    "why": "Explains cert-manager issuing certificates usable by ingress, gateways, and service meshes, matching your stack.",
+    "why": "Explains cert-manager issuing certificates for workloads, ingresses, gateways and service meshes, matching your stack.",
     "matched_tools": [
      "cert-manager"
     ],
@@ -132,7 +132,7 @@
     "end_sec": 1087,
     "watch_url": "https://www.youtube.com/watch?v=VfVQj4Oa3z0&t=1005s",
     "quote": "So, let's imagine that you have five infrastructure applications, cert-manager, Prometheus, Grafana, external secrets, and Istio, and also let's imagine that all those apps need to be created in the 10 Kubernetes clusters that you maintain. So, in total, we are talking about 50 applications.",
-    "why": "Managing cert-manager, Prometheus and Istio across 10 clusters means 50 applications to maintain.",
+    "why": "Managing cert-manager, Prometheus and Istio across 10 clusters means about 50 applications.",
     "matched_tools": [
      "cert-manager",
      "prometheus",
@@ -153,7 +153,7 @@
     "end_sec": 819,
     "watch_url": "https://www.youtube.com/watch?v=VfVQj4Oa3z0&t=740s",
     "quote": "This is one level. The second level is uh the Argo CD application manifest that references this Helm chart, and then the third top level is that the Argo CD application manifest itself is packaged in another Helm chart.",
-    "why": "Argo CD application manifests referencing Helm charts, with the manifest packaged in another Helm chart.",
+    "why": "Argo CD application manifests referencing Helm charts, packaged in another Helm chart, layered structure.",
     "matched_tools": [
      "argo-cd"
     ],
@@ -173,30 +173,10 @@
     "end_sec": 995,
     "watch_url": "https://www.youtube.com/watch?v=Z0oum6Eh1is&t=851s",
     "quote": "were only really paying attention to once we had some OOM kills going on um and then of course OTLP exporter because uh the the format the telemetry data is stored in a different format it's not Prometheus exposition format it's it's called the OTLP uh format by open telemetry um and so we needed…",
-    "why": "Covers OTLP exporter versus Prometheus exposition format and OOM kills, relevant to Prometheus and OpenTelemetry.",
+    "why": "Discusses Prometheus and OpenTelemetry OTLP exporter format differences and OOM kills in telemetry pipelines.",
     "matched_tools": [
      "prometheus",
      "opentelemetry"
-    ],
-    "matched_by": "both",
-    "talk_label": "deep_dive",
-    "score": 0.6
-   },
-   {
-    "clip_id": "fcajag5di68-523~586",
-    "talk_id": "fcajag5di68",
-    "title": "Argo CD: Previewing Pull Request Changes in SECONDS!",
-    "speakers": [
-     "Dag Bjerre Andersen",
-     "Sergey Shevchenko"
-    ],
-    "start_sec": 521,
-    "end_sec": 662,
-    "watch_url": "https://www.youtube.com/watch?v=fcajag5di68&t=521s",
-    "quote": "I have done that a few times. So, what I suggest is always use a dedicated Argo CD instance for this kind of preview process.",
-    "why": "Argo CD: advises a dedicated Argo CD instance for preview environments, a practical deployment pattern.",
-    "matched_tools": [
-     "argo-cd"
     ],
     "matched_by": "both",
     "talk_label": "deep_dive",
@@ -214,7 +194,7 @@
     "end_sec": 83,
     "watch_url": "https://www.youtube.com/watch?v=iC15zeOLZQA&t=0s",
     "quote": "I will talk about why MCP is useful, why did we even choose to build MCP project for Argo CD, then I will cover the project itself, and share with you ideas we had and the use cases we were hoping to solve using MCP for Argo CD, and then I will get it will get it give it back to Leo where he can…",
-    "why": "Mentions Argo CD 4 times in this clip",
+    "why": "Covers building an MCP project for Argo CD and its use cases; relevant to your Argo CD usage.",
     "matched_tools": [
      "argo-cd"
     ],
@@ -255,7 +235,7 @@
     "end_sec": 349,
     "watch_url": "https://www.youtube.com/watch?v=4K6s5y8HoBc&t=264s",
     "quote": "We'd spent 5 years running just Envoy uh as a sidecar. Basically, every pod gets its own Envoy. It was a brute force way of capturing traffic and directing things.",
-    "why": "Envoy: describes running a sidecar Envoy per pod for traffic capture, relevant to Istio setups.",
+    "why": "Envoy: per-pod sidecar was a brute-force way to capture and direct traffic.",
     "matched_tools": [
      "envoy",
      "istio"
@@ -276,9 +256,29 @@
     "end_sec": 947,
     "watch_url": "https://www.youtube.com/watch?v=7YuMvcW5wRA&t=801s",
     "quote": "And we do this with cert-manager. So, cert-manager gets a certificate from from Telesec in the cluster on demand. Everything is automated.",
-    "why": "cert-manager obtains certificates on demand from a CA inside the cluster, fully automated.",
+    "why": "cert-manager fetches certificates on demand in the cluster, fully automated.",
     "matched_tools": [
      "cert-manager"
+    ],
+    "matched_by": "both",
+    "talk_label": "deep_dive",
+    "score": 0.5
+   },
+   {
+    "clip_id": "fcajag5di68-523~586",
+    "talk_id": "fcajag5di68",
+    "title": "Argo CD: Previewing Pull Request Changes in SECONDS!",
+    "speakers": [
+     "Dag Bjerre Andersen",
+     "Sergey Shevchenko"
+    ],
+    "start_sec": 521,
+    "end_sec": 662,
+    "watch_url": "https://www.youtube.com/watch?v=fcajag5di68&t=521s",
+    "quote": "I have done that a few times. So, what I suggest is always use a dedicated Argo CD instance for this kind of preview process.",
+    "why": "Argo CD: use a dedicated instance for preview processes, per the speaker's suggestion.",
+    "matched_tools": [
+     "argo-cd"
     ],
     "matched_by": "both",
     "talk_label": "deep_dive",
@@ -326,8 +326,50 @@
     "score": 0.4
    }
   ],
-  "trace_id": "b17697e0d9a02d3c957eeda469971ca7",
-  "message": "No talk mentions Kubernetes; showing the rest of your stack.",
+  "terms": [
+   {
+    "term": "applications",
+    "score": 0.078,
+    "doc_count": 28
+   },
+   {
+    "term": "metrics",
+    "score": 0.068,
+    "doc_count": 63
+   },
+   {
+    "term": "pattern",
+    "score": 0.065,
+    "doc_count": 25
+   },
+   {
+    "term": "receiver",
+    "score": 0.062,
+    "doc_count": 17
+   },
+   {
+    "term": "manifest",
+    "score": 0.049,
+    "doc_count": 17
+   },
+   {
+    "term": "extract",
+    "score": 0.046,
+    "doc_count": 12
+   },
+   {
+    "term": "traces",
+    "score": 0.045,
+    "doc_count": 32
+   },
+   {
+    "term": "certificates",
+    "score": 0.041,
+    "doc_count": 11
+   }
+  ],
+  "trace_id": "e7fc11420711c996b1ddf54665e2f72e",
+  "message": null,
   "debug": {
    "query": {
     "size": 50,
@@ -713,26 +755,723 @@
     }
    },
    "timings_ms": {
-    "hybrid_search": 405.1,
-    "keyword_search": 68.1,
-    "semantic_search": 116.6,
-    "elastic_rerank": 1076.4,
-    "search_wall": 1076.7,
+    "hybrid_search": 320.9,
+    "keyword_search": 67.0,
+    "semantic_search": 113.3,
+    "elastic_rerank": 1065.5,
+    "search_wall": 1065.9,
     "grouping": 0.6,
     "clip_building": 0.2,
-    "rerank_batch_0": 2206.4,
-    "rerank_batch_1": 1785.2,
-    "rerank_batch_2": 1744.3,
-    "rerank": 2210.2,
-    "budget": 2.7,
-    "total": 3290.8
+    "rerank_batch_0": 2513.2,
+    "rerank_batch_1": 1813.9,
+    "rerank_batch_2": 1697.9,
+    "rerank": 2518.5,
+    "budget": 4.0,
+    "significant_terms": 65.8,
+    "total": 3589.8
    },
    "hits": 100,
    "talks": 28,
    "rerank": {
     "elastic": "ok",
     "model": "ok"
-   }
+   },
+   "terms_query": {
+    "size": 0,
+    "track_total_hits": false,
+    "query": {
+     "bool": {
+      "should": [
+       {
+        "terms": {
+         "tools": [
+          "argo-cd",
+          "cert-manager",
+          "envoy",
+          "prometheus",
+          "opentelemetry",
+          "istio",
+          "kubernetes"
+         ],
+         "boost": 2
+        }
+       },
+       {
+        "match_phrase": {
+         "text": "argo cd"
+        }
+       },
+       {
+        "match_phrase": {
+         "text": "argocd"
+        }
+       },
+       {
+        "match_phrase": {
+         "text": "argo city"
+        }
+       },
+       {
+        "match_phrase": {
+         "text": "cert-manager"
+        }
+       },
+       {
+        "match_phrase": {
+         "text": "cert manager"
+        }
+       },
+       {
+        "match_phrase": {
+         "text": "certmanager"
+        }
+       },
+       {
+        "match_phrase": {
+         "text": "search manager"
+        }
+       },
+       {
+        "match_phrase": {
+         "text": "envoy"
+        }
+       },
+       {
+        "match_phrase": {
+         "text": "envoy proxy"
+        }
+       },
+       {
+        "match_phrase": {
+         "text": "envoyproxy"
+        }
+       },
+       {
+        "match_phrase": {
+         "text": "prometheus"
+        }
+       },
+       {
+        "match_phrase": {
+         "text": "promql"
+        }
+       },
+       {
+        "match_phrase": {
+         "text": "opentelemetry"
+        }
+       },
+       {
+        "match_phrase": {
+         "text": "open telemetry"
+        }
+       },
+       {
+        "match_phrase": {
+         "text": "otel"
+        }
+       },
+       {
+        "match_phrase": {
+         "text": "otlp"
+        }
+       },
+       {
+        "match_phrase": {
+         "text": "hotel collector"
+        }
+       },
+       {
+        "match_phrase": {
+         "text": "hotel collectors"
+        }
+       },
+       {
+        "match_phrase": {
+         "text": "hotel sdk"
+        }
+       },
+       {
+        "match_phrase": {
+         "text": "hotel sdks"
+        }
+       },
+       {
+        "match_phrase": {
+         "text": "hotel demo"
+        }
+       },
+       {
+        "match_phrase": {
+         "text": "hotel instrumentation"
+        }
+       },
+       {
+        "match_phrase": {
+         "text": "hotel profiles"
+        }
+       },
+       {
+        "match_phrase": {
+         "text": "hotel spans"
+        }
+       },
+       {
+        "match_phrase": {
+         "text": "istio"
+        }
+       },
+       {
+        "match_phrase": {
+         "text": "isto"
+        }
+       },
+       {
+        "match_phrase": {
+         "text": "istto"
+        }
+       },
+       {
+        "match_phrase": {
+         "text": "kubernetes"
+        }
+       },
+       {
+        "match_phrase": {
+         "text": "k8s"
+        }
+       },
+       {
+        "match_phrase": {
+         "text": "kates"
+        }
+       }
+      ],
+      "minimum_should_match": 1
+     }
+    },
+    "aggs": {
+     "sample": {
+      "sampler": {
+       "shard_size": 200
+      },
+      "aggs": {
+       "keywords": {
+        "significant_text": {
+         "field": "text",
+         "size": 40,
+         "min_doc_count": 3,
+         "filter_duplicate_text": true,
+         "jlh": {},
+         "exclude": [
+          "a",
+          "aaron",
+          "abellard",
+          "abhinav",
+          "abhishek",
+          "able",
+          "about",
+          "actually",
+          "adam",
+          "aditya",
+          "again",
+          "agent",
+          "ah",
+          "aldo",
+          "alex",
+          "alexander",
+          "alfonso",
+          "all",
+          "almeida",
+          "already",
+          "also",
+          "anastasiia",
+          "and",
+          "anders",
+          "andersen",
+          "andrew",
+          "andy",
+          "anti",
+          "antoine",
+          "any",
+          "anything",
+          "apache",
+          "api",
+          "apis",
+          "argo",
+          "argocd",
+          "arthur",
+          "avlasov",
+          "awesome",
+          "b",
+          "back",
+          "backstage",
+          "bao",
+          "bartolini",
+          "bartłomiej",
+          "basically",
+          "because",
+          "been",
+          "being",
+          "ben",
+          "bianchi",
+          "bill",
+          "bit",
+          "bjerre",
+          "björn",
+          "block",
+          "both",
+          "bunch",
+          "but",
+          "came",
+          "can",
+          "capili",
+          "carpenter",
+          "cd",
+          "celium",
+          "cert",
+          "certmanager",
+          "chalandre",
+          "change",
+          "charlie",
+          "chart",
+          "charts",
+          "choo",
+          "cilium",
+          "city",
+          "cloak",
+          "cloud",
+          "cloudnativepg",
+          "cnpg",
+          "collector",
+          "collectors",
+          "combopiano",
+          "come",
+          "comes",
+          "connors",
+          "containerd",
+          "context",
+          "cool",
+          "cortney",
+          "could",
+          "couple",
+          "create",
+          "crossplane",
+          "crossplay",
+          "cube",
+          "cuddle",
+          "customize",
+          "d",
+          "da",
+          "dag",
+          "daniel",
+          "dapr",
+          "das",
+          "data",
+          "demo",
+          "did",
+          "different",
+          "dmitrii",
+          "does",
+          "done",
+          "down",
+          "duarte",
+          "each",
+          "eduardo",
+          "egan",
+          "eknert",
+          "end",
+          "endre",
+          "ends",
+          "envoy",
+          "envoyproxy",
+          "erica",
+          "etcd",
+          "evan",
+          "even",
+          "everybody",
+          "everyone",
+          "everything",
+          "example",
+          "f",
+          "fajerski",
+          "falco",
+          "falcosidekick",
+          "felix",
+          "fenton",
+          "few",
+          "first",
+          "florian",
+          "flow",
+          "fluent",
+          "fluentbit",
+          "flux",
+          "fluxcd",
+          "folks",
+          "for",
+          "frank",
+          "from",
+          "g",
+          "gabriele",
+          "gatekeeper",
+          "gateway",
+          "geisendörfer",
+          "get",
+          "giedrius",
+          "give",
+          "gives",
+          "going",
+          "golnaz",
+          "gonna",
+          "good",
+          "gordon",
+          "got",
+          "gotta",
+          "grafana",
+          "graphana",
+          "grcevski",
+          "great",
+          "grimm",
+          "gubska",
+          "guys",
+          "had",
+          "has",
+          "have",
+          "helm",
+          "here",
+          "hmm",
+          "hotel",
+          "how",
+          "hrittik",
+          "hughberg",
+          "iacopo",
+          "id",
+          "ids",
+          "information",
+          "instrumentation",
+          "into",
+          "istio",
+          "isto",
+          "istto",
+          "j",
+          "jade",
+          "jaeger",
+          "jan",
+          "jared",
+          "jiekun",
+          "joe",
+          "jogeleit",
+          "johannes",
+          "jorge",
+          "joão",
+          "juraci",
+          "just",
+          "k",
+          "k8s",
+          "kafka",
+          "kalen",
+          "karpenter",
+          "kates",
+          "katz",
+          "keda",
+          "keep",
+          "key",
+          "keycloak",
+          "khavronenko",
+          "kind",
+          "kinds",
+          "know",
+          "kröhling",
+          "kserve",
+          "kube",
+          "kubectl",
+          "kubeflow",
+          "kubernetes",
+          "kunal",
+          "kunju",
+          "kustomization",
+          "kustomizations",
+          "kustomize",
+          "kyverno",
+          "lacuku",
+          "lambert",
+          "last",
+          "laurent",
+          "lee",
+          "lehner",
+          "leigh",
+          "leonardo",
+          "let",
+          "like",
+          "lin",
+          "linker",
+          "linkerd",
+          "literally",
+          "liudmila",
+          "loffay",
+          "look",
+          "lot",
+          "lots",
+          "luz",
+          "m",
+          "made",
+          "madhuri",
+          "make",
+          "malvankar",
+          "manager",
+          "many",
+          "marcelo",
+          "martin",
+          "marylia",
+          "mata",
+          "matar",
+          "matteo",
+          "matyushentsev",
+          "may",
+          "maybe",
+          "maël",
+          "mcp",
+          "mean",
+          "meritxell",
+          "might",
+          "ming",
+          "mitch",
+          "model",
+          "molkova",
+          "more",
+          "morgan",
+          "most",
+          "much",
+          "mulligan",
+          "must",
+          "n",
+          "natalie",
+          "native",
+          "need",
+          "neha",
+          "next",
+          "nice",
+          "nickerson",
+          "nikola",
+          "node",
+          "not",
+          "now",
+          "off",
+          "oh",
+          "ok",
+          "okay",
+          "oldsberg",
+          "one",
+          "only",
+          "opa",
+          "open",
+          "opentelemetry",
+          "opentofu",
+          "oper",
+          "otel",
+          "other",
+          "otlp",
+          "our",
+          "out",
+          "outhenin",
+          "outs",
+          "over",
+          "overlay",
+          "overlays",
+          "own",
+          "p",
+          "pablo",
+          "paixão",
+          "parodi",
+          "patrik",
+          "paul",
+          "pavol",
+          "peles",
+          "people",
+          "per",
+          "perath",
+          "pg",
+          "policies",
+          "policy",
+          "pool",
+          "pools",
+          "postgres",
+          "postgresql",
+          "pretty",
+          "probably",
+          "prodan",
+          "profiles",
+          "prometheus",
+          "promql",
+          "protocol",
+          "proxy",
+          "psyllium",
+          "put",
+          "puts",
+          "putting",
+          "płotka",
+          "quentin",
+          "question",
+          "questions",
+          "rabenstein",
+          "ramlot",
+          "really",
+          "redis",
+          "regina",
+          "rego",
+          "ricardo",
+          "rigby",
+          "right",
+          "robert",
+          "rodríguez",
+          "roll",
+          "rollout",
+          "rollouts",
+          "roman",
+          "roubalik",
+          "rouhi",
+          "routs",
+          "roy",
+          "rozzo",
+          "said",
+          "same",
+          "sara",
+          "say",
+          "says",
+          "schneider",
+          "scott",
+          "sdk",
+          "sdks",
+          "search",
+          "see",
+          "selium",
+          "sergey",
+          "serve",
+          "severin",
+          "sharma",
+          "shevchenko",
+          "should",
+          "shuangkun",
+          "silva",
+          "sirchia",
+          "slide",
+          "slides",
+          "so",
+          "some",
+          "something",
+          "soni",
+          "sonner",
+          "sort",
+          "spans",
+          "spiffe",
+          "spiffy",
+          "spire",
+          "spolti",
+          "start",
+          "started",
+          "statkevičius",
+          "stefan",
+          "steve",
+          "still",
+          "strimzi",
+          "stuff",
+          "sure",
+          "swiech",
+          "t",
+          "take",
+          "takes",
+          "taking",
+          "talk",
+          "telemetry",
+          "terraform",
+          "than",
+          "thank",
+          "thanks",
+          "thanos",
+          "that",
+          "their",
+          "them",
+          "then",
+          "there",
+          "these",
+          "they",
+          "thing",
+          "things",
+          "think",
+          "this",
+          "those",
+          "three",
+          "tian",
+          "tim",
+          "time",
+          "times",
+          "today",
+          "tofu",
+          "too",
+          "took",
+          "tried",
+          "try",
+          "trying",
+          "turrado",
+          "two",
+          "uh",
+          "uhh",
+          "ujuk",
+          "um",
+          "umm",
+          "under",
+          "use",
+          "used",
+          "uses",
+          "using",
+          "valais",
+          "very",
+          "vllm",
+          "voloshin",
+          "wanna",
+          "want",
+          "was",
+          "watts",
+          "way",
+          "well",
+          "were",
+          "wessel",
+          "what",
+          "when",
+          "where",
+          "which",
+          "who",
+          "whole",
+          "why",
+          "will",
+          "william",
+          "with",
+          "wolfe",
+          "workflow",
+          "workflows",
+          "would",
+          "xiaolin",
+          "yan",
+          "yaron",
+          "yash",
+          "yeah",
+          "yechuri",
+          "yep",
+          "yes",
+          "you",
+          "your",
+          "zbynek",
+          "zhang",
+          "zhu"
+         ]
+        }
+       }
+      }
+     }
+    }
+   },
+   "terms_status": "ok",
+   "uncovered_tools": []
   }
  }
 }

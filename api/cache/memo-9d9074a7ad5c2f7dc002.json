@@ -1,0 +1,31 @@
+{
+ "route": "memo",
+ "request": {
+  "tools": [
+   "argo-cd",
+   "prometheus"
+  ],
+  "clip_ids": [
+   "VfVQj4Oa3z0-0",
+   "VfVQj4Oa3z0-1530",
+   "VfVQj4Oa3z0-341",
+   "fcajag5di68-1041",
+   "fcajag5di68-651",
+   "iC15zeOLZQA-537",
+   "iC15zeOLZQA-926",
+   "q2b9niAdFII-1007",
+   "q2b9niAdFII-875",
+   "x5nVyVZSd0A-865~936~1004"
+  ]
+ },
+ "response": {
+  "markdown": "# Debrief: Argo CD, Prometheus\n\nThese clips cover Argo CD practices such as keeping Helm values in Git, fast pull request previews, locked-down installs, and API-based troubleshooting that pulls in Prometheus metric context. ([Declarative...ish? Fixing Hidden Argo CD Pitfalls in Your GitOps Setup · 5:39](https://www.youtube.com/watch?v=VfVQj4Oa3z0&t=339s); [Argo CD: Previewing Pull Request Changes in SECONDS! · 10:49](https://www.youtube.com/watch?v=fcajag5di68&t=649s); [The 10x DevOps Engineer’s Toolkit: Argo CD + AI-Driven MCP Automation · 15:24](https://www.youtube.com/watch?v=iC15zeOLZQA&t=924s))\n\n## Top 3 takeaways\n\n1. Store Helm settings in value files in Git and have Argo CD applications reference them, so business settings and deployment targets are cleanly separated and developers can run things locally. ([Declarative...ish? Fixing Hidden Argo CD Pitfalls in Your GitOps Setup · 5:39](https://www.youtube.com/watch?v=VfVQj4Oa3z0&t=339s))\n2. A slimmed-down, namespace-scoped Argo CD with self-hosted runners rendered previews for about 1,000 applications in roughly 5 seconds, giving accurate pull request feedback because the real Argo CD does the rendering. ([Argo CD: Previewing Pull Request Changes in SECONDS! · 10:49](https://www.youtube.com/watch?v=fcajag5di68&t=649s))\n3. Argo CD's API exposes logs, Kubernetes events, and live versus desired state, which helps address data silos spread across tools like Prometheus-metric dashboards, and it underpins an MCP automation approach. ([The 10x DevOps Engineer’s Toolkit: Argo CD + AI-Driven MCP Automation · 15:24](https://www.youtube.com/watch?v=iC15zeOLZQA&t=924s); [The 10x DevOps Engineer’s Toolkit: Argo CD + AI-Driven MCP Automation · 8:55](https://www.youtube.com/watch?v=iC15zeOLZQA&t=535s))\n\n## Action items\n\n- [ ] Audit Argo CD applications for Helm parameters embedded in manifests and move them into Helm value files in Git, referenced from the application. ([Declarative...ish? Fixing Hidden Argo CD Pitfalls in Your GitOps Setup · 5:39](https://www.youtube.com/watch?v=VfVQj4Oa3z0&t=339s))\n- [ ] Try a pull request preview pipeline using runners in the same cluster as Argo CD, using watch patterns to render only changed applications. ([Argo CD: Previewing Pull Request Changes in SECONDS! · 10:49](https://www.youtube.com/watch?v=fcajag5di68&t=649s); [Argo CD: Previewing Pull Request Changes in SECONDS! · 17:19](https://www.youtube.com/watch?v=fcajag5di68&t=1039s))\n- [ ] Evaluate a namespace-scoped, trimmed Argo CD install by removing cluster roles and unneeded components in a non-production setup. ([Argo CD: Previewing Pull Request Changes in SECONDS! · 10:49](https://www.youtube.com/watch?v=fcajag5di68&t=649s))\n\n## Watch together (5 min)\n\n1. [Declarative...ish? Fixing Hidden Argo CD Pitfalls in Your GitOps Setup · 5:39](https://www.youtube.com/watch?v=VfVQj4Oa3z0&t=339s) (1:20), Regina Voloshin: Clear Git layout practice for Helm values versus Argo CD manifests.\n2. [Argo CD: Previewing Pull Request Changes in SECONDS! · 10:49](https://www.youtube.com/watch?v=fcajag5di68&t=649s) (1:19), Dag Bjerre Andersen, Sergey Shevchenko: Lockdown mode and 5-second previews on 1,000 applications.\n3. [Argo CD: Previewing Pull Request Changes in SECONDS! · 17:19](https://www.youtube.com/watch?v=fcajag5di68&t=1039s) (1:19), Dag Bjerre Andersen, Sergey Shevchenko: Watch patterns and pre-configured clusters cut preview time dramatically.\n4. [The 10x DevOps Engineer’s Toolkit: Argo CD + AI-Driven MCP Automation · 15:24](https://www.youtube.com/watch?v=iC15zeOLZQA&t=924s) (1:19), Alexander Matyushentsev, Leonardo Luz Almeida: Argo CD API as source for troubleshooting data across silos.\n",
+  "cited_clip_ids": [
+   "VfVQj4Oa3z0-341",
+   "fcajag5di68-651",
+   "iC15zeOLZQA-926",
+   "iC15zeOLZQA-537",
+   "fcajag5di68-1041"
+  ]
+ }
+}
