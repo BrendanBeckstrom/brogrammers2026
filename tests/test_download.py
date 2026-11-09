@@ -24,7 +24,7 @@ def talk(youtube_id: str) -> Talk:
     return Talk(youtube_id=youtube_id, title=f"Talk {youtube_id}", speakers=(), track="")
 
 
-def fake_writer(calls: list[str]):
+def fake_writer(calls: list[str]) -> download.Fetcher:
     """A fetcher that writes the caption file, like yt-dlp would."""
 
     def fetch(youtube_id: str, raw_dir: Path) -> None:
@@ -34,7 +34,7 @@ def fake_writer(calls: list[str]):
     return fetch
 
 
-def test_read_talks_handles_quoted_commas_and_split_speakers(tmp_path):
+def test_read_talks_handles_quoted_commas_and_split_speakers(tmp_path: Path) -> None:
     talks = read_talks(write_csv(tmp_path))
 
     assert [t.youtube_id for t in talks] == ["aaa111", "bbb222", "ccc333"]
@@ -46,7 +46,7 @@ def test_read_talks_handles_quoted_commas_and_split_speakers(tmp_path):
     assert talks[2].speakers == ("Regina Voloshin",)
 
 
-def test_committed_talks_csv_parses():
+def test_committed_talks_csv_parses() -> None:
     talks = read_talks(Path(__file__).resolve().parents[1] / "data" / "talks.csv")
 
     assert 40 <= len(talks) <= 60
@@ -54,7 +54,7 @@ def test_committed_talks_csv_parses():
     assert all(t.title and t.speakers for t in talks)
 
 
-def test_existing_files_are_skipped(tmp_path):
+def test_existing_files_are_skipped(tmp_path: Path) -> None:
     raw = tmp_path / "raw"
     raw.mkdir()
     caption_path(raw, "aaa111").write_text("WEBVTT\n", encoding="utf-8")
@@ -68,7 +68,7 @@ def test_existing_files_are_skipped(tmp_path):
     assert report.failed == []
 
 
-def test_failures_are_listed_and_batch_continues(tmp_path):
+def test_failures_are_listed_and_batch_continues(tmp_path: Path) -> None:
     calls: list[str] = []
     writer = fake_writer(calls)
 
@@ -89,7 +89,9 @@ def test_failures_are_listed_and_batch_continues(tmp_path):
     ]
 
 
-def test_main_exit_code_and_failure_list(tmp_path, monkeypatch, capsys):
+def test_main_exit_code_and_failure_list(
+    tmp_path: Path, monkeypatch: pytest.MonkeyPatch, capsys: pytest.CaptureFixture[str]
+) -> None:
     raw = tmp_path / "raw"
 
     def fetch(youtube_id: str, raw_dir: Path) -> None:
@@ -113,7 +115,9 @@ def test_main_exit_code_and_failure_list(tmp_path, monkeypatch, capsys):
     assert "3/3 caption files present" in capsys.readouterr().out
 
 
-def test_main_never_hits_network_when_all_present(tmp_path, monkeypatch, capsys):
+def test_main_never_hits_network_when_all_present(
+    tmp_path: Path, monkeypatch: pytest.MonkeyPatch, capsys: pytest.CaptureFixture[str]
+) -> None:
     raw = tmp_path / "raw"
     raw.mkdir()
     for youtube_id in ("aaa111", "bbb222", "ccc333"):
@@ -131,7 +135,7 @@ def test_main_never_hits_network_when_all_present(tmp_path, monkeypatch, capsys)
     )
 
 
-def test_ydl_options_are_captions_only_and_polite(tmp_path):
+def test_ydl_options_are_captions_only_and_polite(tmp_path: Path) -> None:
     opts = download.ydl_options(tmp_path)
 
     assert opts["skip_download"] is True
