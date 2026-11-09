@@ -1,5 +1,7 @@
-# On every push to main: build the image, push it to GHCR, and point
-# deploy/kustomization.yaml at it. Argo CD sees that commit and deploys it.
+# On every push to main: build the image, push it to GHCR, and publish the
+# manifests pointing at it to the `deploy` branch. Argo CD tracks `deploy`.
+# main is protected (changes land only through reviewed PRs with green CI),
+# so this workflow never commits to main.
 name: build-and-deploy
 
 on:
@@ -48,24 +50,16 @@ jobs:
             ${{ steps.meta.outputs.image }}:latest
           labels: org.opencontainers.image.source=${{ github.server_url }}/${{ github.repository }}
 
-      - name: Point the manifests at the new image
+      - name: Publish the manifests to the deploy branch
         env:
           IMAGE: ${{ steps.meta.outputs.image }}
           TAG: ${{ steps.meta.outputs.tag }}
         run: |
           git config user.name "github-actions[bot]"
           git config user.email "41898282+github-actions[bot]@users.noreply.github.com"
-          # Set the image on top of the latest main, not on the commit this run
-          # built. A push that landed during the build (yours, or the previous
-          # run's deploy commit) then can't conflict; retry if one lands mid-push.
-          for attempt in 1 2 3 4 5; do
-            git fetch -q origin main
-            git reset -q --hard FETCH_HEAD
-            yq -i '(.images[] | select(.name == "app")) |= (.newName = strenv(IMAGE) | .newTag = strenv(TAG))' deploy/kustomization.yaml
-            if git diff --quiet; then exit 0; fi
-            git commit -qam "deploy: ${TAG} [skip ci]"
-            if git push -q origin HEAD:main; then exit 0; fi
-            sleep $((attempt * 3))
-          done
-          echo "Couldn't push the deploy commit after 5 tries." >&2
-          exit 1
+          # `deploy` is always the commit this run built plus one commit that
+          # sets the image. Runs are serialized by the concurrency group, so the
+          # newest build always wins. Argo CD syncs deploy/ from this branch.
+          yq -i '(.images[] | select(.name == "app")) |= (.newName = strenv(IMAGE) | .newTag = strenv(TAG))' deploy/kustomization.yaml
+          git commit -qam "deploy: ${TAG} [skip ci]"
+          git push -q --force origin HEAD:refs/heads/deploy

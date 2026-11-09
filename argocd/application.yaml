@@ -10,7 +10,7 @@ spec:
   project: team-__TEAM__
   source:
     repoURL: https://github.com/OWNER/REPO.git
-    targetRevision: main
+    targetRevision: deploy
     path: deploy
   destination:
     server: https://kubernetes.default.svc
