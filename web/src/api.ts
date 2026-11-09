@@ -107,6 +107,9 @@ export interface SharedPlaylist {
 export interface ClipText {
   clip_id: string
   text: string
+  /** The captions with misheard tool names fixed (e.g. Psyllium -> Cilium); absent on older servers. */
+  text_corrected?: string
+  corrections?: { from: string; to: string }[]
 }
 
 export interface MemoRequest {
