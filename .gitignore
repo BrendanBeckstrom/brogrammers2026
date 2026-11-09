@@ -1,0 +1,45 @@
+# --- Secrets: never commit these ---
+.env
+.env.*
+!.env.example
+*.pem
+*.key
+kubeconfig*
+*.kubeconfig
+secrets/
+*-secret.yaml
+*-secrets.yaml
+
+# --- OS / editor ---
+.DS_Store
+.idea/
+.vscode/*
+!.vscode/extensions.json
+*.swp
+
+# --- Node ---
+node_modules/
+dist/
+build/
+.next/
+npm-debug.log*
+yarn-error.log*
+
+# --- Python ---
+__pycache__/
+*.py[cod]
+.venv/
+venv/
+.pytest_cache/
+*.egg-info/
+
+# --- Go ---
+bin/
+vendor/
+
+# --- Helm / K8s ---
+charts/*/charts/
+*.tgz
+
+# --- Logs ---
+*.log
