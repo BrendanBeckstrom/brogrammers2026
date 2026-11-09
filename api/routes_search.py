@@ -5,8 +5,10 @@ gets its Elastic client through `search_client` and its model through `model_cli
 tests override both with fakes. With DEBRIEF_CACHE=on each route first asks the demo cache
 (api/demo_cache.py, task 13).
 
-Every playlist answer is also remembered for saving (api/playlists.py) and logged to the
-`queries` index in the background (api/insights.py), through `query_log_store`.
+Every playlist answer is also remembered for saving: in this process (api/playlists.py)
+and, in the background, in the `answers` index that every replica reads, next to one
+`queries` log document (api/insights.py). Both writes go through `query_log_store` and
+never block or fail the answer.
 """
 
 from __future__ import annotations
@@ -71,7 +73,7 @@ Model = Annotated[LLMClient, Depends(model_client)]
 
 
 def query_log_store() -> StoreClient | None:
-    """Where the query log goes, or None when Elastic is not configured (nothing is logged)."""
+    """Where the query log and shared answers go; None when Elastic is not configured."""
     try:
         return store.get_store()
     except SearchBackendError:
@@ -88,11 +90,22 @@ def remember_and_log(
     background: BackgroundTasks,
     log_store: StoreClient | None,
 ) -> None:
-    """Keep the answer for POST /api/playlists and log the request after the response."""
-    request = body.model_dump(mode="json")
-    playlists.recent.put(demo_cache.cache_key("playlist", request), answer)
+    """Keep the answer for POST /api/playlists and log the request, after the response."""
+    request_hash = demo_cache.cache_key("playlist", body.model_dump(mode="json"))
+    playlists.recent.put(request_hash, answer)
     doc = insights.query_doc(body.tools, body.pain, body.filter, body.rerank, answer, duration_ms)
-    background.add_task(insights.log_query, log_store, doc)
+    background.add_task(after_playlist, log_store, request_hash, answer, doc)
+
+
+def after_playlist(
+    log_store: StoreClient | None,
+    request_hash: str,
+    answer: dict[str, Any],
+    query_doc: dict[str, Any],
+) -> None:
+    """The background half of a playlist: share the answer, then log the query. Never raises."""
+    playlists.share_answer(log_store, request_hash, answer)
+    insights.log_query(log_store, query_doc)
 
 
 def run_playlist(body: PlaylistBody, client: SearchClient, model: LLMClient) -> dict[str, Any]:
@@ -108,8 +121,9 @@ def run_playlist(body: PlaylistBody, client: SearchClient, model: LLMClient) -> 
     return search.build_playlist(client, request, model)
 
 
-def _backend_error(e: SearchBackendError) -> HTTPException:
-    if demo_cache.enabled():
+def _backend_error(e: SearchBackendError, client: SearchClient | None = None) -> HTTPException:
+    offline = isinstance(client, demo_cache.OfflineSearchClient) or e.unreachable
+    if demo_cache.enabled() and offline:
         return demo_cache.miss_error(str(e))
     return HTTPException(status_code=502, detail=str(e))
 
@@ -149,7 +163,7 @@ def playlist(
         except SearchBackendError as e:
             elapsed = (time.perf_counter() - started) * 1000
             telemetry.record_playlist(elapsed, 0, tool_ids, body.filter, "error")
-            raise _backend_error(e) from e
+            raise _backend_error(e, client) from e
         elapsed = (time.perf_counter() - started) * 1000
         clips = len(result["clips"])
         outcome = "ok" if clips else "empty"
@@ -190,7 +204,7 @@ def tools(client: Client, response: Response) -> list[dict[str, Any]]:
         try:
             rows = search.list_tools(client)
         except SearchBackendError as e:
-            raise _backend_error(e) from e
+            raise _backend_error(e, client) from e
         span.set_attribute("debrief.tools_count", len(rows))
         return rows
 
@@ -205,7 +219,7 @@ def talks(client: Client, response: Response) -> list[dict[str, Any]]:
         try:
             rows = search.list_talks(client)
         except SearchBackendError as e:
-            raise _backend_error(e) from e
+            raise _backend_error(e, client) from e
         span.set_attribute("debrief.talks_count", len(rows))
         return rows
 
@@ -225,7 +239,7 @@ def clip(clip_or_chunk_id: str, client: Client, response: Response) -> dict[str,
         except ValueError as e:
             raise HTTPException(status_code=404, detail="Unknown clip id") from e
         except SearchBackendError as e:
-            raise _backend_error(e) from e
+            raise _backend_error(e, client) from e
         if found is None:
             raise HTTPException(status_code=404, detail="Unknown clip id")
         span.set_attribute("debrief.chunks", found["clip_id"].count("~") + 1)

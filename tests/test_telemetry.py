@@ -20,7 +20,7 @@ from opentelemetry.sdk.trace import ReadableSpan, TracerProvider
 from opentelemetry.sdk.trace.export import SimpleSpanProcessor
 from opentelemetry.sdk.trace.export.in_memory_span_exporter import InMemorySpanExporter
 
-from api import routes_search, telemetry
+from api import memo, routes_search, telemetry
 from api.main import app
 from ingest import index as idx
 from tests.test_index import FakeClient, _chunk, _write_chunks
@@ -194,6 +194,65 @@ def test_llm_and_memo_helpers(reader: InMemoryMetricReader) -> None:
     assert tokens == {("rerank", "input"): 1200, ("rerank", "output"): 300, ("memo", "input"): 900}
     dropped = {p.attributes["reason"]: p.value for p in got["debrief.memo.citations_dropped"]}
     assert dropped == {"unknown_clip": 1, "uncited": 1}
+
+
+def test_memo_lines_counter_gives_the_citation_slo_total(reader: InMemoryMetricReader) -> None:
+    data = {
+        "summary": {"text": "Worth a look.", "clip_ids": ["a"]},
+        "takeaways": [
+            {"text": "Kept.", "clip_ids": ["a"]},
+            {"text": "Uncited."},
+            {"text": "Unknown id.", "clip_ids": ["zzz"]},
+        ],
+        "action_items": [{"text": "Try it.", "clip_ids": ["b"]}],
+        "watch_together": [{"clip_id": "a", "reason": "Short."}],
+    }
+    result = memo.validate(data, ["a", "b"])
+    assert result.dropped == 2
+    got = points(reader)
+    (lines,) = got["debrief.memo.lines"]
+    assert lines.value == 6  # summary + 3 takeaways + 1 action + 1 watch, kept or dropped
+    assert sum(p.value for p in got["debrief.memo.citations_dropped"]) == 2
+
+
+# --- Runtime config for browser RUM -------------------------------------------------------
+
+
+def test_config_without_web_token_turns_rum_off(
+    api: TestClient, spans: InMemorySpanExporter, monkeypatch: pytest.MonkeyPatch
+) -> None:
+    monkeypatch.delenv("DASH0_WEB_TOKEN", raising=False)
+    response = api.get("/api/config")
+    assert response.status_code == 200
+    assert response.json() == {"rum": None}
+    span = next(s for s in spans.get_finished_spans() if s.name == "api.config")
+    assert span.attributes["debrief.rum.enabled"] is False
+
+
+def test_config_with_web_token(
+    api: TestClient, spans: InMemorySpanExporter, monkeypatch: pytest.MonkeyPatch
+) -> None:
+    token = "auth_fake_web_token_for_tests"
+    monkeypatch.setenv("DASH0_WEB_TOKEN", token)
+    monkeypatch.delenv("DASH0_WEB_ENDPOINT", raising=False)
+    monkeypatch.setenv("APP_VERSION", "abc1234")
+    monkeypatch.setenv("OTEL_RESOURCE_ATTRIBUTES", "deployment.environment=hackathon")
+    rum = api.get("/api/config").json()["rum"]
+    assert rum == {
+        "endpoint": "https://ingress.us-west-2.aws.dash0.com",
+        "token": token,
+        "service_name": "debrief-web",
+        "environment": "hackathon",
+        "version": "abc1234",
+    }
+    monkeypatch.setenv("DASH0_WEB_ENDPOINT", "https://ingress.eu-west-1.aws.dash0.com/")
+    assert api.get("/api/config").json()["rum"]["endpoint"] == (
+        "https://ingress.eu-west-1.aws.dash0.com"
+    )
+    finished = [s for s in spans.get_finished_spans() if s.name == "api.config"]
+    assert [s.attributes["debrief.rum.enabled"] for s in finished] == [True, True]
+    for span in spans.get_finished_spans():  # the token never lands on a span
+        assert token not in str(dict(span.attributes or {}))
 
 
 # --- Logs ------------------------------------------------------------------------------

@@ -4,11 +4,14 @@ GET /api/insights (docs/BRIEF.md, API).
 Each route runs inside its own OpenTelemetry span (ids and counts only, never the pain
 sentence or transcript text) and gets Debrief's own indexes through `playlist_store`, which
 tests override with a fake. Saving always goes to Elastic; only /api/insights is served
-from the demo cache.
+from the demo cache. A save finds the answer the browser saw in this process's memory, then
+in the `answers` index any replica wrote (api/playlists.py), then the demo cache, and only
+then runs the playlist again.
 """
 
 from __future__ import annotations
 
+import logging
 from typing import Annotated, Any
 
 from fastapi import APIRouter, Depends, HTTPException, Request, Response
@@ -16,7 +19,7 @@ from opentelemetry import trace
 from pydantic import BaseModel, Field, StringConstraints
 
 from api import demo_cache, insights, playlists, store
-from api.routes_search import Client, Model, PlaylistBody, run_playlist
+from api.routes_search import Client, Model, PlaylistBody, _backend_error, run_playlist
 from api.search import SearchBackendError
 from api.store import StoreClient
 
@@ -25,6 +28,7 @@ MAX_CLIP_IDS = 25
 
 router = APIRouter(prefix="/api")
 tracer = trace.get_tracer("debrief")
+log = logging.getLogger("debrief.api")
 
 ClipId = Annotated[str, StringConstraints(min_length=1, max_length=200)]
 
@@ -56,8 +60,10 @@ async def capped_body(request: Request) -> None:
         raise HTTPException(status_code=413, detail=f"Body over {MAX_BODY_BYTES} bytes")
 
 
-def _store_error(e: SearchBackendError) -> HTTPException:
-    if demo_cache.enabled():
+def _store_error(e: SearchBackendError, saved: StoreClient) -> HTTPException:
+    """503 (offline demo) when the cache is on and Elastic is unreachable, else 502."""
+    offline = isinstance(saved, store.OfflineStore) or e.unreachable
+    if demo_cache.enabled() and offline:
         return demo_cache.miss_error(str(e))
     return HTTPException(status_code=502, detail=str(e))
 
@@ -79,6 +85,11 @@ def save_playlist(
         key = demo_cache.cache_key("playlist", request)
         answer = playlists.recent.get(key)
         source = "recent"
+        if answer is not None and not playlists.covers(answer, body.clip_ids):
+            answer = None  # this process gave a different answer; another replica may have it
+        if answer is None:
+            answer, how = playlists.wait_for_shared(saved, key, body.clip_ids)
+            source = f"answers:{how}"
         if answer is None and demo_cache.enabled():
             answer = demo_cache.lookup("playlist", request)
             source = "cache"
@@ -87,9 +98,10 @@ def save_playlist(
             try:
                 answer = run_playlist(body.request, client, model)
             except SearchBackendError as e:
-                raise _store_error(e) from e
+                raise _backend_error(e, client) from e
         answer = {"terms": [], **answer}  # a cached answer from before significant terms
         span.set_attribute("debrief.playlist_source", source)
+        log.info("playlist save", extra={"debrief.playlist_source": source})
         try:
             chosen = playlists.pick_clips(answer, body.clip_ids)
         except playlists.UnknownClips as e:
@@ -102,7 +114,7 @@ def save_playlist(
         try:
             playlist_id = playlists.save(saved, request, body.clip_ids, chosen)
         except SearchBackendError as e:
-            raise _store_error(e) from e
+            raise _store_error(e, saved) from e
         span.set_attributes(
             {"debrief.playlist_id": playlist_id, "debrief.clips": len(chosen["clips"])}
         )
@@ -116,7 +128,7 @@ def get_playlist(playlist_id: str, saved: Store) -> dict[str, Any]:
         try:
             found = playlists.load(saved, playlist_id)
         except SearchBackendError as e:
-            raise _store_error(e) from e
+            raise _store_error(e, saved) from e
         span.set_attribute("debrief.found", found is not None)
         if found is None:
             raise HTTPException(status_code=404, detail="Unknown playlist id")
@@ -132,7 +144,7 @@ def get_insights(saved: Store, response: Response) -> dict[str, Any]:
             try:
                 cached = insights.insights(saved)
             except SearchBackendError as e:
-                raise _store_error(e) from e
+                raise _store_error(e, saved) from e
         span.set_attributes(
             {
                 "debrief.requests": int(cached.get("requests") or 0),

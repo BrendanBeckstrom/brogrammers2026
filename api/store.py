@@ -1,9 +1,10 @@
-"""Debrief's own Elastic indexes: saved `playlists` and the `queries` log (docs/BRIEF.md, API).
+"""Debrief's own Elastic indexes (docs/BRIEF.md, API): saved `playlists`, the `queries` log
+and recent playlist `answers` shared by every replica.
 
-The `clips` and `talks` indexes are read-only here. These two are written by the API and
+The `clips` and `talks` indexes are read-only here. These three are written by the API and
 created on first use with an explicit mapping. Elastic sits behind `StoreClient`, so unit
-tests run against a fake. Writes use a short timeout and no retries: the query log runs in
-the background and must never hold a worker for long.
+tests run against a fake. Writes use a short timeout and no retries: the query log and the
+shared answers are written in the background and must never hold a worker for long.
 """
 
 from __future__ import annotations
@@ -14,10 +15,11 @@ import threading
 from functools import lru_cache
 from typing import Any, Protocol
 
-from api.search import SearchBackendError
+from api.search import SearchBackendError, _is_unreachable
 
 PLAYLISTS_INDEX = "playlists"
 QUERIES_INDEX = "queries"
+ANSWERS_INDEX = "answers"
 REQUEST_TIMEOUT_SEC = 5.0
 
 PLAYLISTS_MAPPINGS: dict[str, Any] = {
@@ -56,9 +58,21 @@ QUERIES_MAPPINGS: dict[str, Any] = {
     },
 }
 
+ANSWERS_MAPPINGS: dict[str, Any] = {
+    "dynamic": False,
+    "properties": {
+        "request_hash": {"type": "keyword"},
+        "clip_ids": {"type": "keyword"},
+        "ts": {"type": "date"},
+        # The playlist answer as the browser saw it; only POST /api/playlists reads it back.
+        "response": {"type": "object", "enabled": False},
+    },
+}
+
 MAPPINGS: dict[str, dict[str, Any]] = {
     PLAYLISTS_INDEX: PLAYLISTS_MAPPINGS,
     QUERIES_INDEX: QUERIES_MAPPINGS,
+    ANSWERS_INDEX: ANSWERS_MAPPINGS,
 }
 
 log = logging.getLogger("debrief.store")
@@ -125,7 +139,10 @@ class ElasticStoreClient:
                         f"Elastic create index failed ({type(e).__name__})"
                     ) from e
             except Exception as e:
-                raise SearchBackendError(f"Elastic create index failed ({type(e).__name__})") from e
+                raise SearchBackendError(
+                    f"Elastic create index failed ({type(e).__name__})",
+                    unreachable=_is_unreachable(e),
+                ) from e
             self._ready.add(index)
 
     def put(
@@ -141,7 +158,9 @@ class ElasticStoreClient:
         except ConflictError as e:
             raise DocumentExists(f"document {doc_id} exists") from e
         except Exception as e:
-            raise SearchBackendError(f"Elastic index failed ({type(e).__name__})") from e
+            raise SearchBackendError(
+                f"Elastic index failed ({type(e).__name__})", unreachable=_is_unreachable(e)
+            ) from e
 
     def get(self, index: str, doc_id: str) -> dict[str, Any] | None:
         from elasticsearch import NotFoundError
@@ -151,7 +170,9 @@ class ElasticStoreClient:
         except NotFoundError:
             return None  # no such document, or no index yet
         except Exception as e:
-            raise SearchBackendError(f"Elastic get failed ({type(e).__name__})") from e
+            raise SearchBackendError(
+                f"Elastic get failed ({type(e).__name__})", unreachable=_is_unreachable(e)
+            ) from e
         return dict(doc.get("_source") or {})
 
     def search(self, index: str, body: dict[str, Any]) -> dict[str, Any]:
@@ -162,7 +183,9 @@ class ElasticStoreClient:
         except NotFoundError:
             return {}
         except Exception as e:
-            raise SearchBackendError(f"Elastic search failed ({type(e).__name__})") from e
+            raise SearchBackendError(
+                f"Elastic search failed ({type(e).__name__})", unreachable=_is_unreachable(e)
+            ) from e
 
     def count(self, index: str) -> int:
         from elasticsearch import NotFoundError
@@ -172,7 +195,9 @@ class ElasticStoreClient:
         except NotFoundError:
             return 0
         except Exception as e:
-            raise SearchBackendError(f"Elastic count failed ({type(e).__name__})") from e
+            raise SearchBackendError(
+                f"Elastic count failed ({type(e).__name__})", unreachable=_is_unreachable(e)
+            ) from e
 
 
 @lru_cache(maxsize=1)
@@ -183,6 +208,24 @@ def get_store() -> StoreClient:
     if not url or not api_key:
         raise SearchBackendError("ELASTIC_URL and ELASTIC_API_KEY must be set")
     return ElasticStoreClient(url, api_key)
+
+
+def warm() -> None:
+    """Create Debrief's own indexes in a background thread at startup. Never raises.
+
+    Creating an index takes over a second on serverless; done lazily, the first shared
+    answer after a deploy could land after the user already pressed Save on another pod.
+    """
+
+    def create() -> None:
+        try:
+            client = get_store()
+            for index in MAPPINGS:
+                client.ensure_index(index)
+        except Exception as e:  # not configured, or Elastic down: the lazy path still works
+            log.warning("index warm-up skipped", extra={"error.type": type(e).__name__})
+
+    threading.Thread(target=create, name="store-warm", daemon=True).start()
 
 
 class OfflineStore:

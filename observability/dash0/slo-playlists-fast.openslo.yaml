@@ -1,0 +1,47 @@
+# SLO (a) "Playlists come back fast": 95% of /api/playlist requests in production finish in
+# under 5 s, rerank on, over Dash0's fixed rolling 28-day window.
+#
+# Why 5 s (measured 2026-11-09, see README.md): after the rerank latency fix, p95 was 4.75 s in
+# production and 4.85 s locally (Dash0, last 20 min), and 3.95 s client-side over 20 sequential
+# live playlists. 5000 ms is a bucket boundary of debrief.playlist.duration, so the good count is
+# exact, not interpolated. Before the fix production p95 was ~9.8 s, so the 28-day budget starts
+# partly spent; 7500 ms is the next exact boundary if 5 s proves too tight.
+#
+# debrief.playlist.duration is exported as an explicit-bucket histogram and Dash0 serves it as a
+# native histogram under otel_metric_name, which has no `le` label. Dash0's documented pattern for
+# native histograms: counter off, good = histogram_fraction(0, T, ...) * histogram_count(...),
+# total = histogram_count(...).
+apiVersion: openslo/v1
+kind: SLO
+metadata:
+  name: debrief-playlists-fast
+  labels:
+    dash0.com/origin: debrief-playlists-fast
+  annotations:
+    dash0.com/display-name: Playlists come back fast
+spec:
+  description: 95% of production /api/playlist requests (rerank on) finish in under 5 s.
+  service: debrief-api
+  budgetingMethod: Occurrences
+  timeWindow:
+    - duration: 28d
+      isRolling: true
+  indicator:
+    metadata:
+      name: debrief-playlist-duration-under-5s
+    spec:
+      ratioMetric:
+        counter: false
+        good:
+          metricSource:
+            type: Prometheus
+            spec:
+              query: histogram_fraction(0, 5000, sum(increase({otel_metric_name="debrief.playlist.duration", otel_metric_type="histogram", deployment_environment_name="production"}[5m]))) * histogram_count(sum(increase({otel_metric_name="debrief.playlist.duration", otel_metric_type="histogram", deployment_environment_name="production"}[5m])))
+        total:
+          metricSource:
+            type: Prometheus
+            spec:
+              query: histogram_count(sum(increase({otel_metric_name="debrief.playlist.duration", otel_metric_type="histogram", deployment_environment_name="production"}[5m])))
+  objectives:
+    - displayName: 95% of playlists under 5 s
+      target: 0.95

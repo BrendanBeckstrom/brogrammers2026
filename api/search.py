@@ -87,7 +87,23 @@ _pool = ThreadPoolExecutor(max_workers=12, thread_name_prefix="search")
 
 
 class SearchBackendError(RuntimeError):
-    """Elastic failed or is not configured. The message never holds secrets."""
+    """Elastic failed or is not configured. The message never holds secrets.
+
+    `unreachable` is True when Elastic could not be reached at all (connection
+    refused, DNS, timeout): the demo-cache path treats that as "offline".
+    """
+
+    def __init__(self, message: str, *, unreachable: bool = False) -> None:
+        super().__init__(message)
+        self.unreachable = unreachable
+
+
+def _is_unreachable(error: BaseException) -> bool:
+    """Connection and timeout failures mean Elastic is unreachable, not that it errored."""
+    from elastic_transport import ConnectionError as TransportConnectionError
+    from elastic_transport import ConnectionTimeout
+
+    return isinstance(error, (TransportConnectionError, ConnectionTimeout))
 
 
 class SearchClient(Protocol):
@@ -112,13 +128,17 @@ class ElasticSearchClient:
         try:
             return dict(self._es.search(index=index, body=body).body)
         except Exception as e:  # ApiError, TransportError: keep the type, drop details
-            raise SearchBackendError(f"Elastic search failed ({type(e).__name__})") from e
+            raise SearchBackendError(
+                f"Elastic search failed ({type(e).__name__})", unreachable=_is_unreachable(e)
+            ) from e
 
     def mget(self, index: str, ids: Sequence[str]) -> list[dict[str, Any]]:
         try:
             docs = self._es.mget(index=index, ids=list(ids), source_includes=SOURCE_FIELDS)
         except Exception as e:
-            raise SearchBackendError(f"Elastic mget failed ({type(e).__name__})") from e
+            raise SearchBackendError(
+                f"Elastic mget failed ({type(e).__name__})", unreachable=_is_unreachable(e)
+            ) from e
         return [d["_source"] for d in docs["docs"] if d.get("found")]
 
 

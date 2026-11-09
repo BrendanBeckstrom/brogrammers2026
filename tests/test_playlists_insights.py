@@ -1,4 +1,5 @@
-"""Significant terms, saved playlists, the query log and insights, corrected transcripts.
+"""Significant terms, saved playlists (shared across replicas), the query log and insights,
+corrected transcripts.
 
 All against a fake Elastic (tests/test_search.py's corpus) and `FakeStore`; no network.
 """
@@ -54,7 +55,7 @@ class FakeStore:
         self, index: str, doc_id: str | None, doc: dict[str, Any], create: bool = False
     ) -> None:
         if self.fail:
-            raise SearchBackendError("Elastic index failed (ConnectionError)")
+            raise SearchBackendError("Elastic index failed (ConnectionError)", unreachable=True)
         self.ensure_index(index)
         mapping = store.MAPPINGS[index]
         if mapping.get("dynamic") == "strict":
@@ -67,16 +68,23 @@ class FakeStore:
 
     def get(self, index: str, doc_id: str) -> dict[str, Any] | None:
         if self.fail:
-            raise SearchBackendError("Elastic get failed (ConnectionError)")
+            raise SearchBackendError("Elastic get failed (ConnectionError)", unreachable=True)
         doc = self.docs.get(index, {}).get(doc_id)
         return copy.deepcopy(doc) if doc is not None else None
 
     def search(self, index: str, body: dict[str, Any]) -> dict[str, Any]:
         if self.fail:
-            raise SearchBackendError("Elastic search failed (ConnectionError)")
+            raise SearchBackendError("Elastic search failed (ConnectionError)", unreachable=True)
         if index not in self.docs:
             return {}
         docs = list(self.docs[index].values())
+        if "query" in body:  # bool filter of term clauses, newest first (the answers lookup)
+            for clause in body["query"]["bool"]["filter"]:
+                ((field, value),) = clause["term"].items()
+                docs = [d for d in docs if value in _values(d.get(field))]
+            docs.sort(key=lambda d: str(d.get("ts")), reverse=True)
+            hits = [{"_source": copy.deepcopy(d)} for d in docs[: body.get("size", 10)]]
+            return {"hits": {"total": {"value": len(docs)}, "hits": hits}}
         aggs: dict[str, Any] = {}
         for name, agg in (body.get("aggs") or {}).items():
             terms = agg["terms"]
@@ -91,8 +99,12 @@ class FakeStore:
 
     def count(self, index: str) -> int:
         if self.fail:
-            raise SearchBackendError("Elastic count failed (ConnectionError)")
+            raise SearchBackendError("Elastic count failed (ConnectionError)", unreachable=True)
         return len(self.docs.get(index, {}))
+
+
+def _values(value: Any) -> list[Any]:
+    return list(value) if isinstance(value, list) else [value]
 
 
 @pytest.fixture
@@ -106,7 +118,10 @@ def saved() -> FakeStore:
 
 
 @pytest.fixture
-def api(fake: FakeSearchClient, saved: FakeStore) -> Iterator[TestClient]:
+def api(
+    fake: FakeSearchClient, saved: FakeStore, monkeypatch: pytest.MonkeyPatch
+) -> Iterator[TestClient]:
+    monkeypatch.setattr(playlists, "SHARED_RETRY_DELAYS", (0.0,))
     playlists.recent.clear()
     app.dependency_overrides[routes_search.search_client] = lambda: fake
     app.dependency_overrides[routes_playlists.playlist_store] = lambda: saved
@@ -122,7 +137,7 @@ def spans(monkeypatch: pytest.MonkeyPatch) -> InMemorySpanExporter:
     provider = TracerProvider()
     provider.add_span_processor(SimpleSpanProcessor(exporter))
     tracer = provider.get_tracer("debrief")
-    for module in (search, routes_search, routes_playlists, insights):
+    for module in (search, routes_search, routes_playlists, insights, playlists):
         monkeypatch.setattr(module, "tracer", tracer)
     return exporter
 
@@ -318,6 +333,7 @@ def test_save_reruns_when_the_answer_is_not_remembered(
 ) -> None:
     shown = api.post("/api/playlist", json=GITOPS).json()
     playlists.recent.clear()
+    saved.docs.pop("answers")  # nothing remembered anywhere
     searches = len(fake.bodies)
     keep = [shown["clips"][0]["clip_id"]]
     body = {"request": GITOPS, "clip_ids": keep, "clips": [{"quote": "browser text"}]}
@@ -447,3 +463,149 @@ def test_clip_route_adds_corrected_text(api: TestClient, fake: FakeSearchClient)
     ]
     clean = api.get(f"/api/clips/{TALK_IDS[1]}-0").json()
     assert clean["text_corrected"] == clean["text"] and clean["corrections"] == []
+
+
+# --- Saves across replicas ----------------------------------------------------------------
+
+
+class NoSearch:
+    """A search client that fails the test if the save runs the playlist again."""
+
+    def search(self, index: str, body: dict[str, Any]) -> dict[str, Any]:
+        raise AssertionError("the save must reuse the shared answer, not re-run the search")
+
+    def mget(self, index: str, ids: Any) -> list[dict[str, Any]]:
+        raise AssertionError("the save must reuse the shared answer, not re-run the search")
+
+
+def other_replica(monkeypatch: pytest.MonkeyPatch) -> None:
+    """The save lands on another pod: empty process memory, and no re-run allowed."""
+    monkeypatch.setattr(playlists, "recent", playlists.RecentAnswers())
+    app.dependency_overrides[routes_search.search_client] = lambda: NoSearch()
+
+
+def test_save_on_another_replica_uses_the_shared_answer(
+    api: TestClient, saved: FakeStore, monkeypatch: pytest.MonkeyPatch, spans: InMemorySpanExporter
+) -> None:
+    body = {**GITOPS, "rerank": True}
+    shown = api.post("/api/playlist", json=body).json()
+    ids = [c["clip_id"] for c in shown["clips"]]
+    request_hash = demo_cache.cache_key(
+        "playlist", routes_search.PlaylistBody.model_validate(body).model_dump(mode="json")
+    )
+    assert set(saved.docs["answers"]) == {
+        request_hash,
+        playlists.exact_answer_id(request_hash, ids),
+    }
+    other_replica(monkeypatch)
+
+    # Every clip, in another order: the exact answer, by id.
+    full = api.post("/api/playlists", json={"request": body, "clip_ids": ids[::-1]})
+    assert full.status_code == 201, full.text
+    stored = saved.docs["playlists"][full.json()["id"]]["response"]
+    by_id = {c["clip_id"]: c for c in shown["clips"]}
+    assert [c["clip_id"] for c in stored["clips"]] == ids[::-1]
+    assert all(c == by_id[c["clip_id"]] for c in stored["clips"])  # the server's own clips
+    assert stored["terms"] == shown["terms"]
+
+    # A subset: the latest answer for the request.
+    subset = api.post("/api/playlists", json={"request": body, "clip_ids": ids[2:5]})
+    assert subset.status_code == 201
+
+    # Only an older answer left: found by search on request_hash plus every clip id.
+    del saved.docs["answers"][request_hash]
+    del saved.docs["answers"][playlists.exact_answer_id(request_hash, ids)]
+    saved.docs["answers"]["older"] = {
+        "request_hash": request_hash,
+        "clip_ids": ids,
+        "response": playlists.shareable(shown),
+        "ts": "2026-11-09T00:00:00.000Z",
+    }
+    older = api.post("/api/playlists", json={"request": body, "clip_ids": ids[:1]})
+    assert older.status_code == 201
+    sources = [
+        s.attributes["debrief.playlist_source"]
+        for s in spans.get_finished_spans()
+        if s.name == "api.playlists.save"
+    ]
+    assert sources == ["answers:exact", "answers:latest", "answers:search"]
+    assert "answers.write" in {s.name for s in spans.get_finished_spans()}
+
+
+def test_a_different_answer_in_memory_falls_through_to_the_shared_one(
+    api: TestClient, saved: FakeStore, monkeypatch: pytest.MonkeyPatch
+) -> None:
+    shown = api.post("/api/playlist", json=GITOPS).json()
+    ids = [c["clip_id"] for c in shown["clips"]]
+    other_replica(monkeypatch)
+    key = demo_cache.cache_key(
+        "playlist", routes_search.PlaylistBody.model_validate(GITOPS).model_dump(mode="json")
+    )
+    playlists.recent.put(key, {**shown, "clips": shown["clips"][:1]})  # this pod's own answer
+    response = api.post("/api/playlists", json={"request": GITOPS, "clip_ids": ids[-2:]})
+    assert response.status_code == 201, response.text
+
+
+def test_shared_answers_hold_no_pain_and_skip_empty_playlists(
+    api: TestClient, saved: FakeStore
+) -> None:
+    api.post("/api/playlist", json={**GITOPS, "rerank": True})
+    api.post("/api/playlist", json={"tools": ["a-tool-with-no-chunks"], "pain": "slow builds"})
+    docs = saved.docs["answers"].values()
+    assert len(docs) == 2  # exact + latest for the one non-empty playlist
+    assert all("query" not in d["response"]["debug"] for d in docs)
+    assert "slow" not in json.dumps(saved.docs)
+    assert playlists.share_answer(None, "h", {"clips": [{"clip_id": "a-1"}]}) is False
+
+
+def test_shared_answer_failures_never_break_playlist_or_save(
+    api: TestClient, saved: FakeStore, monkeypatch: pytest.MonkeyPatch
+) -> None:
+    saved.fail = True
+    shown = api.post("/api/playlist", json=GITOPS)
+    assert shown.status_code == 200 and shown.json()["clips"]
+    assert playlists.find_shared(saved, "h", ["a-1"]) == (None, "error")
+    saved.fail = False
+    playlists.recent.clear()  # no memory, no shared answer: the save runs the playlist again
+    ids = [shown.json()["clips"][0]["clip_id"]]
+    assert api.post("/api/playlists", json={"request": GITOPS, "clip_ids": ids}).status_code == 201
+
+
+def test_save_waits_briefly_for_an_answer_still_being_written(
+    saved: FakeStore, monkeypatch: pytest.MonkeyPatch
+) -> None:
+    """The other replica's write lands just after its response: the second look finds it."""
+    answer = {"clips": [{"clip_id": "a-1", "start_sec": 0, "end_sec": 60}]}
+    real_get = saved.get
+    looks: list[str] = []
+
+    def late_get(index: str, doc_id: str) -> dict[str, Any] | None:
+        looks.append(doc_id)
+        if len(looks) == 3:  # the answer lands after the first round of lookups
+            playlists.share_answer(saved, "h", answer)
+        return real_get(index, doc_id)
+
+    monkeypatch.setattr(saved, "get", late_get)
+    monkeypatch.setattr(playlists, "SHARED_RETRY_DELAYS", (0.0, 0.0))
+    found, how = playlists.wait_for_shared(saved, "h", ["a-1"])
+    assert found == answer and how == "exact"
+    assert playlists.wait_for_shared(None, "h", ["a-1"]) == (None, "none")
+
+
+def test_index_warm_up_never_raises(monkeypatch: pytest.MonkeyPatch) -> None:
+    created: list[str] = []
+    fake_store = FakeStore()
+    monkeypatch.setattr(fake_store, "ensure_index", created.append)
+    monkeypatch.setattr(store, "get_store", lambda: fake_store)
+    store.warm()
+    for _ in range(100):
+        if len(created) == 3:
+            break
+        time.sleep(0.01)
+    assert sorted(created) == ["answers", "playlists", "queries"]
+
+    def broken() -> store.StoreClient:
+        raise SearchBackendError("ELASTIC_URL and ELASTIC_API_KEY must be set")
+
+    monkeypatch.setattr(store, "get_store", broken)
+    store.warm()  # logs and returns
