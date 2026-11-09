@@ -10,8 +10,13 @@ plus token counts where the provider reports them. `LLM_PROVIDER` picks the back
 - `openai`: the OpenAI API with `LLM_API_KEY`.
 
 Callers take an `LLMClient`, so tests swap in a fake and never touch the network. Every
-call runs in one span carrying provider, model, purpose, token counts and duration;
-prompts and completions never go on spans or in logs.
+call runs in one span carrying provider, model, purpose, token counts and duration, and
+adds its tokens to the `debrief.llm.tokens` metric; prompts and completions never go on
+spans or in logs.
+
+Latency: SDK clients never retry (a timed-out call is not repeated inside the playlist
+budget), and `warm()` builds the provider client at startup so the first request does not
+pay for importing and constructing the SDK.
 """
 
 from __future__ import annotations
@@ -26,6 +31,8 @@ from typing import Any, Literal, Protocol
 
 from opentelemetry import trace
 from opentelemetry.trace import Status, StatusCode
+
+from api import telemetry
 
 Purpose = Literal["rerank", "memo", "label"]
 
@@ -46,6 +53,12 @@ SYSTEM_PROMPT = (
     "Use only the transcript text you are given; never invent talks, speakers or advice."
 )
 JSON_INSTRUCTION = " Reply with JSON only: no prose before or after it and no code fences."
+# Models with no server-side refusal fallback: they get neither the beta nor `fallbacks`.
+NO_SERVER_FALLBACK = ("claude-haiku",)
+# Thinking off for short JSON jobs, on models that accept {"type": "disabled"} at low
+# effort (Claude Haiku 5.5 does; Opus 5.5 and Sonnet 5.5 reject it).
+NO_THINKING_PURPOSES = frozenset({"rerank"})
+THINKING_OFF_MODELS = ("claude-haiku-5-5",)
 
 log = logging.getLogger("debrief.llm")
 tracer = trace.get_tracer("debrief")
@@ -84,6 +97,10 @@ class Backend(Protocol):
 
     name: str
 
+    def warm(self) -> None:
+        """Build the provider client now (no network), so the first call doesn't."""
+        ...
+
     def generate(
         self,
         prompt: str,
@@ -118,6 +135,10 @@ class ElasticBackend:
             self._es = Elasticsearch(self._url, api_key=self._api_key, max_retries=0)
         return self._es
 
+    def warm(self) -> None:
+        if self._url and self._api_key:
+            self._client()
+
     def generate(
         self,
         prompt: str,
@@ -139,6 +160,18 @@ class ElasticBackend:
         return str(results[0].get("result") or ""), None, None  # EIS reports no usage
 
 
+@lru_cache(maxsize=2)
+def anthropic_sdk(api_key: str) -> Any:
+    """One SDK client per key for the whole process, so connections are reused.
+
+    No SDK retries: the default (2) retries timeouts too, which would triple a rerank
+    call's wall time inside the playlist budget.
+    """
+    import anthropic
+
+    return anthropic.Anthropic(api_key=api_key, max_retries=0)
+
+
 class AnthropicBackend:
     """The Claude API through the official SDK (pinned in pyproject.toml)."""
 
@@ -152,10 +185,31 @@ class AnthropicBackend:
         if not self._api_key:
             raise LLMError("LLM_API_KEY must be set for LLM_PROVIDER=anthropic")
         if self._sdk is None:
-            import anthropic
-
-            self._sdk = anthropic.Anthropic(api_key=self._api_key, max_retries=0)
+            self._sdk = anthropic_sdk(self._api_key)
         return self._sdk
+
+    def warm(self) -> None:
+        if self._api_key:
+            self._client()
+
+    def request(
+        self, prompt: str, *, model: str, purpose: Purpose, max_tokens: int, json: bool
+    ) -> dict[str, Any]:
+        """The `messages.create` arguments for one call."""
+        params: dict[str, Any] = {
+            "model": model,
+            "max_tokens": max_tokens,
+            "system": SYSTEM_PROMPT + (JSON_INSTRUCTION if json else ""),
+            "messages": [{"role": "user", "content": prompt}],
+            "output_config": {"effort": EFFORT.get(purpose, "low")},
+        }
+        if purpose in NO_THINKING_PURPOSES and model.startswith(THINKING_OFF_MODELS):
+            # Short JSON jobs gain nothing from reasoning tokens, which cost output time.
+            params["thinking"] = {"type": "disabled"}
+        if not model.startswith(NO_SERVER_FALLBACK):
+            # On a policy decline, retry on the server's default fallback model.
+            params |= {"betas": ["server-side-fallback-2026-07-01"], "fallbacks": "default"}
+        return params
 
     def generate(
         self,
@@ -167,20 +221,14 @@ class AnthropicBackend:
         json: bool,
         timeout: float,
     ) -> tuple[str, int | None, int | None]:
-        response = (
-            self._client()
-            .with_options(timeout=timeout)
-            .beta.messages.create(
-                model=model,
-                max_tokens=max_tokens,
-                system=SYSTEM_PROMPT + (JSON_INSTRUCTION if json else ""),
-                messages=[{"role": "user", "content": prompt}],
-                output_config={"effort": EFFORT.get(purpose, "low")},
-                # On a policy decline, retry on the server's default fallback model.
-                betas=["server-side-fallback-2026-07-01"],
-                fallbacks="default",
+        with tracer.start_as_current_span("llm.prepare") as span:
+            span.set_attribute("debrief.llm.client_cached", self._sdk is not None)
+            # Per-call timeout and no retries: a timed-out call is never repeated.
+            client = self._client().with_options(timeout=timeout, max_retries=0)
+            params = self.request(
+                prompt, model=model, purpose=purpose, max_tokens=max_tokens, json=json
             )
-        )
+        response = client.beta.messages.create(**params)
         if response.stop_reason == "refusal":
             raise LLMError("anthropic declined the request")
         if response.stop_reason == "max_tokens":
@@ -207,6 +255,10 @@ class OpenAIBackend:
 
             self._sdk = openai.OpenAI(api_key=self._api_key, max_retries=0)
         return self._sdk
+
+    def warm(self) -> None:
+        if self._api_key:
+            self._client()
 
     def generate(
         self,
@@ -246,6 +298,9 @@ class UnconfiguredBackend:
     def __init__(self, name: str) -> None:
         self.name = name
 
+    def warm(self) -> None:
+        pass
+
     def generate(
         self,
         prompt: str,
@@ -281,6 +336,20 @@ class LLM:
 
     def model_for(self, purpose: Purpose) -> str:
         return self.models.get(purpose) or self.models.get("rerank") or ""
+
+    def warm(self) -> None:
+        """Build the provider's SDK client now. Never raises and never calls the network."""
+        started = time.perf_counter()
+        try:
+            self.backend.warm()
+        except Exception as e:  # a missing SDK or bad config shows up on the first call
+            log.warning("llm warm-up failed provider=%s error=%s", self.provider, type(e).__name__)
+            return
+        log.info(
+            "llm client ready provider=%s duration_ms=%s",
+            self.provider,
+            round((time.perf_counter() - started) * 1000, 1),
+        )
 
     def complete(
         self,
@@ -338,6 +407,10 @@ class LLM:
                 span.set_attribute("gen_ai.usage.input_tokens", input_tokens)
             if output_tokens is not None:
                 span.set_attribute("gen_ai.usage.output_tokens", output_tokens)
+            if input_tokens is not None or output_tokens is not None:
+                telemetry.record_llm_tokens(
+                    purpose, self.provider, input_tokens or 0, output_tokens or 0
+                )
             return LLMResult(text, self.provider, model, input_tokens, output_tokens, duration)
 
 
@@ -372,6 +445,11 @@ def build_llm(env: Mapping[str, str] | None = None) -> LLM:
 def get_llm() -> LLM:
     """The process-wide model client, built from the environment on first use."""
     return build_llm()
+
+
+def warm() -> None:
+    """Build the process-wide client and its SDK client; the API calls this at startup."""
+    get_llm().warm()
 
 
 def complete(

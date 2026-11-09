@@ -319,8 +319,9 @@ def build_playlist(
 
     With `req.rerank`, Elastic's Jina reranker reorders the hybrid hits (falling back to
     the plain RRF order on error or after ELASTIC_RERANK_TIMEOUT_SEC), then `llm` scores
-    the top clips and writes their why lines (falling back to Elastic's order and the
-    template lines on any model failure). Returns the playlist response without
+    the top clips in parallel batches and writes their why lines (a failed batch keeps the
+    template lines for its clips; if every batch fails, Elastic's order and the template
+    lines). Returns the playlist response without
     `trace_id` (the route adds it).
     """
     total_started = time.perf_counter()
@@ -446,21 +447,35 @@ def build_playlist(
             top = candidates[: rerank.TOP_N]
             span.set_attribute("debrief.clips_sent", len(top))
             try:
-                judged, stats = rerank.judge(
+                verdict = rerank.judge(
                     llm, [record(c) for c in top], top, tool_ids, names, tool_term_map, pain
                 )
-                chosen = rerank.choose(candidates, judged, budget_sec, tool_ids)
+                chosen = rerank.choose(candidates, verdict.judged, budget_sec, tool_ids)
             except (LLMError, rerank.RerankError) as e:
-                judged = {}
                 rerank_status["model"] = f"fallback: {type(e).__name__}"
                 span.set_attributes({"debrief.fallback": True, "error.type": type(e).__name__})
                 log.warning("model rerank fell back: %s", type(e).__name__)
             else:
-                rerank_status["model"] = "ok"
+                judged = verdict.judged
+                failed = verdict.failed
+                if failed:
+                    outcomes = ", ".join(sorted({b.outcome for b in failed}))
+                    rerank_status["model"] = (
+                        f"partial: {len(failed)}/{len(verdict.batches)} batches fell back "
+                        f"({outcomes})"
+                    )
+                else:
+                    rerank_status["model"] = "ok"
+                for batch in verdict.batches:
+                    timings[f"rerank_batch_{batch.index}"] = batch.duration_ms
                 below = sum(1 for j in judged.values() if j.score < rerank.SCORE_THRESHOLD)
                 span.set_attributes(
-                    {f"debrief.rerank.{k}": v for k, v in stats.items()}
-                    | {"debrief.fallback": False, "debrief.rerank.below_threshold": below}
+                    {f"debrief.rerank.{k}": v for k, v in verdict.stats.items()}
+                    | {
+                        "debrief.fallback": False,
+                        "debrief.rerank.below_threshold": below,
+                        "debrief.rerank.batch_outcomes": [b.outcome for b in verdict.batches],
+                    }
                 )
             timings["rerank"] = _ms(started)
         playlist_span.set_attribute("debrief.model_rerank", rerank_status["model"])
