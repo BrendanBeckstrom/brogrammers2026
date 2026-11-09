@@ -1,0 +1,18 @@
+# Platform API (Python). Option lines, local paths and URLs are skipped by the parser.
+-r requirements-base.txt
+-c constraints.txt
+-e ./libs/shared
+--index-url https://pypi.org/simple
+./vendor/internal_tool-0.1.0-py3-none-any.whl
+
+fastapi==0.115.5
+uvicorn[standard]==0.32.1  # ASGI server
+opentelemetry-sdk>=1.28,<2
+opentelemetry_exporter_otlp_proto_http==1.28.2
+Prometheus_Client==0.21.0
+kubernetes==31.0.0 ; python_version >= "3.10"
+psycopg[binary,pool]~=3.2
+hera @ git+https://github.com/argoproj-labs/hera.git@5.18.0
+requests==2.32.3 \
+    --hash=sha256:70761cfe03c773ceb22aa2f671b4757976145175cdfca038c02654d061d6dcc6
+fastapi==0.115.5
