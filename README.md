@@ -91,7 +91,7 @@ Every key is optional in `deploy/deployment.yaml`, so pods start before the Secr
 
 ## Operating Debrief
 
-How we ran Debrief on the hackathon's Kubernetes cluster today, through [Radar](https://radarhq.io): the Radar Cloud UI, plus Radar's MCP server from our coding agent. The full evidence map for every sponsor track is in [`docs/TRACKS.md`](docs/TRACKS.md).
+How we ran Debrief on the hackathon's Kubernetes cluster today, through [Radar](https://radarhq.io): the Radar Cloud UI, plus Radar's MCP server from our coding agent.
 
 **Cluster:** `brogrammers` in the Cloud Native Hackathon org; namespace `team-brogrammers`; live at https://brogrammers.cnh.radarhq.io. The app runs as 2 pods (`replicas: 2`, a PodDisruptionBudget, soft topology spread) with a read-only root filesystem and no service-account token.
 
