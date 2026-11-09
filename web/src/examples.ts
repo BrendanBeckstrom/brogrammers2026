@@ -1,4 +1,4 @@
-// One-click example stacks on the landing section, and the static numbers it shows.
+// One-click example stacks for the landing page's "See an example" section, and its fixed copy.
 
 export interface ExampleStack {
   id: string
@@ -34,13 +34,8 @@ export const EXAMPLE_STACKS: ExampleStack[] = [
 ]
 
 export const CONFERENCE = 'KubeCon + CloudNativeCon Europe 2026'
-/** Where Debrief was built. The indexed talks are the latest KubeCon with recordings online. */
+/** Where Debrief was built. The indexed talks are from KubeCon + CloudNativeCon Europe 2026. */
 export const BUILT_AT = 'Built in Salt Lake City · Cloud Native Hackathon 2026'
-
-/** Shown until /api/talks answers, and when it can't. */
-export const STATIC_TALK_COUNT = 54
-/** Clips in the index; the API has no cheap count for this, so it is static. */
-export const STATIC_CLIP_COUNT = 1270
 
 export const GITHUB_URL = 'https://github.com/BrendanBeckstrom/brogrammers2026'
 

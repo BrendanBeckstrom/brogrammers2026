@@ -1,4 +1,4 @@
-import { useId, useState } from 'react'
+import { useId, useLayoutEffect, useRef, useState } from 'react'
 import { errorMessage, getClipText, type Clip } from '../api'
 import { formatClipRange, formatDuration, formatSpeakers, formatTimestamp, matchedByText, talkLabelText } from '../format'
 import { btnPrimary, btnSecondary, errorNotice } from '../ui'
@@ -29,6 +29,23 @@ export function ClipCard({ clip, index, toolNames }: { clip: Clip; index: number
   const captionsId = useId()
   const [open, setOpen] = useState(false)
   const [text, setText] = useState<TextState>({ status: 'idle' })
+  const quoteId = useId()
+  const quoteRef = useRef<HTMLQuoteElement>(null)
+  const [quoteOpen, setQuoteOpen] = useState(false)
+  // Until measured, assume the quote runs past its two-line preview so the toggle is there.
+  const [quoteFits, setQuoteFits] = useState(false)
+
+  // Hide the toggle when the whole quote already fits in the preview; re-check on resize.
+  useLayoutEffect(() => {
+    const el = quoteRef.current
+    if (!el || quoteOpen) return
+    const check = () => setQuoteFits(el.scrollHeight <= el.clientHeight + 1)
+    check()
+    if (typeof ResizeObserver === 'undefined') return
+    const observer = new ResizeObserver(check)
+    observer.observe(el)
+    return () => observer.disconnect()
+  }, [quoteOpen, clip.quote])
 
   const rank = index + 1
   const start = formatTimestamp(clip.start_sec)
@@ -117,15 +134,34 @@ export function ClipCard({ clip, index, toolNames }: { clip: Clip; index: number
           ) : null}
 
           {clip.quote ? (
-            <figure className="relative mt-5 rounded-xl border-l-4 border-accent bg-surface-2 py-4 pr-4 pl-11 sm:pl-12">
+            <figure className="relative mt-4 grid grid-cols-[minmax(0,1fr)_auto] items-center gap-x-3 gap-y-1 rounded-lg border-l-2 border-accent bg-surface-2 py-2.5 pr-2 pl-8">
               <span
                 aria-hidden="true"
-                className="absolute top-2 left-3 font-display text-5xl leading-none text-accent select-none"
+                className="absolute top-2 left-2.5 font-display text-2xl leading-none text-accent select-none"
               >
                 “
               </span>
-              <blockquote className="font-display text-lg leading-relaxed text-ink italic">{clip.quote}</blockquote>
-              <figcaption className="mt-2 text-xs text-ink-2">
+              <blockquote
+                id={quoteId}
+                ref={quoteRef}
+                className={`col-span-2 pr-1 font-display leading-relaxed text-ink italic ${quoteOpen ? '' : 'line-clamp-2'}`}
+              >
+                {clip.quote}
+              </blockquote>
+              {quoteOpen || !quoteFits ? (
+                <button
+                  type="button"
+                  aria-expanded={quoteOpen}
+                  aria-controls={quoteId}
+                  onClick={() => setQuoteOpen((v) => !v)}
+                  className="col-start-2 row-start-2 inline-flex min-h-6 items-center gap-1 justify-self-end rounded-md px-2 py-1 text-xs font-semibold whitespace-nowrap text-brand-text hover:bg-surface hover:underline"
+                >
+                  {quoteOpen ? 'Hide full quote' : 'Show full quote'}
+                  <span className="sr-only"> from {clip.title}</span>
+                  <span aria-hidden="true">{quoteOpen ? '▴' : '▾'}</span>
+                </button>
+              ) : null}
+              <figcaption className="col-start-1 row-start-2 text-xs text-ink-2">
                 {speakers ? `${speakers}, ` : ''}at {start}
               </figcaption>
             </figure>
