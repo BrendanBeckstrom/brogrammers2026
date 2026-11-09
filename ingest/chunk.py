@@ -93,7 +93,13 @@ def _segments(sentences: Sequence[Sentence]) -> list[list[Sentence]]:
         if sentence.start_sec - previous.end_sec > GAP_SEC:
             segments.append([])
         segments[-1].append(sentence)
-    return segments
+    merged: list[list[Sentence]] = []
+    for segment in segments:
+        if merged and segment[-1].end_sec - segment[0].start_sec < TAIL_SEC:
+            merged[-1].extend(segment)
+        else:
+            merged.append(segment)
+    return merged
 
 
 def chunk_sentences(sentences: Sequence[Sentence]) -> list[Chunk]:
