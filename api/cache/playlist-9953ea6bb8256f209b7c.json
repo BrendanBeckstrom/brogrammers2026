@@ -25,7 +25,7 @@
     "end_sec": 1006,
     "watch_url": "https://www.youtube.com/watch?v=gH_JzIXFshI&t=782s",
     "quote": "Um it receives spans uh it creates metrics and then it sends them to Prometheus. You can send them via remote write or Prometheus scraping or via OTLP. Prometheus uh supports OTLP HTTP as well.",
-    "why": "Explains OpenTelemetry spans becoming metrics sent to Prometheus via remote write, scraping, or OTLP.",
+    "why": "Shows OpenTelemetry spans becoming metrics sent to Prometheus via remote write, scraping, or OTLP.",
     "matched_tools": [
      "opentelemetry",
      "prometheus"
@@ -46,10 +46,30 @@
     "end_sec": 995,
     "watch_url": "https://www.youtube.com/watch?v=Z0oum6Eh1is&t=788s",
     "quote": "were only really paying attention to once we had some OOM kills going on um and then of course OTLP exporter because uh the the format the telemetry data is stored in a different format it's not Prometheus exposition format it's it's called the OTLP uh format by open telemetry um and so we needed…",
-    "why": "OpenTelemetry OTLP exporter discussion, including OOM kills, relevant to your stack and pain points.",
+    "why": "Covers OTLP exporter format versus Prometheus exposition format, and OOM kills worth watching for OpenTelemetry users.",
     "matched_tools": [
      "opentelemetry",
      "prometheus"
+    ],
+    "matched_by": "both",
+    "talk_label": "deep_dive",
+    "score": 0.8
+   },
+   {
+    "clip_id": "ehKzt_kGEeM-455",
+    "talk_id": "ehKzt_kGEeM",
+    "title": "Retroactive Sampling with OpenTelemetry: Cut 90% Distributed Tracing Bandwidth Usage",
+    "speakers": [
+     "Roman Khavronenko",
+     "Zhu Jiekun"
+    ],
+    "start_sec": 453,
+    "end_sec": 534,
+    "watch_url": "https://www.youtube.com/watch?v=ehKzt_kGEeM&t=453s",
+    "quote": "So, OpenTelemetry Collector becomes a bottleneck. At the moment when you can't scale it vertically anymore, you start scaling it horizontally.",
+    "why": "Addresses the OpenTelemetry Collector becoming a bottleneck and scaling it horizontally once vertical scaling is exhausted.",
+    "matched_tools": [
+     "opentelemetry"
     ],
     "matched_by": "both",
     "talk_label": "deep_dive",
@@ -70,7 +90,7 @@
     "end_sec": 614,
     "watch_url": "https://www.youtube.com/watch?v=0zwLl8QGOdM&t=535s",
     "quote": "Um, the Prometheus team is working on something that will allow you to wrap existing Prometheus exporters and make them into collector receivers. So if you're looking to consolidate your telemetry collection on the collector, uh this might be for you.",
-    "why": "Prometheus team wrapping exporters as collector receivers helps consolidate telemetry collection on the OpenTelemetry collector.",
+    "why": "Prometheus team wrapping exporters as collector receivers helps consolidate telemetry collection on the collector.",
     "matched_tools": [
      "prometheus"
     ],
@@ -90,27 +110,7 @@
     "end_sec": 335,
     "watch_url": "https://www.youtube.com/watch?v=S6z2gd666qg&t=256s",
     "quote": "The pattern we landed on is a centralized open telemetry collector gateway. Applications send telemetry to edge collectors where the configuration stays simple and lightweight. Those collectors forward telemetry into the gateway layers.",
-    "why": "Describes a centralized OpenTelemetry collector gateway pattern with edge collectors forwarding telemetry.",
-    "matched_tools": [
-     "opentelemetry"
-    ],
-    "matched_by": "both",
-    "talk_label": "deep_dive",
-    "score": 0.7
-   },
-   {
-    "clip_id": "ehKzt_kGEeM-455",
-    "talk_id": "ehKzt_kGEeM",
-    "title": "Retroactive Sampling with OpenTelemetry: Cut 90% Distributed Tracing Bandwidth Usage",
-    "speakers": [
-     "Roman Khavronenko",
-     "Zhu Jiekun"
-    ],
-    "start_sec": 453,
-    "end_sec": 534,
-    "watch_url": "https://www.youtube.com/watch?v=ehKzt_kGEeM&t=453s",
-    "quote": "So, OpenTelemetry Collector becomes a bottleneck. At the moment when you can't scale it vertically anymore, you start scaling it horizontally.",
-    "why": "Explains OpenTelemetry Collector becoming a bottleneck and horizontal scaling once vertical scaling is exhausted.",
+    "why": "Describes an OpenTelemetry collector gateway pattern with edge collectors forwarding into a central layer.",
     "matched_tools": [
      "opentelemetry"
     ],
@@ -129,7 +129,7 @@
     "end_sec": 470,
     "watch_url": "https://www.youtube.com/watch?v=w1pj0Lz1mW4&t=392s",
     "quote": "So the way that fluent bit approach the integration with open telemetry is that we support the schemas of hotel same as we support the schema of prometheus right and we also speak OTLP which is a open telemetry protocol.",
-    "why": "Fluent Bit speaks OTLP and supports Prometheus schemas; relevant to OpenTelemetry and Prometheus integration.",
+    "why": "Fluent Bit supports Prometheus schemas and OTLP, the OpenTelemetry protocol, useful for pipeline integration.",
     "matched_tools": [
      "opentelemetry",
      "prometheus"
@@ -150,7 +150,7 @@
     "end_sec": 339,
     "watch_url": "https://www.youtube.com/watch?v=6vE9b6StC0g&t=192s",
     "quote": "Um OTLP. Um we added a whole bunch of stuff to the uh OTLP receive endpoint. So, um there is the first signs of delta ingestion.",
-    "why": "Covers new OTLP receive endpoint features and first signs of delta ingestion for OpenTelemetry.",
+    "why": "Covers new OTLP receive endpoint work and early delta ingestion, relevant to OpenTelemetry and Prometheus.",
     "matched_tools": [
      "opentelemetry",
      "prometheus"
@@ -158,26 +158,6 @@
     "matched_by": "both",
     "talk_label": "intro",
     "score": 0.6
-   },
-   {
-    "clip_id": "YMqSK6uBhxU-1049~1122",
-    "talk_id": "YMqSK6uBhxU",
-    "title": "DNS Tracing & Metrics Via eBPF in OpenTelemetry",
-    "speakers": [
-     "Endre Sara",
-     "Nikola Grcevski"
-    ],
-    "start_sec": 1047,
-    "end_sec": 1200,
-    "watch_url": "https://www.youtube.com/watch?v=YMqSK6uBhxU&t=1047s",
-    "quote": "So I've done the work and I've used OTEL instrumentation to capture for example traces on the Java service and the node service with maybe NodeJS instrumentation but I also have a go service for which I actually haven't added the SDK I haven't built anything in.",
-    "why": "Uses OpenTelemetry instrumentation for tracing Java and Node services, plus a Go service without an SDK.",
-    "matched_tools": [
-     "opentelemetry"
-    ],
-    "matched_by": "both",
-    "talk_label": "deep_dive",
-    "score": 0.5
    },
    {
     "clip_id": "0zwLl8QGOdM-1130",
@@ -194,7 +174,27 @@
     "end_sec": 1211,
     "watch_url": "https://www.youtube.com/watch?v=0zwLl8QGOdM&t=1128s",
     "quote": "So now the the implementation of the internal telemetry of the collector is a bit uh was modularized so that now uh custom collector builds can customize it. So you can use a different hotel SDK and whatnot.",
-    "why": "OpenTelemetry collector internal telemetry is modularized so custom builds can swap SDKs.",
+    "why": "Collector internal telemetry is modularized so custom builds can swap in a different OpenTelemetry SDK.",
+    "matched_tools": [
+     "opentelemetry"
+    ],
+    "matched_by": "both",
+    "talk_label": "deep_dive",
+    "score": 0.6
+   },
+   {
+    "clip_id": "YMqSK6uBhxU-1049~1122",
+    "talk_id": "YMqSK6uBhxU",
+    "title": "DNS Tracing & Metrics Via eBPF in OpenTelemetry",
+    "speakers": [
+     "Endre Sara",
+     "Nikola Grcevski"
+    ],
+    "start_sec": 1047,
+    "end_sec": 1200,
+    "watch_url": "https://www.youtube.com/watch?v=YMqSK6uBhxU&t=1047s",
+    "quote": "So I've done the work and I've used OTEL instrumentation to capture for example traces on the Java service and the node service with maybe NodeJS instrumentation but I also have a go service for which I actually haven't added the SDK I haven't built anything in.",
+    "why": "Shows OpenTelemetry instrumentation capturing traces in Java and Node services, with a Go service left uninstrumented.",
     "matched_tools": [
      "opentelemetry"
     ],
@@ -214,7 +214,7 @@
     "end_sec": 77,
     "watch_url": "https://www.youtube.com/watch?v=S6z2gd666qg&t=0s",
     "quote": "Welcome everyone to open telemetry gateways and force transform route. My name is Judasi and uh I'm a software engineer at O Garden. My name is Natalie Ujuk and I'm observability lead at IG Group.",
-    "why": "Intro to OpenTelemetry gateways and routing; relevant to the stack but excerpt is only introductions.",
+    "why": "Introduces OpenTelemetry gateways and transform routing; relevant to collector setup, but only an intro.",
     "matched_tools": [
      "opentelemetry"
     ],
@@ -237,10 +237,29 @@
     "end_sec": 213,
     "watch_url": "https://www.youtube.com/watch?v=0zwLl8QGOdM&t=133s",
     "quote": "All right one of the things that always comes up when we ask our end users what do you want to see on the open telemetry roadmap? What do you care about in the open telemetry collector?",
-    "why": "OpenTelemetry collector roadmap questions from end users; general interest, not a concrete fix.",
+    "why": "Discusses what end users want from the OpenTelemetry collector; general roadmap context, not specific fixes.",
     "matched_tools": [
      "opentelemetry",
      "prometheus"
+    ],
+    "matched_by": "both",
+    "talk_label": "deep_dive",
+    "score": 0.4
+   },
+   {
+    "clip_id": "OVffupWFEtw-272",
+    "talk_id": "OVffupWFEtw",
+    "title": "Enriching Telemetry Signals Through Lookups in the OTel Collector",
+    "speakers": [
+     "João Duarte"
+    ],
+    "start_sec": 270,
+    "end_sec": 351,
+    "watch_url": "https://www.youtube.com/watch?v=OVffupWFEtw&t=270s",
+    "quote": "The open telemetry collector, what does it support? Should it have all of these types or not? I say that not necessarily.",
+    "why": "Questions which signal types OpenTelemetry collector should support; relevant to stack design choices.",
+    "matched_tools": [
+     "opentelemetry"
     ],
     "matched_by": "both",
     "talk_label": "deep_dive",
@@ -257,35 +276,58 @@
     "end_sec": 1613,
     "watch_url": "https://www.youtube.com/watch?v=w1pj0Lz1mW4&t=1530s",
     "quote": "So, we don't look to displace open telemetry. Actually, we integrate with open telemetry. Yeah.",
-    "why": "Says the project integrates with OpenTelemetry rather than displacing it; short excerpt, little detail.",
+    "why": "Speaker says the product integrates with OpenTelemetry rather than displacing it; limited detail.",
     "matched_tools": [
      "opentelemetry"
     ],
     "matched_by": "both",
     "talk_label": "intro",
-    "score": 0.4
-   },
-   {
-    "clip_id": "OVffupWFEtw-272",
-    "talk_id": "OVffupWFEtw",
-    "title": "Enriching Telemetry Signals Through Lookups in the OTel Collector",
-    "speakers": [
-     "João Duarte"
-    ],
-    "start_sec": 270,
-    "end_sec": 351,
-    "watch_url": "https://www.youtube.com/watch?v=OVffupWFEtw&t=270s",
-    "quote": "The open telemetry collector, what does it support? Should it have all of these types or not? I say that not necessarily.",
-    "why": "Discusses which signal types OpenTelemetry collector should support; design opinion, not troubleshooting.",
-    "matched_tools": [
-     "opentelemetry"
-    ],
-    "matched_by": "both",
-    "talk_label": "deep_dive",
-    "score": 0.4
+    "score": 0.3
    }
   ],
-  "trace_id": "e6c859e7d042a71b7cf5d76f59e862f6",
+  "terms": [
+   {
+    "term": "metrics",
+    "score": 0.474,
+    "doc_count": 65
+   },
+   {
+    "term": "receiver",
+    "score": 0.257,
+    "doc_count": 17
+   },
+   {
+    "term": "traces",
+    "score": 0.256,
+    "doc_count": 32
+   },
+   {
+    "term": "processor",
+    "score": 0.193,
+    "doc_count": 25
+   },
+   {
+    "term": "sampling",
+    "score": 0.192,
+    "doc_count": 20
+   },
+   {
+    "term": "cardinality",
+    "score": 0.185,
+    "doc_count": 10
+   },
+   {
+    "term": "attributes",
+    "score": 0.181,
+    "doc_count": 25
+   },
+   {
+    "term": "tail",
+    "score": 0.181,
+    "doc_count": 15
+   }
+  ],
+  "trace_id": "bafea7c6a50303793c0caadec448d516",
   "message": null,
   "debug": {
    "query": {
@@ -508,25 +550,637 @@
    },
    "timings_ms": {
     "hybrid_search": 316.0,
-    "keyword_search": 66.6,
-    "semantic_search": 135.7,
-    "elastic_rerank": 1186.8,
-    "search_wall": 1187.3,
-    "grouping": 0.8,
+    "keyword_search": 65.9,
+    "semantic_search": 244.3,
+    "elastic_rerank": 1194.2,
+    "search_wall": 1194.8,
+    "grouping": 0.7,
     "clip_building": 0.2,
-    "rerank_batch_0": 2053.6,
-    "rerank_batch_1": 1850.0,
-    "rerank_batch_2": 2123.1,
-    "rerank": 2130.3,
-    "budget": 3.9,
-    "total": 3322.8
+    "rerank_batch_0": 1917.7,
+    "rerank_batch_1": 1917.0,
+    "rerank_batch_2": 2134.0,
+    "rerank": 2142.8,
+    "budget": 2.9,
+    "significant_terms": 65.0,
+    "total": 3341.9
    },
    "hits": 100,
    "talks": 23,
    "rerank": {
     "elastic": "ok",
     "model": "ok"
-   }
+   },
+   "terms_query": {
+    "size": 0,
+    "track_total_hits": false,
+    "query": {
+     "bool": {
+      "should": [
+       {
+        "terms": {
+         "tools": [
+          "opentelemetry",
+          "prometheus"
+         ],
+         "boost": 2
+        }
+       },
+       {
+        "match_phrase": {
+         "text": "opentelemetry"
+        }
+       },
+       {
+        "match_phrase": {
+         "text": "open telemetry"
+        }
+       },
+       {
+        "match_phrase": {
+         "text": "otel"
+        }
+       },
+       {
+        "match_phrase": {
+         "text": "otlp"
+        }
+       },
+       {
+        "match_phrase": {
+         "text": "hotel collector"
+        }
+       },
+       {
+        "match_phrase": {
+         "text": "hotel collectors"
+        }
+       },
+       {
+        "match_phrase": {
+         "text": "hotel sdk"
+        }
+       },
+       {
+        "match_phrase": {
+         "text": "hotel sdks"
+        }
+       },
+       {
+        "match_phrase": {
+         "text": "hotel demo"
+        }
+       },
+       {
+        "match_phrase": {
+         "text": "hotel instrumentation"
+        }
+       },
+       {
+        "match_phrase": {
+         "text": "hotel profiles"
+        }
+       },
+       {
+        "match_phrase": {
+         "text": "hotel spans"
+        }
+       },
+       {
+        "match_phrase": {
+         "text": "prometheus"
+        }
+       },
+       {
+        "match_phrase": {
+         "text": "promql"
+        }
+       }
+      ],
+      "minimum_should_match": 1
+     }
+    },
+    "aggs": {
+     "sample": {
+      "sampler": {
+       "shard_size": 200
+      },
+      "aggs": {
+       "keywords": {
+        "significant_text": {
+         "field": "text",
+         "size": 40,
+         "min_doc_count": 3,
+         "filter_duplicate_text": true,
+         "jlh": {},
+         "exclude": [
+          "a",
+          "aaron",
+          "abellard",
+          "abhinav",
+          "abhishek",
+          "able",
+          "about",
+          "actually",
+          "adam",
+          "aditya",
+          "again",
+          "agent",
+          "ah",
+          "aldo",
+          "alex",
+          "alexander",
+          "alfonso",
+          "all",
+          "almeida",
+          "already",
+          "also",
+          "anastasiia",
+          "and",
+          "anders",
+          "andersen",
+          "andrew",
+          "andy",
+          "anti",
+          "antoine",
+          "any",
+          "anything",
+          "apache",
+          "api",
+          "apis",
+          "argo",
+          "argocd",
+          "arthur",
+          "avlasov",
+          "awesome",
+          "b",
+          "back",
+          "backstage",
+          "bao",
+          "bartolini",
+          "bartłomiej",
+          "basically",
+          "because",
+          "been",
+          "being",
+          "ben",
+          "bianchi",
+          "bill",
+          "bit",
+          "bjerre",
+          "björn",
+          "block",
+          "both",
+          "bunch",
+          "but",
+          "came",
+          "can",
+          "capili",
+          "carpenter",
+          "cd",
+          "celium",
+          "cert",
+          "certmanager",
+          "chalandre",
+          "change",
+          "charlie",
+          "chart",
+          "charts",
+          "choo",
+          "cilium",
+          "city",
+          "cloak",
+          "cloud",
+          "cloudnativepg",
+          "cnpg",
+          "collector",
+          "collectors",
+          "combopiano",
+          "come",
+          "comes",
+          "connors",
+          "containerd",
+          "context",
+          "cool",
+          "cortney",
+          "could",
+          "couple",
+          "create",
+          "crossplane",
+          "crossplay",
+          "cube",
+          "cuddle",
+          "customize",
+          "d",
+          "da",
+          "dag",
+          "daniel",
+          "dapr",
+          "das",
+          "data",
+          "demo",
+          "did",
+          "different",
+          "dmitrii",
+          "does",
+          "done",
+          "down",
+          "duarte",
+          "each",
+          "eduardo",
+          "egan",
+          "eknert",
+          "end",
+          "endre",
+          "ends",
+          "envoy",
+          "envoyproxy",
+          "erica",
+          "etcd",
+          "evan",
+          "even",
+          "everybody",
+          "everyone",
+          "everything",
+          "example",
+          "f",
+          "fajerski",
+          "falco",
+          "falcosidekick",
+          "felix",
+          "fenton",
+          "few",
+          "first",
+          "florian",
+          "flow",
+          "fluent",
+          "fluentbit",
+          "flux",
+          "fluxcd",
+          "folks",
+          "for",
+          "frank",
+          "from",
+          "g",
+          "gabriele",
+          "gatekeeper",
+          "gateway",
+          "geisendörfer",
+          "get",
+          "giedrius",
+          "give",
+          "gives",
+          "going",
+          "golnaz",
+          "gonna",
+          "good",
+          "gordon",
+          "got",
+          "gotta",
+          "grafana",
+          "graphana",
+          "grcevski",
+          "great",
+          "grimm",
+          "gubska",
+          "guys",
+          "had",
+          "has",
+          "have",
+          "helm",
+          "here",
+          "hmm",
+          "hotel",
+          "how",
+          "hrittik",
+          "hughberg",
+          "iacopo",
+          "id",
+          "ids",
+          "information",
+          "instrumentation",
+          "into",
+          "istio",
+          "isto",
+          "istto",
+          "j",
+          "jade",
+          "jaeger",
+          "jan",
+          "jared",
+          "jiekun",
+          "joe",
+          "jogeleit",
+          "johannes",
+          "jorge",
+          "joão",
+          "juraci",
+          "just",
+          "k",
+          "k8s",
+          "kafka",
+          "kalen",
+          "karpenter",
+          "kates",
+          "katz",
+          "keda",
+          "keep",
+          "key",
+          "keycloak",
+          "khavronenko",
+          "kind",
+          "kinds",
+          "know",
+          "kröhling",
+          "kserve",
+          "kube",
+          "kubectl",
+          "kubeflow",
+          "kubernetes",
+          "kunal",
+          "kunju",
+          "kustomization",
+          "kustomizations",
+          "kustomize",
+          "kyverno",
+          "lacuku",
+          "lambert",
+          "last",
+          "laurent",
+          "lee",
+          "lehner",
+          "leigh",
+          "leonardo",
+          "let",
+          "like",
+          "lin",
+          "linker",
+          "linkerd",
+          "literally",
+          "liudmila",
+          "loffay",
+          "look",
+          "lot",
+          "lots",
+          "luz",
+          "m",
+          "made",
+          "madhuri",
+          "make",
+          "malvankar",
+          "manager",
+          "many",
+          "marcelo",
+          "martin",
+          "marylia",
+          "mata",
+          "matar",
+          "matteo",
+          "matyushentsev",
+          "may",
+          "maybe",
+          "maël",
+          "mcp",
+          "mean",
+          "meritxell",
+          "might",
+          "ming",
+          "mitch",
+          "model",
+          "molkova",
+          "more",
+          "morgan",
+          "most",
+          "much",
+          "mulligan",
+          "must",
+          "n",
+          "natalie",
+          "native",
+          "need",
+          "neha",
+          "next",
+          "nice",
+          "nickerson",
+          "nikola",
+          "node",
+          "not",
+          "now",
+          "off",
+          "oh",
+          "ok",
+          "okay",
+          "oldsberg",
+          "one",
+          "only",
+          "opa",
+          "open",
+          "opentelemetry",
+          "opentofu",
+          "oper",
+          "otel",
+          "other",
+          "otlp",
+          "our",
+          "out",
+          "outhenin",
+          "outs",
+          "over",
+          "overlay",
+          "overlays",
+          "own",
+          "p",
+          "pablo",
+          "paixão",
+          "parodi",
+          "patrik",
+          "paul",
+          "pavol",
+          "peles",
+          "people",
+          "per",
+          "perath",
+          "pg",
+          "policies",
+          "policy",
+          "pool",
+          "pools",
+          "postgres",
+          "postgresql",
+          "pretty",
+          "probably",
+          "prodan",
+          "profiles",
+          "prometheus",
+          "promql",
+          "protocol",
+          "proxy",
+          "psyllium",
+          "put",
+          "puts",
+          "putting",
+          "płotka",
+          "quentin",
+          "question",
+          "questions",
+          "rabenstein",
+          "ramlot",
+          "really",
+          "redis",
+          "regina",
+          "rego",
+          "ricardo",
+          "rigby",
+          "right",
+          "robert",
+          "rodríguez",
+          "roll",
+          "rollout",
+          "rollouts",
+          "roman",
+          "roubalik",
+          "rouhi",
+          "routs",
+          "roy",
+          "rozzo",
+          "said",
+          "same",
+          "sara",
+          "say",
+          "says",
+          "schneider",
+          "scott",
+          "sdk",
+          "sdks",
+          "search",
+          "see",
+          "selium",
+          "sergey",
+          "serve",
+          "severin",
+          "sharma",
+          "shevchenko",
+          "should",
+          "shuangkun",
+          "silva",
+          "sirchia",
+          "slide",
+          "slides",
+          "so",
+          "some",
+          "something",
+          "soni",
+          "sonner",
+          "sort",
+          "spans",
+          "spiffe",
+          "spiffy",
+          "spire",
+          "spolti",
+          "start",
+          "started",
+          "statkevičius",
+          "stefan",
+          "steve",
+          "still",
+          "strimzi",
+          "stuff",
+          "sure",
+          "swiech",
+          "t",
+          "take",
+          "takes",
+          "taking",
+          "talk",
+          "telemetry",
+          "terraform",
+          "than",
+          "thank",
+          "thanks",
+          "thanos",
+          "that",
+          "their",
+          "them",
+          "then",
+          "there",
+          "these",
+          "they",
+          "thing",
+          "things",
+          "think",
+          "this",
+          "those",
+          "three",
+          "tian",
+          "tim",
+          "time",
+          "times",
+          "today",
+          "tofu",
+          "too",
+          "took",
+          "tried",
+          "try",
+          "trying",
+          "turrado",
+          "two",
+          "uh",
+          "uhh",
+          "ujuk",
+          "um",
+          "umm",
+          "under",
+          "use",
+          "used",
+          "uses",
+          "using",
+          "valais",
+          "very",
+          "vllm",
+          "voloshin",
+          "wanna",
+          "want",
+          "was",
+          "watts",
+          "way",
+          "well",
+          "were",
+          "wessel",
+          "what",
+          "when",
+          "where",
+          "which",
+          "who",
+          "whole",
+          "why",
+          "will",
+          "william",
+          "with",
+          "wolfe",
+          "workflow",
+          "workflows",
+          "would",
+          "xiaolin",
+          "yan",
+          "yaron",
+          "yash",
+          "yeah",
+          "yechuri",
+          "yep",
+          "yes",
+          "you",
+          "your",
+          "zbynek",
+          "zhang",
+          "zhu"
+         ]
+        }
+       }
+      }
+     }
+    }
+   },
+   "terms_status": "ok",
+   "uncovered_tools": []
   }
  }
 }

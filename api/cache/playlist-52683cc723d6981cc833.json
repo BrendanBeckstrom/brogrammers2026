@@ -325,8 +325,50 @@
     "score": 0.018475
    }
   ],
-  "trace_id": "f28d5fb63a1861023f9fe4f94a4a7eed",
-  "message": "No talk mentions Kubernetes; showing the rest of your stack.",
+  "terms": [
+   {
+    "term": "applications",
+    "score": 0.078,
+    "doc_count": 28
+   },
+   {
+    "term": "metrics",
+    "score": 0.068,
+    "doc_count": 63
+   },
+   {
+    "term": "pattern",
+    "score": 0.065,
+    "doc_count": 25
+   },
+   {
+    "term": "receiver",
+    "score": 0.062,
+    "doc_count": 17
+   },
+   {
+    "term": "manifest",
+    "score": 0.049,
+    "doc_count": 17
+   },
+   {
+    "term": "extract",
+    "score": 0.046,
+    "doc_count": 12
+   },
+   {
+    "term": "traces",
+    "score": 0.045,
+    "doc_count": 32
+   },
+   {
+    "term": "certificates",
+    "score": 0.041,
+    "doc_count": 11
+   }
+  ],
+  "trace_id": "86cd3bc238905b50d33cff1dd18a138a",
+  "message": null,
   "debug": {
    "query": {
     "size": 100,
@@ -704,21 +746,718 @@
     }
    },
    "timings_ms": {
-    "hybrid_search": 309.3,
-    "keyword_search": 116.0,
+    "hybrid_search": 310.0,
+    "keyword_search": 66.6,
     "semantic_search": 115.1,
-    "search_wall": 309.5,
-    "grouping": 0.6,
+    "search_wall": 310.3,
+    "grouping": 0.8,
     "clip_building": 0.2,
-    "budget": 2.6,
-    "total": 313.2
+    "budget": 2.9,
+    "significant_terms": 65.1,
+    "total": 314.7
    },
    "hits": 100,
    "talks": 28,
    "rerank": {
     "elastic": "off",
     "model": "off"
-   }
+   },
+   "terms_query": {
+    "size": 0,
+    "track_total_hits": false,
+    "query": {
+     "bool": {
+      "should": [
+       {
+        "terms": {
+         "tools": [
+          "argo-cd",
+          "cert-manager",
+          "envoy",
+          "prometheus",
+          "opentelemetry",
+          "istio",
+          "kubernetes"
+         ],
+         "boost": 2
+        }
+       },
+       {
+        "match_phrase": {
+         "text": "argo cd"
+        }
+       },
+       {
+        "match_phrase": {
+         "text": "argocd"
+        }
+       },
+       {
+        "match_phrase": {
+         "text": "argo city"
+        }
+       },
+       {
+        "match_phrase": {
+         "text": "cert-manager"
+        }
+       },
+       {
+        "match_phrase": {
+         "text": "cert manager"
+        }
+       },
+       {
+        "match_phrase": {
+         "text": "certmanager"
+        }
+       },
+       {
+        "match_phrase": {
+         "text": "search manager"
+        }
+       },
+       {
+        "match_phrase": {
+         "text": "envoy"
+        }
+       },
+       {
+        "match_phrase": {
+         "text": "envoy proxy"
+        }
+       },
+       {
+        "match_phrase": {
+         "text": "envoyproxy"
+        }
+       },
+       {
+        "match_phrase": {
+         "text": "prometheus"
+        }
+       },
+       {
+        "match_phrase": {
+         "text": "promql"
+        }
+       },
+       {
+        "match_phrase": {
+         "text": "opentelemetry"
+        }
+       },
+       {
+        "match_phrase": {
+         "text": "open telemetry"
+        }
+       },
+       {
+        "match_phrase": {
+         "text": "otel"
+        }
+       },
+       {
+        "match_phrase": {
+         "text": "otlp"
+        }
+       },
+       {
+        "match_phrase": {
+         "text": "hotel collector"
+        }
+       },
+       {
+        "match_phrase": {
+         "text": "hotel collectors"
+        }
+       },
+       {
+        "match_phrase": {
+         "text": "hotel sdk"
+        }
+       },
+       {
+        "match_phrase": {
+         "text": "hotel sdks"
+        }
+       },
+       {
+        "match_phrase": {
+         "text": "hotel demo"
+        }
+       },
+       {
+        "match_phrase": {
+         "text": "hotel instrumentation"
+        }
+       },
+       {
+        "match_phrase": {
+         "text": "hotel profiles"
+        }
+       },
+       {
+        "match_phrase": {
+         "text": "hotel spans"
+        }
+       },
+       {
+        "match_phrase": {
+         "text": "istio"
+        }
+       },
+       {
+        "match_phrase": {
+         "text": "isto"
+        }
+       },
+       {
+        "match_phrase": {
+         "text": "istto"
+        }
+       },
+       {
+        "match_phrase": {
+         "text": "kubernetes"
+        }
+       },
+       {
+        "match_phrase": {
+         "text": "k8s"
+        }
+       },
+       {
+        "match_phrase": {
+         "text": "kates"
+        }
+       }
+      ],
+      "minimum_should_match": 1
+     }
+    },
+    "aggs": {
+     "sample": {
+      "sampler": {
+       "shard_size": 200
+      },
+      "aggs": {
+       "keywords": {
+        "significant_text": {
+         "field": "text",
+         "size": 40,
+         "min_doc_count": 3,
+         "filter_duplicate_text": true,
+         "jlh": {},
+         "exclude": [
+          "a",
+          "aaron",
+          "abellard",
+          "abhinav",
+          "abhishek",
+          "able",
+          "about",
+          "actually",
+          "adam",
+          "aditya",
+          "again",
+          "agent",
+          "ah",
+          "aldo",
+          "alex",
+          "alexander",
+          "alfonso",
+          "all",
+          "almeida",
+          "already",
+          "also",
+          "anastasiia",
+          "and",
+          "anders",
+          "andersen",
+          "andrew",
+          "andy",
+          "anti",
+          "antoine",
+          "any",
+          "anything",
+          "apache",
+          "api",
+          "apis",
+          "argo",
+          "argocd",
+          "arthur",
+          "avlasov",
+          "awesome",
+          "b",
+          "back",
+          "backstage",
+          "bao",
+          "bartolini",
+          "bartłomiej",
+          "basically",
+          "because",
+          "been",
+          "being",
+          "ben",
+          "bianchi",
+          "bill",
+          "bit",
+          "bjerre",
+          "björn",
+          "block",
+          "both",
+          "bunch",
+          "but",
+          "came",
+          "can",
+          "capili",
+          "carpenter",
+          "cd",
+          "celium",
+          "cert",
+          "certmanager",
+          "chalandre",
+          "change",
+          "charlie",
+          "chart",
+          "charts",
+          "choo",
+          "cilium",
+          "city",
+          "cloak",
+          "cloud",
+          "cloudnativepg",
+          "cnpg",
+          "collector",
+          "collectors",
+          "combopiano",
+          "come",
+          "comes",
+          "connors",
+          "containerd",
+          "context",
+          "cool",
+          "cortney",
+          "could",
+          "couple",
+          "create",
+          "crossplane",
+          "crossplay",
+          "cube",
+          "cuddle",
+          "customize",
+          "d",
+          "da",
+          "dag",
+          "daniel",
+          "dapr",
+          "das",
+          "data",
+          "demo",
+          "did",
+          "different",
+          "dmitrii",
+          "does",
+          "done",
+          "down",
+          "duarte",
+          "each",
+          "eduardo",
+          "egan",
+          "eknert",
+          "end",
+          "endre",
+          "ends",
+          "envoy",
+          "envoyproxy",
+          "erica",
+          "etcd",
+          "evan",
+          "even",
+          "everybody",
+          "everyone",
+          "everything",
+          "example",
+          "f",
+          "fajerski",
+          "falco",
+          "falcosidekick",
+          "felix",
+          "fenton",
+          "few",
+          "first",
+          "florian",
+          "flow",
+          "fluent",
+          "fluentbit",
+          "flux",
+          "fluxcd",
+          "folks",
+          "for",
+          "frank",
+          "from",
+          "g",
+          "gabriele",
+          "gatekeeper",
+          "gateway",
+          "geisendörfer",
+          "get",
+          "giedrius",
+          "give",
+          "gives",
+          "going",
+          "golnaz",
+          "gonna",
+          "good",
+          "gordon",
+          "got",
+          "gotta",
+          "grafana",
+          "graphana",
+          "grcevski",
+          "great",
+          "grimm",
+          "gubska",
+          "guys",
+          "had",
+          "has",
+          "have",
+          "helm",
+          "here",
+          "hmm",
+          "hotel",
+          "how",
+          "hrittik",
+          "hughberg",
+          "iacopo",
+          "id",
+          "ids",
+          "information",
+          "instrumentation",
+          "into",
+          "istio",
+          "isto",
+          "istto",
+          "j",
+          "jade",
+          "jaeger",
+          "jan",
+          "jared",
+          "jiekun",
+          "joe",
+          "jogeleit",
+          "johannes",
+          "jorge",
+          "joão",
+          "juraci",
+          "just",
+          "k",
+          "k8s",
+          "kafka",
+          "kalen",
+          "karpenter",
+          "kates",
+          "katz",
+          "keda",
+          "keep",
+          "key",
+          "keycloak",
+          "khavronenko",
+          "kind",
+          "kinds",
+          "know",
+          "kröhling",
+          "kserve",
+          "kube",
+          "kubectl",
+          "kubeflow",
+          "kubernetes",
+          "kunal",
+          "kunju",
+          "kustomization",
+          "kustomizations",
+          "kustomize",
+          "kyverno",
+          "lacuku",
+          "lambert",
+          "last",
+          "laurent",
+          "lee",
+          "lehner",
+          "leigh",
+          "leonardo",
+          "let",
+          "like",
+          "lin",
+          "linker",
+          "linkerd",
+          "literally",
+          "liudmila",
+          "loffay",
+          "look",
+          "lot",
+          "lots",
+          "luz",
+          "m",
+          "made",
+          "madhuri",
+          "make",
+          "malvankar",
+          "manager",
+          "many",
+          "marcelo",
+          "martin",
+          "marylia",
+          "mata",
+          "matar",
+          "matteo",
+          "matyushentsev",
+          "may",
+          "maybe",
+          "maël",
+          "mcp",
+          "mean",
+          "meritxell",
+          "might",
+          "ming",
+          "mitch",
+          "model",
+          "molkova",
+          "more",
+          "morgan",
+          "most",
+          "much",
+          "mulligan",
+          "must",
+          "n",
+          "natalie",
+          "native",
+          "need",
+          "neha",
+          "next",
+          "nice",
+          "nickerson",
+          "nikola",
+          "node",
+          "not",
+          "now",
+          "off",
+          "oh",
+          "ok",
+          "okay",
+          "oldsberg",
+          "one",
+          "only",
+          "opa",
+          "open",
+          "opentelemetry",
+          "opentofu",
+          "oper",
+          "otel",
+          "other",
+          "otlp",
+          "our",
+          "out",
+          "outhenin",
+          "outs",
+          "over",
+          "overlay",
+          "overlays",
+          "own",
+          "p",
+          "pablo",
+          "paixão",
+          "parodi",
+          "patrik",
+          "paul",
+          "pavol",
+          "peles",
+          "people",
+          "per",
+          "perath",
+          "pg",
+          "policies",
+          "policy",
+          "pool",
+          "pools",
+          "postgres",
+          "postgresql",
+          "pretty",
+          "probably",
+          "prodan",
+          "profiles",
+          "prometheus",
+          "promql",
+          "protocol",
+          "proxy",
+          "psyllium",
+          "put",
+          "puts",
+          "putting",
+          "płotka",
+          "quentin",
+          "question",
+          "questions",
+          "rabenstein",
+          "ramlot",
+          "really",
+          "redis",
+          "regina",
+          "rego",
+          "ricardo",
+          "rigby",
+          "right",
+          "robert",
+          "rodríguez",
+          "roll",
+          "rollout",
+          "rollouts",
+          "roman",
+          "roubalik",
+          "rouhi",
+          "routs",
+          "roy",
+          "rozzo",
+          "said",
+          "same",
+          "sara",
+          "say",
+          "says",
+          "schneider",
+          "scott",
+          "sdk",
+          "sdks",
+          "search",
+          "see",
+          "selium",
+          "sergey",
+          "serve",
+          "severin",
+          "sharma",
+          "shevchenko",
+          "should",
+          "shuangkun",
+          "silva",
+          "sirchia",
+          "slide",
+          "slides",
+          "so",
+          "some",
+          "something",
+          "soni",
+          "sonner",
+          "sort",
+          "spans",
+          "spiffe",
+          "spiffy",
+          "spire",
+          "spolti",
+          "start",
+          "started",
+          "statkevičius",
+          "stefan",
+          "steve",
+          "still",
+          "strimzi",
+          "stuff",
+          "sure",
+          "swiech",
+          "t",
+          "take",
+          "takes",
+          "taking",
+          "talk",
+          "telemetry",
+          "terraform",
+          "than",
+          "thank",
+          "thanks",
+          "thanos",
+          "that",
+          "their",
+          "them",
+          "then",
+          "there",
+          "these",
+          "they",
+          "thing",
+          "things",
+          "think",
+          "this",
+          "those",
+          "three",
+          "tian",
+          "tim",
+          "time",
+          "times",
+          "today",
+          "tofu",
+          "too",
+          "took",
+          "tried",
+          "try",
+          "trying",
+          "turrado",
+          "two",
+          "uh",
+          "uhh",
+          "ujuk",
+          "um",
+          "umm",
+          "under",
+          "use",
+          "used",
+          "uses",
+          "using",
+          "valais",
+          "very",
+          "vllm",
+          "voloshin",
+          "wanna",
+          "want",
+          "was",
+          "watts",
+          "way",
+          "well",
+          "were",
+          "wessel",
+          "what",
+          "when",
+          "where",
+          "which",
+          "who",
+          "whole",
+          "why",
+          "will",
+          "william",
+          "with",
+          "wolfe",
+          "workflow",
+          "workflows",
+          "would",
+          "xiaolin",
+          "yan",
+          "yaron",
+          "yash",
+          "yeah",
+          "yechuri",
+          "yep",
+          "yes",
+          "you",
+          "your",
+          "zbynek",
+          "zhang",
+          "zhu"
+         ]
+        }
+       }
+      }
+     }
+    }
+   },
+   "terms_status": "ok",
+   "uncovered_tools": []
   }
  }
 }
