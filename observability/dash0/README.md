@@ -154,13 +154,11 @@ On 2026-11-09, every query below ran against Dash0's PromQL API (`https://api.us
 | Most requested tools (top 10) | `debrief.playlist.tool_requests` | Build a playlist |
 | Clip label mix (PieChart) | `debrief.playlist.clip_labels` | Build a playlist; clips from unlabelled talks show as `unlabelled` |
 | Playlists shared | `debrief.playlists.shared` | Click **Share** (POST /api/playlists) |
-| Demo cache lookups by route and result | `debrief.cache.lookups` | Run with `DEBRIEF_CACHE=on`; empty while the cache is off |
 | HTTP requests by route and status | `http.server.duration` (labels `http_target`, `http_status_code`) | Any request except the probes |
 | Rerank batch outcomes (stacked) | `debrief.rerank.batches` | Playlist with rerank on; `timeout` and `fallback` show only when a batch fails |
 | Memo latency p50 / p95 | `debrief.memo.duration`, `outcome="ok"` | Make a memo (cached memos are not recorded) |
-| Playlists served (LogTable) | logs with `event.name = playlist.served` | Build a playlist |
 
-The logs panel uses Dash0's `LogTable` kind with `filters` (`service.name is debrief-api`, `event.name is playlist.served`), from Dash0's chart type reference. If an import rejects it, delete the `playlist_served_logs` panel and its layout item, and use the Logs explorer with the same two filters instead.
+There is no logs panel on the dashboard: Dash0 returned "Error loading log list" for the `LogTable` shape we inferred, so it was removed. To show the event logs, open **Logging** and filter `event.name` is `playlist.served` (or any event in section 5). The "Demo cache lookups" panel was removed too: the cache is off in production, so it was always empty.
 
 To find the RUM data itself, use the **Web Events** explorer:
 - The **Custom Events** view lists `watch_click`, `memo_copy`, `memo_make` and `playlist_build`.
@@ -184,7 +182,7 @@ These assumptions were checked against Dash0's docs and the live dataset on 2026
   All three were confirmed on live series.
 - **API traffic comes from Dash0's span metric `dash0.spans`,** filtered by `otel_span_kind="SERVER"` and grouped by `http_route`. `otel_span_status_code="ERROR"` marks 5xx responses.
 - **Browser custom events become `dash0.web.events`,** with `event.name` as `event_name` and the `rank` attribute as `rank`. This follows Dash0's synthetic-metric docs, but it is **not yet confirmed against live data** (see the table above).
-- **`$__rate_interval`** is resolved by the dashboard. The raw query API rejects it, so a manual check needs a fixed window such as `[30m]`.
+- **App and browser metrics use a fixed `[1h]` window, not `$__rate_interval`.** The SDK exported metrics every 60 s, so Dash0's short automatic window often held a single sample and `rate()`/`increase()` returned nothing (empty panels, lone spikes). The deployment now sets `OTEL_METRIC_EXPORT_INTERVAL=10000` (10 s), and the panels read 1-hour windows: each point summarises the hour before it, so lines stay continuous between bursts of traffic and counts read "in the last hour". Only the `dash0.spans` panels keep `$__rate_interval`, because Dash0 produces that metric itself at fine resolution.
 - **`http.server.duration`** comes from the FastAPI instrumentation with the old HTTP semantic conventions (the default), so its labels are `http_target` (the route template, e.g. `/api/playlists/{playlist_id}`), `http_method` and `http_status_code`. Request counts per route are `histogram_count(rate(...))` of that native histogram. Not yet confirmed against live data.
 
 ## 5. Event logs and access logs
