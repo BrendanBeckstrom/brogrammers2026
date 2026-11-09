@@ -89,6 +89,7 @@ class LLMClient(Protocol):
         max_tokens: int,
         json: bool = False,
         timeout: float | None = None,
+        schema: Mapping[str, Any] | None = None,
     ) -> LLMResult: ...
 
 
@@ -110,6 +111,7 @@ class Backend(Protocol):
         max_tokens: int,
         json: bool,
         timeout: float,
+        schema: Mapping[str, Any] | None = None,
     ) -> tuple[str, int | None, int | None]: ...
 
 
@@ -148,6 +150,7 @@ class ElasticBackend:
         max_tokens: int,
         json: bool,
         timeout: float,
+        schema: Mapping[str, Any] | None = None,
     ) -> tuple[str, int | None, int | None]:
         es = self._client().options(request_timeout=timeout)
         text = SYSTEM_PROMPT + (JSON_INSTRUCTION if json else "") + "\n\n" + prompt
@@ -193,7 +196,14 @@ class AnthropicBackend:
             self._client()
 
     def request(
-        self, prompt: str, *, model: str, purpose: Purpose, max_tokens: int, json: bool
+        self,
+        prompt: str,
+        *,
+        model: str,
+        purpose: Purpose,
+        max_tokens: int,
+        json: bool,
+        schema: Mapping[str, Any] | None = None,
     ) -> dict[str, Any]:
         """The `messages.create` arguments for one call."""
         params: dict[str, Any] = {
@@ -203,6 +213,9 @@ class AnthropicBackend:
             "messages": [{"role": "user", "content": prompt}],
             "output_config": {"effort": EFFORT.get(purpose, "low")},
         }
+        if schema is not None:
+            # Structured outputs: the reply is guaranteed to be JSON matching `schema`.
+            params["output_config"]["format"] = {"type": "json_schema", "schema": dict(schema)}
         if purpose in NO_THINKING_PURPOSES and model.startswith(THINKING_OFF_MODELS):
             # Short JSON jobs gain nothing from reasoning tokens, which cost output time.
             params["thinking"] = {"type": "disabled"}
@@ -220,13 +233,19 @@ class AnthropicBackend:
         max_tokens: int,
         json: bool,
         timeout: float,
+        schema: Mapping[str, Any] | None = None,
     ) -> tuple[str, int | None, int | None]:
         with tracer.start_as_current_span("llm.prepare") as span:
             span.set_attribute("debrief.llm.client_cached", self._sdk is not None)
             # Per-call timeout and no retries: a timed-out call is never repeated.
             client = self._client().with_options(timeout=timeout, max_retries=0)
             params = self.request(
-                prompt, model=model, purpose=purpose, max_tokens=max_tokens, json=json
+                prompt,
+                model=model,
+                purpose=purpose,
+                max_tokens=max_tokens,
+                json=json,
+                schema=schema,
             )
         response = client.beta.messages.create(**params)
         if response.stop_reason == "refusal":
@@ -269,8 +288,20 @@ class OpenAIBackend:
         max_tokens: int,
         json: bool,
         timeout: float,
+        schema: Mapping[str, Any] | None = None,
     ) -> tuple[str, int | None, int | None]:
         extra: dict[str, Any] = {"response_format": {"type": "json_object"}} if json else {}
+        if schema is not None:
+            extra = {
+                "response_format": {
+                    "type": "json_schema",
+                    "json_schema": {
+                        "name": f"debrief_{purpose}",
+                        "schema": dict(schema),
+                        "strict": True,
+                    },
+                }
+            }
         response = self._client().chat.completions.create(
             model=model,
             messages=[
@@ -310,6 +341,7 @@ class UnconfiguredBackend:
         max_tokens: int,
         json: bool,
         timeout: float,
+        schema: Mapping[str, Any] | None = None,
     ) -> tuple[str, int | None, int | None]:
         raise LLMError(f"unknown LLM_PROVIDER {self.name!r}")
 
@@ -359,6 +391,7 @@ class LLM:
         max_tokens: int,
         json: bool = False,
         timeout: float | None = None,
+        schema: Mapping[str, Any] | None = None,
     ) -> LLMResult:
         model = self.model_for(purpose)
         with tracer.start_as_current_span("llm.complete") as span:
@@ -369,6 +402,7 @@ class LLM:
                     "gen_ai.request.max_tokens": max_tokens,
                     "debrief.llm.purpose": purpose,
                     "debrief.llm.json": json,
+                    "debrief.llm.schema": schema is not None,
                     "debrief.llm.prompt_chars": len(prompt),
                 }
             )
@@ -381,6 +415,7 @@ class LLM:
                     max_tokens=max_tokens,
                     json=json,
                     timeout=timeout or self.timeout,
+                    schema=schema,
                 )
                 if not text.strip():
                     raise LLMError(f"{self.provider} returned an empty completion")
@@ -459,8 +494,14 @@ def complete(
     max_tokens: int,
     json: bool = False,
     timeout: float | None = None,
+    schema: Mapping[str, Any] | None = None,
 ) -> LLMResult:
     """Send one prompt to the configured provider. Raises LLMError on any failure."""
     return get_llm().complete(
-        prompt, purpose=purpose, max_tokens=max_tokens, json=json, timeout=timeout
+        prompt,
+        purpose=purpose,
+        max_tokens=max_tokens,
+        json=json,
+        timeout=timeout,
+        schema=schema,
     )
