@@ -34,3 +34,6 @@ web/dist/
 
 # --- Logs ---
 *.log
+
+# --- Agent worktrees ---
+.claude/worktrees/
