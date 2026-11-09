@@ -39,6 +39,7 @@ Build the index (needs `ELASTIC_URL` and `ELASTIC_API_KEY`):
 ```bash
 make ingest               # data/talks.csv -> data/chunks.jsonl
 make index                # create Elastic indexes, bulk load chunks
+make label                # label new talks (data/talk_labels.csv), set talk_label in place
 ```
 
 ### Environment variables

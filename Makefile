@@ -2,16 +2,20 @@
 SHELL := /bin/bash
 ENV := set -a; [ -f .env ] && . ./.env; set +a;
 
-.PHONY: setup ingest index api web test golden
+.PHONY: setup ingest label index api web test golden
 
 setup: ## Install Python and web dependencies
 	uv sync --locked
 	cd web && npm ci
 
-ingest: ## Download, clean, chunk and tag; writes data/chunks.jsonl (tasks 2-4)
+ingest: ## Download, clean, chunk, tag and label; writes data/chunks.jsonl (tasks 2-4, 12)
 	$(ENV) uv run python -m ingest.download
 	$(ENV) uv run python -m ingest.chunk
 	$(ENV) uv run python -m ingest.tag
+	$(ENV) uv run python -m ingest.label --no-elastic
+
+label: ## Label new talks (data/talk_labels.csv) and set talk_label in the chunks and Elastic (task 12)
+	$(ENV) uv run python -m ingest.label
 
 index: ## Create the Elastic indexes and load the chunks (task 5)
 	$(ENV) uv run python -m ingest.index
