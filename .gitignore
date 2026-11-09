@@ -5,6 +5,9 @@
 *.pem
 *.key
 *kubeconfig*
+secrets/
+*-secret.yaml
+*-secrets.yaml
 
 # --- Downloaded / generated data ---
 data/raw/
