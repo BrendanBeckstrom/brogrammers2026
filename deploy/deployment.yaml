@@ -24,7 +24,7 @@ spec:
               containerPort: 8080
           env:
             - name: TEAM_NAME
-              value: "__TEAM__"
+              value: "brogrammers"
             - name: OTEL_SERVICE_NAME
               value: debrief-api
             - name: LLM_PROVIDER
