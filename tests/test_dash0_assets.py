@@ -48,18 +48,25 @@ def test_every_panel_is_placed_once_on_a_24_wide_grid() -> None:
         "Memo latency p50 / p95",
         "Playlists shared",
         "HTTP requests by route and status (req/s)",
-        "Playlists served (event=playlist.served)",
     } <= names
 
 
-def test_logs_panel_filters_on_the_playlist_served_event() -> None:
+def test_app_metric_panels_use_a_fixed_five_minute_window() -> None:
+    """App and browser metrics arrive every 10-60 s, so Dash0's short $__rate_interval can hold
+    one sample and rate()/increase() return nothing. Only Dash0's own span metric keeps it."""
     panels = yaml.safe_load(DASHBOARD.read_text())["spec"]["panels"]
-    plugin = panels["playlist_served_logs"]["spec"]["plugin"]
-    assert plugin["kind"] == "LogTable"
-    wanted = {"key": "event.name", "operator": "is", "value": "playlist.served"}
-    assert wanted in plugin["spec"]["filters"]
-    # The event the panel shows is the one the API logs.
-    assert '"playlist.served"' in (ROOT / "api" / "routes_search.py").read_text()
+    queries = [
+        q["spec"]["plugin"]["spec"]["query"]
+        for p in panels.values()
+        for q in p["spec"].get("queries", [])
+    ]
+    assert queries
+    for query in queries:
+        if "dash0.spans" in query:
+            continue
+        assert "$__rate_interval" not in query, query
+        assert "[5m]" in query, query
+    assert "playlist_served_logs" not in panels and "cache_lookups" not in panels
 
 
 def test_queries_name_metrics_the_api_exports() -> None:
@@ -79,7 +86,6 @@ def test_queries_name_metrics_the_api_exports() -> None:
         "debrief.playlist.clip_labels",
         "debrief.rerank.batches",
         "debrief.memo.duration",
-        "debrief.cache.lookups",
         "debrief.playlists.shared",
     } <= used
     # Dash0's own span/web metrics, and the FastAPI instrumentation's request histogram.

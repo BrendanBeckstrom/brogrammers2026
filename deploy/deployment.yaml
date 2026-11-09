@@ -41,6 +41,10 @@ spec:
               value: "brogrammers"
             - name: OTEL_SERVICE_NAME
               value: debrief-api
+            # Send metrics every 10 s instead of the SDK's 60 s, so Dash0's 5-minute
+            # rate() windows on the Debrief health dashboard hold enough samples.
+            - name: OTEL_METRIC_EXPORT_INTERVAL
+              value: "10000"
             - name: LLM_PROVIDER
               value: anthropic
             # From Secret app-credentials, which a person creates by hand (see

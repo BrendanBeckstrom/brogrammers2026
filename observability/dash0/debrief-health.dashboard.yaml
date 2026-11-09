@@ -62,16 +62,10 @@ spec:
               $ref: "#/spec/panels/clip_labels"
           - x: 0
             "y": 8
-            width: 12
+            width: 24
             height: 8
             content:
               $ref: "#/spec/panels/playlists_shared"
-          - x: 12
-            "y": 8
-            width: 12
-            height: 8
-            content:
-              $ref: "#/spec/panels/cache_lookups"
     - kind: Grid
       spec:
         display:
@@ -147,17 +141,6 @@ spec:
             height: 8
             content:
               $ref: "#/spec/panels/rum_actions"
-    - kind: Grid
-      spec:
-        display:
-          title: Event logs
-        items:
-          - x: 0
-            "y": 0
-            width: 24
-            height: 10
-            content:
-              $ref: "#/spec/panels/playlist_served_logs"
   panels:
     playlist_latency:
       kind: Panel
@@ -182,14 +165,14 @@ spec:
               plugin:
                 kind: PrometheusTimeSeriesQuery
                 spec:
-                  query: histogram_quantile(0.95, sum by (outcome) (rate({otel_metric_name="debrief.playlist.duration", otel_metric_type="histogram"}[$__rate_interval])))
+                  query: histogram_quantile(0.95, sum by (outcome) (rate({otel_metric_name="debrief.playlist.duration", otel_metric_type="histogram"}[5m])))
                   seriesNameFormat: "p95 {{outcome}}"
           - kind: TimeSeriesQuery
             spec:
               plugin:
                 kind: PrometheusTimeSeriesQuery
                 spec:
-                  query: histogram_quantile(0.50, sum by (outcome) (rate({otel_metric_name="debrief.playlist.duration", otel_metric_type="histogram"}[$__rate_interval])))
+                  query: histogram_quantile(0.50, sum by (outcome) (rate({otel_metric_name="debrief.playlist.duration", otel_metric_type="histogram"}[5m])))
                   seriesNameFormat: "p50 {{outcome}}"
     playlist_under_5s:
       kind: Panel
@@ -215,7 +198,7 @@ spec:
               plugin:
                 kind: PrometheusTimeSeriesQuery
                 spec:
-                  query: 100 * histogram_fraction(0, 5000, sum by (deployment_environment_name) (rate({otel_metric_name="debrief.playlist.duration", otel_metric_type="histogram"}[$__rate_interval])))
+                  query: 100 * histogram_fraction(0, 5000, sum by (deployment_environment_name) (rate({otel_metric_name="debrief.playlist.duration", otel_metric_type="histogram"}[5m])))
                   seriesNameFormat: "under 5 s ({{deployment_environment_name}})"
     coverage_gaps:
       kind: Panel
@@ -238,7 +221,7 @@ spec:
               plugin:
                 kind: PrometheusTimeSeriesQuery
                 spec:
-                  query: sum by (tool) (increase({otel_metric_name="debrief.playlist.empty", otel_metric_type="sum"}[$__rate_interval]))
+                  query: sum by (tool) (increase({otel_metric_name="debrief.playlist.empty", otel_metric_type="sum"}[5m]))
                   seriesNameFormat: "{{tool}}"
     request_rate:
       kind: Panel
@@ -309,7 +292,7 @@ spec:
               plugin:
                 kind: PrometheusTimeSeriesQuery
                 spec:
-                  query: sum by (reason) (increase({otel_metric_name="debrief.memo.citations_dropped", otel_metric_type="sum"}[$__rate_interval]))
+                  query: sum by (reason) (increase({otel_metric_name="debrief.memo.citations_dropped", otel_metric_type="sum"}[5m]))
                   seriesNameFormat: "{{reason}}"
     memo_lines_valid:
       kind: Panel
@@ -335,7 +318,7 @@ spec:
               plugin:
                 kind: PrometheusTimeSeriesQuery
                 spec:
-                  query: 100 * (1 - ((sum(increase({otel_metric_name="debrief.memo.citations_dropped", otel_metric_type="sum"}[$__rate_interval])) or vector(0)) / sum(increase({otel_metric_name="debrief.memo.lines", otel_metric_type="sum"}[$__rate_interval]))))
+                  query: 100 * (1 - ((sum(increase({otel_metric_name="debrief.memo.citations_dropped", otel_metric_type="sum"}[5m])) or vector(0)) / sum(increase({otel_metric_name="debrief.memo.lines", otel_metric_type="sum"}[5m]))))
                   seriesNameFormat: valid %
     llm_tokens:
       kind: Panel
@@ -358,7 +341,7 @@ spec:
               plugin:
                 kind: PrometheusTimeSeriesQuery
                 spec:
-                  query: sum by (purpose) (increase({otel_metric_name="debrief.llm.tokens", otel_metric_type="sum"}[$__rate_interval]))
+                  query: sum by (purpose) (increase({otel_metric_name="debrief.llm.tokens", otel_metric_type="sum"}[5m]))
                   seriesNameFormat: "{{purpose}}"
     watch_clicks_by_rank:
       kind: Panel
@@ -381,7 +364,7 @@ spec:
               plugin:
                 kind: PrometheusTimeSeriesQuery
                 spec:
-                  query: sum by (rank) (increase({otel_metric_name="dash0.web.events", service_name="debrief-web", event_name="watch_click"}[$__rate_interval]))
+                  query: sum by (rank) (increase({otel_metric_name="dash0.web.events", service_name="debrief-web", event_name="watch_click"}[5m]))
                   seriesNameFormat: "rank {{rank}}"
     rum_actions:
       kind: Panel
@@ -404,7 +387,7 @@ spec:
               plugin:
                 kind: PrometheusTimeSeriesQuery
                 spec:
-                  query: sum by (event_name) (increase({otel_metric_name="dash0.web.events", service_name="debrief-web", event_name=~"playlist_build|watch_click|memo_make|memo_copy"}[$__rate_interval]))
+                  query: sum by (event_name) (increase({otel_metric_name="dash0.web.events", service_name="debrief-web", event_name=~"playlist_build|watch_click|memo_make|memo_copy"}[5m]))
                   seriesNameFormat: "{{event_name}}"
     tool_requests:
       kind: Panel
@@ -428,7 +411,7 @@ spec:
               plugin:
                 kind: PrometheusTimeSeriesQuery
                 spec:
-                  query: topk(10, sum by (tool) (increase({otel_metric_name="debrief.playlist.tool_requests", otel_metric_type="sum"}[$__rate_interval])))
+                  query: topk(10, sum by (tool) (increase({otel_metric_name="debrief.playlist.tool_requests", otel_metric_type="sum"}[5m])))
                   seriesNameFormat: "{{tool}}"
     clip_labels:
       kind: Panel
@@ -446,7 +429,7 @@ spec:
               plugin:
                 kind: PrometheusTimeSeriesQuery
                 spec:
-                  query: sum by (label) (increase({otel_metric_name="debrief.playlist.clip_labels", otel_metric_type="sum"}[$__rate_interval]))
+                  query: sum by (label) (increase({otel_metric_name="debrief.playlist.clip_labels", otel_metric_type="sum"}[5m]))
                   seriesNameFormat: "{{label}}"
     playlists_shared:
       kind: Panel
@@ -469,32 +452,8 @@ spec:
               plugin:
                 kind: PrometheusTimeSeriesQuery
                 spec:
-                  query: sum(increase({otel_metric_name="debrief.playlists.shared", otel_metric_type="sum"}[$__rate_interval]))
+                  query: sum(increase({otel_metric_name="debrief.playlists.shared", otel_metric_type="sum"}[5m]))
                   seriesNameFormat: "shared"
-    cache_lookups:
-      kind: Panel
-      spec:
-        display:
-          name: Demo cache lookups by route and result
-          description: debrief.cache.lookups. Only recorded with DEBRIEF_CACHE=on, so empty means the cache is off.
-        plugin:
-          kind: TimeSeriesChart
-          spec:
-            legend:
-              position: right
-            yAxis:
-              min: 0
-            visual:
-              display: bar
-              stack: all
-        queries:
-          - kind: TimeSeriesQuery
-            spec:
-              plugin:
-                kind: PrometheusTimeSeriesQuery
-                spec:
-                  query: sum by (route, result) (increase({otel_metric_name="debrief.cache.lookups", otel_metric_type="sum"}[$__rate_interval]))
-                  seriesNameFormat: "{{route}} {{result}}"
     http_requests_by_status:
       kind: Panel
       spec:
@@ -516,7 +475,7 @@ spec:
               plugin:
                 kind: PrometheusTimeSeriesQuery
                 spec:
-                  query: sum by (http_target, http_status_code) (histogram_count(rate({otel_metric_name="http.server.duration", otel_metric_type="histogram", service_name="debrief-api"}[$__rate_interval])))
+                  query: sum by (http_target, http_status_code) (histogram_count(rate({otel_metric_name="http.server.duration", otel_metric_type="histogram", service_name="debrief-api"}[5m])))
                   seriesNameFormat: "{{http_target}} {{http_status_code}}"
     rerank_batches:
       kind: Panel
@@ -540,7 +499,7 @@ spec:
               plugin:
                 kind: PrometheusTimeSeriesQuery
                 spec:
-                  query: sum by (outcome) (increase({otel_metric_name="debrief.rerank.batches", otel_metric_type="sum"}[$__rate_interval]))
+                  query: sum by (outcome) (increase({otel_metric_name="debrief.rerank.batches", otel_metric_type="sum"}[5m]))
                   seriesNameFormat: "{{outcome}}"
     memo_latency:
       kind: Panel
@@ -565,33 +524,12 @@ spec:
               plugin:
                 kind: PrometheusTimeSeriesQuery
                 spec:
-                  query: histogram_quantile(0.95, sum(rate({otel_metric_name="debrief.memo.duration", otel_metric_type="histogram", outcome="ok"}[$__rate_interval])))
+                  query: histogram_quantile(0.95, sum(rate({otel_metric_name="debrief.memo.duration", otel_metric_type="histogram", outcome="ok"}[5m])))
                   seriesNameFormat: "p95"
           - kind: TimeSeriesQuery
             spec:
               plugin:
                 kind: PrometheusTimeSeriesQuery
                 spec:
-                  query: histogram_quantile(0.50, sum(rate({otel_metric_name="debrief.memo.duration", otel_metric_type="histogram", outcome="ok"}[$__rate_interval])))
+                  query: histogram_quantile(0.50, sum(rate({otel_metric_name="debrief.memo.duration", otel_metric_type="histogram", outcome="ok"}[5m])))
                   seriesNameFormat: "p50"
-    playlist_served_logs:
-      kind: Panel
-      spec:
-        display:
-          name: Playlists served (event=playlist.served)
-          description: One structured log per playlist from debrief-api. Ids, counts, rerank status, duration and cache result; never the pain sentence or transcript text.
-        plugin:
-          kind: LogTable
-          spec:
-            showAttributePreview: true
-            maxLogEntries: 50
-            filters:
-              - key: service.name
-                operator: is
-                value: debrief-api
-              - key: event.name
-                operator: is
-                value: playlist.served
-            sort:
-              sortField: timestamp
-              sortDirection: desc
