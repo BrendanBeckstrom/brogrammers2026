@@ -15,6 +15,7 @@
   --surface-2: #efede6;
   --ink: #15181e;
   --ink-2: #4b5160;
+  --ink-3: #6b7280; /* placeholders: visibly lighter than typed text, 4.8:1 on white */
   --line: #dedbd2;
   --line-strong: #858a96;
 
@@ -57,6 +58,7 @@
     --surface-2: #1c2528;
     --ink: #e9eeec;
     --ink-2: #a9b4b2;
+    --ink-3: #8a9694;
     --line: #2a3437;
     --line-strong: #6b7a79;
 
@@ -98,6 +100,7 @@
   --color-surface-2: var(--surface-2);
   --color-ink: var(--ink);
   --color-ink-2: var(--ink-2);
+  --color-ink-3: var(--ink-3);
   --color-line: var(--line);
   --color-line-strong: var(--line-strong);
   --color-brand: var(--brand);

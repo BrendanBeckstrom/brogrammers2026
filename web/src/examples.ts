@@ -34,6 +34,8 @@ export const EXAMPLE_STACKS: ExampleStack[] = [
 ]
 
 export const CONFERENCE = 'KubeCon + CloudNativeCon Europe 2026'
+/** Where Debrief was built. The indexed talks are the latest KubeCon with recordings online. */
+export const BUILT_AT = 'Built in Salt Lake City · Cloud Native Hackathon 2026'
 
 /** Shown until /api/talks answers, and when it can't. */
 export const STATIC_TALK_COUNT = 54

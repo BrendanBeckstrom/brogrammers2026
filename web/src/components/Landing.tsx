@@ -1,5 +1,5 @@
 import { useId } from 'react'
-import { CONFERENCE, EXAMPLE_STACKS, STATIC_CLIP_COUNT, toolList, type ExampleStack } from '../examples'
+import { BUILT_AT, CONFERENCE, EXAMPLE_STACKS, STATIC_CLIP_COUNT, toolList, type ExampleStack } from '../examples'
 import { btnPrimary } from '../ui'
 import { ArrowDownIcon, ListIcon, MemoIcon, StackIcon } from './Icons'
 
@@ -52,7 +52,7 @@ export function Landing({ talkCount, toolCount, toolNames, busy, onStart, onExam
         />
         <div className="relative mx-auto grid max-w-6xl gap-10 px-4 py-12 sm:py-16 lg:grid-cols-[minmax(0,1.35fr)_minmax(0,1fr)] lg:items-center lg:gap-14 lg:py-20">
           <div>
-            <p className="text-sm font-semibold tracking-wide text-accent uppercase">{CONFERENCE}</p>
+            <p className="text-sm font-semibold tracking-wide text-accent uppercase">{BUILT_AT}</p>
             <h1
               id="hero-heading"
               className="mt-3 font-display text-4xl leading-[1.08] font-semibold tracking-tight text-balance text-ink sm:text-5xl lg:text-6xl"
@@ -61,7 +61,7 @@ export function Landing({ talkCount, toolCount, toolNames, busy, onStart, onExam
               <span className="text-brand-text">Watch the 20 minutes that matter to your team.</span>
             </h1>
             <p className="mt-5 max-w-2xl text-lg leading-relaxed text-ink-2">
-              Debrief reads every recorded talk, then hands your team a short playlist of cited clips for your stack,
+              Debrief reads what speakers actually said, then hands your team a short playlist of cited clips for your stack,
               each opening at the right second, and a one-page memo to share.
             </p>
             <div className="mt-8 flex flex-wrap items-center gap-3">
@@ -79,7 +79,10 @@ export function Landing({ talkCount, toolCount, toolNames, busy, onStart, onExam
               <Stat label="clips" value={number.format(STATIC_CLIP_COUNT)} />
               <Stat label="tools tracked" value={toolCount === null ? '30' : number.format(toolCount)} />
             </dl>
-            <p className="mt-3 text-sm text-ink-2">Every recorded talk from {CONFERENCE}, one free page, no sign-up.</p>
+            <p className="mt-3 max-w-xl text-sm text-ink-2">
+              {number.format(talkCount)} talks from {CONFERENCE}, the latest KubeCon with recordings online; this week&apos;s
+              Salt Lake City talks are one ingest run away. One free page, no sign-up.
+            </p>
           </div>
 
           <div className="rounded-3xl border border-line bg-surface/90 p-5 shadow-sm backdrop-blur sm:p-6">

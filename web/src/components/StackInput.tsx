@@ -201,8 +201,8 @@ export function StackInput({ tools, onRetryTools, talks, onRetryTalks, initial, 
 
       {/* Dependency file */}
       <fieldset className="rounded-2xl border border-line bg-canvas p-4 sm:p-5">
-        <legend className="px-1 text-base font-semibold text-ink">Or use a dependency file</legend>
-        <p id={ids.pasteHint} className="text-sm text-ink-2">
+        <legend className="float-left mb-2 w-full p-0 text-base font-semibold text-ink">Or use a dependency file</legend>
+        <p id={ids.pasteHint} className="clear-both text-sm text-ink-2">
           Debrief maps package names to tools. Supports go.mod, package.json, requirements.txt and Helm Chart.yaml.
           Nothing is stored.
         </p>
@@ -223,18 +223,27 @@ export function StackInput({ tools, onRetryTools, talks, onRetryTalks, initial, 
             <label htmlFor={ids.fileType} className="text-sm font-medium text-ink">
               File type
             </label>
-            <select
-              id={ids.fileType}
-              value={fileName}
-              onChange={(e) => setFileName(e.target.value)}
-              className={fieldClass}
-            >
-              {DEPENDENCY_FILE_TYPES.map((name) => (
-                <option key={name} value={name}>
-                  {name}
-                </option>
-              ))}
-            </select>
+            <div className="relative">
+              <select
+                id={ids.fileType}
+                value={fileName}
+                onChange={(e) => setFileName(e.target.value)}
+                className={`${fieldClass} appearance-none pr-10`}
+              >
+                {DEPENDENCY_FILE_TYPES.map((name) => (
+                  <option key={name} value={name}>
+                    {name}
+                  </option>
+                ))}
+              </select>
+              <svg
+                aria-hidden="true"
+                viewBox="0 0 20 20"
+                className="pointer-events-none absolute top-1/2 right-3 mt-0.5 size-4 -translate-y-1/2 text-ink-2"
+              >
+                <path d="M5 7.5 10 12.5 15 7.5" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round" />
+              </svg>
+            </div>
           </div>
         </div>
         <label htmlFor={ids.paste} className="mt-3 block text-sm font-medium text-ink">
@@ -247,7 +256,7 @@ export function StackInput({ tools, onRetryTools, talks, onRetryTalks, initial, 
           spellCheck={false}
           value={fileContent}
           onChange={(e) => setFileContent(e.target.value)}
-          placeholder={'require (\n\tgithub.com/argoproj/argo-cd/v2 v2.13.1\n)'}
+          placeholder={'Paste your go.mod, package.json, requirements.txt or Chart.yaml. For example:\nrequire (\n\tgithub.com/argoproj/argo-cd/v2 v2.13.1\n)'}
           className={`${fieldClass} font-mono text-sm`}
         />
         <div className="mt-3 flex flex-wrap items-center gap-3">
@@ -286,7 +295,7 @@ export function StackInput({ tools, onRetryTools, talks, onRetryTalks, initial, 
           aria-describedby={ids.painHint}
           value={pain}
           onChange={(e) => setPain(e.target.value)}
-          placeholder="Our Argo CD syncs are slow"
+          placeholder="e.g. our Argo CD syncs are slow"
           className={fieldClass}
         />
       </div>
